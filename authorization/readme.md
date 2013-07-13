@@ -41,7 +41,7 @@ function json_logoff() {
 
 framework.on('load', function() {
 
-	var auth = self.modules('authorization');
+	var auth = self.module('authorization');
 
 	auth.onAuthorization = function(id, callback) {
 
