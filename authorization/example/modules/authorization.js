@@ -31,7 +31,7 @@ Users.prototype._onAuthorization = function(req, res, flags, callback) {
 	var self = this;
 	var framework = self.framework;
 	var options = self.options;
-	var cookie = req.cookie(options.cookie);
+	var cookie = req.cookie(options.cookie) || '';
 
 	if (cookie === '' || cookie.length < 10) {
 		callback(false);
