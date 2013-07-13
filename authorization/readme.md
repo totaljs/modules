@@ -1,5 +1,6 @@
 # Authorization module
 
+> partial.js version +v1.2.4-4
 > Copy authorization.js to /your-partialjs-website/modules/
 
 ```javascript
