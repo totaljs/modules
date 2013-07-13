@@ -14,7 +14,7 @@ function Users() {
 
 Users.prototype.usage = function() {
 	var self = this;
-	return 'online: ' + self.online + ' ' + self.online.pluralize('users', 'user', 'users');
+	return 'Online users: ' + self.online + ' ' + self.online.pluralize('users', 'user', 'users');
 };
 
 Users.prototype = new events.EventEmitter;
@@ -22,7 +22,7 @@ Users.prototype = new events.EventEmitter;
 /*
 	Authorize user
 	@id {Number}
-	@callback {Function} :: must return user Object or NULL
+	@callback {Function} :: callback must have an object or null value as parameter
 */
 Users.prototype.onAuthorization = null;
 
