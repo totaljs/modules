@@ -1,4 +1,1 @@
-partial.js-modules
-==================
-
-Modules for partial.js web applications
+# partial.js modules
