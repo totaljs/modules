@@ -16,8 +16,8 @@ function json_login() {
     // create cookie
     // save to session
 	// @controller {Controller}
-	// @id {Number}
-	// @user {String}
+	// @id {String}
+	// @user {Object}
 	auth.login(self, user.id, user);
 
 	self.json({ r: true });
