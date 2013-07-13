@@ -1,4 +1,6 @@
-Copy authorization.js to /your-partialjs-website/modules/
+# Authorization module
+
+> Copy authorization.js to /your-partialjs-website/modules/
 
 ```javascript
 
