@@ -6,25 +6,6 @@ exports.install = function(framework) {
     
     framework.route('/login/', json_login, ['unlogged', 'xhr', 'post']);
     framework.route('/logoff/', json_logoff, ['logged']);
-
-    framework.on('loaded', function() {
-        
-        var self = this;
-        var auth = self.module('authorization');
-
-        auth.onAuthorization = function(id, callback) {
-
-            // this is cached
-            // read user information from database
-            // into callback insert the user object (this object is saved to session/cache)
-            // this is an example
-            callback({ id: '1', alias: 'Peter Sirka' });
-
-            // if user not exist then
-            // callback(null);
-        };
-
-    });
 };
 
 // Homepage & login form
@@ -38,7 +19,9 @@ function view_homepage() {
 // GET, [logged]
 function view_profile() {
     var self = this;
-    self.json(self.session);
+    self.json(self.user);
+
+    // in a view @{user.alias}    
 }
 
 // Framework usage
@@ -70,7 +53,7 @@ function json_login() {
 function json_logoff() {
     var self = this;
     var auth = self.module('authorization');
-    var user = self.session;
+    var user = self.user;
 
     // remove cookie
     // remove user session

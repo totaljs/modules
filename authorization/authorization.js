@@ -1,9 +1,9 @@
 // Copyright Peter Širka, Web Site Design s.r.o. (www.petersirka.sk)
 // Version 1.01
 
-var events 		 = require('events');
-var SUGAR        = 'ABCD1234';
-var USERAGENT    = 20;
+var events = require('events');
+var SUGAR = 'ABCD1234';
+var USERAGENT = 20;
 
 // expireCookie in days
 // expireSession in minutes
