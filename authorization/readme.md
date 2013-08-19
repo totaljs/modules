@@ -2,6 +2,7 @@
 
 - partial.js version +v1.2.4-4
 - copy **authorization.js** to __/your-partialjs-website/modules/__
+- [EXAMPLE](https://github.com/petersirka/partial.js-modules/tree/master/authorization/example)
 
 ## Functions and Events
 

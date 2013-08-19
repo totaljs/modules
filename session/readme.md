@@ -2,6 +2,7 @@
 
 - partial.js version +v1.2.4-7
 - copy **session.js** to __/your-partialjs-website/modules/__
+- [EXAMPLE](- [EXAMPLE](https://github.com/petersirka/partial.js-modules/tree/master/session/example))
 
 ## Functions and Events
 
