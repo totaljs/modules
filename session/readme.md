@@ -12,7 +12,7 @@ var session = framework.module('session');
 /*
 	Load delegate
 	@id {String}
-	@fnCallback {Function} :: fnCallback(obj);
+	@fnCallback {Function} :: fnCallback(obj) :: @obj {Object}
 */
 session.onRead = function(id, fnCallback) {
 
@@ -23,6 +23,11 @@ session.onRead = function(id, fnCallback) {
 	
 };
 
+/*
+	Save delegate
+	@id {String}
+	@value {Object}
+*/
 session.onWrite = function(id, value) {
 
 	// write session value to DB
