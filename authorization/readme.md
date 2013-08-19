@@ -7,7 +7,7 @@
 
 ```javascript
 
-var auth = self.module('authorization');
+var auth = framework.module('authorization');
 
 /*
 	Login an user

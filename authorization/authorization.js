@@ -1,5 +1,5 @@
 // Copyright Peter Širka, Web Site Design s.r.o. (www.petersirka.sk)
-// Version 1.01
+// Version 1.02
 
 var events = require('events');
 var SUGAR = 'ABCD1234';
