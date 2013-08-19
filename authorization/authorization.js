@@ -5,12 +5,15 @@ var events 		 = require('events');
 var SUGAR        = 'ABCD1234';
 var USERAGENT    = 20;
 
+// expireCookie in days
+// expireSession in minutes
+
 function Users() {
 	this.options = { cookie: '__user', secret: 'AbcUASOU389ASDadsl', expireSession: 10, expireCookie: 10 };
 	this.framework = null;
 	this.online = 0;
 	this.users = {};
-};
+}
 
 Users.prototype.usage = function() {
 	var self = this;
@@ -22,7 +25,7 @@ Users.prototype = new events.EventEmitter;
 /*
 	Authorize user
 	@id {Number}
-	@callback {Function} :: callback must have an object or null value as parameter
+	@callback {Function} :: callback must have as parameter an object or null value
 */
 Users.prototype.onAuthorization = null;
 
@@ -56,7 +59,7 @@ Users.prototype._onAuthorization = function(req, res, flags, callback) {
 
 	if (user) {
 		user.expire = new Date().add('m', self.options.expireSession);
-		req.session = user.user;
+		req.user = user.user;
 		callback(true);
 		return;
 	}
@@ -64,7 +67,7 @@ Users.prototype._onAuthorization = function(req, res, flags, callback) {
 	self.onAuthorization(id, function(user) {
 
 		if (user) {
-			req.session = user;
+			req.user = user;
 			self.users[id] = { user: user, expire: new Date().add('m', self.options.expireSession) };
 			self.emit('login', id, user);
 			callback(true);
@@ -77,7 +80,7 @@ Users.prototype._onAuthorization = function(req, res, flags, callback) {
 };
 
 /*
-	Login user
+	Login an user
 	@controller {Controller}
 	@id {Number}
 	@user {Object}
@@ -102,7 +105,7 @@ Users.prototype.login = function(controller, id, user, expire) {
 };
 
 /*
-	Logoff user
+	Logoff an user
 	@controller {Controller}
 	@id {Number}
 	return {Users}
@@ -124,12 +127,12 @@ Users.prototype.logoff = function(controller, id) {
 };
 
 /*
-	Change user
+	Change an user
 	@id {Number}
-	@user {Object}
+	@newUser {Object}
 	return {Users}
 */
-Users.prototype.change = function(id, user) {
+Users.prototype.change = function(id, newUser) {
 
 	id = id.toString();
 
@@ -139,8 +142,8 @@ Users.prototype.change = function(id, user) {
 	if (typeof(old) === 'undefined' || old === null)
 		return self;
 
-	self.users[id] = user;
-	self.emit('change', id, user, old || null);
+	self.users[id] = newUser;
+	self.emit('change', id, newUsers, old || null);
 	return self;
 };
 
