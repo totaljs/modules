@@ -103,7 +103,7 @@ module.exports.install = function(framework) {
 
 	self.framework = framework;
 
-	self.framework.on('close', function(req, res) {
+	self.framework.on('request-end', function(req, res) {
 		var self = this;
 		self.module('session')._write(req._sessionId, req.session);
 	});
