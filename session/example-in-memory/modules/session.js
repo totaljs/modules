@@ -7,7 +7,7 @@ var USERAGENT = 15;
 
 function Session() {
 
-	this.options = { cookie: '__session', secret: 'Njas1984' };
+	this.options = { cookie: '__ssid', secret: 'Njas1984' };
 
 	/*
 		Read session
@@ -42,7 +42,7 @@ Session.prototype._read = function(res, req, next, controller) {
 		return self;
 	}
 
-	if ('session_' + obj.signature !== self._signature(obj.id, req)) {
+	if ('ssid_' + obj.signature !== self._signature(obj.id, req)) {
 		self._create(res, req, next, controller);
 		return self;
 	}
