@@ -2,13 +2,12 @@
 // Version 1.01
 
 var events = require('events');
-var SUGAR = 'A12B';
-var USERAGENT = 15;
+var SUGAR = 'XY1';
+var USERAGENT = 11;
 
 function Session() {
 
-	this.options = { cookie: '__ssid', secret: 'Njas1984' };
-	this.framework = null;
+	this.options = { cookie: '__ssid', secret: 'N84' };
 
 	/*
 		Read session
@@ -43,7 +42,7 @@ Session.prototype._read = function(res, req, next, controller) {
 		return self;
 	}
 
-	if ('ssid_' + obj.signature !== self._signature(obj.id, req)) {
+	if ('ssid_' + obj.sign !== self._signature(obj.id, req)) {
 		self._create(res, req, next, controller);
 		return self;
 	}
@@ -62,14 +61,14 @@ Session.prototype._read = function(res, req, next, controller) {
 };
 
 Session.prototype._signature = function(id, req) {
-	return id + '|' + req.ip + '|' + req.headers['user-agent'].substring(0, USERAGENT).replace(/\s/g, '');
+	return id + '|' + req.ip.replace(/\./g, '') + '|' + req.headers['user-agent'].substring(0, USERAGENT).replace(/\s|\./g, '');
 };
 
 Session.prototype._create = function(res, req, next) {
 
 	var self = this;
 	var id = utils.GUID(10);
-	var obj = { id: 'ssid_' + id, signature: self._signature(id, req) };
+	var obj = { id: 'ssid_' + id, sign: self._signature(id, req) };
 	var json = self.framework.encode(obj, self.options.secret);
 
 	req._sessionId = obj.id;
