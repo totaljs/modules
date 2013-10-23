@@ -7,3 +7,7 @@
 ## Session
 
 - https://github.com/petersirka/partial.js-modules/tree/master/session
+
+## Login with Facebook
+
+- https://github.com/petersirka/partial.js-modules/tree/master/facebook

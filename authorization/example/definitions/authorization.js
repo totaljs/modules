@@ -1,4 +1,4 @@
-framework.on('load', function() {
+framework.once('load', function() {
     
     var self = this;
     var auth = self.module('authorization');

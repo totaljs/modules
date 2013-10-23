@@ -1,4 +1,5 @@
-// Copyright Peter Širka, Web Site Design s.r.o. (www.petersirka.sk)
+// MIT License
+// Copyright Peter Širka (www.petersirka.sk)
 // Version 1.01
 
 var events = require('events');

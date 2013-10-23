@@ -1,5 +1,5 @@
 
-framework.on('load', function() {
+framework.once('load', function() {
 
     var self = this;
     var session = self.module('session');

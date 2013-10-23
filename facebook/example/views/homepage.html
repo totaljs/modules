@@ -1,0 +1,34 @@
+@{layout('')}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Authorization module</title>
+    <meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=10" />
+	<meta name="format-detection" content="telephone=no"/>
+	<meta name="viewport" content="width=1024, user-scalable=yes" />
+	<meta name="robots" content="all,follow" />
+	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<style type="text/css">
+		body { padding: 50px; margin: 0; font:normal 12px Arial; color: gray }
+		#error { display: none; background-color: black; color: white; margin: 20px 0 0 0; }
+		#error > div { border-bottom: 1px solid gray; padding: 3px 5px; }
+	</style>
+</head>
+<body>
+
+
+	<div><a href="/login/facebook/">@{image('button.png', 154, 22, 'Login with Facebook')}</a></div>
+	<br />
+	<h2>How to set Facebook account?</h2>
+	<ul>
+		<li>Facebook doesn't support login on the localhost, we must create a tunnel.</li>
+		<li>Visit <a href="http://localtunnel.com">localtunnel.com</a> and install this utility.</li>
+		<li>Run this utility via Terminal and an URL address must be added in AppDomain and Site URL.</li>
+
+	</ul>
+	<div>@{image('fb.png')}</div>
+
+</body>
+</html>
