@@ -11,3 +11,7 @@
 ## Login with Facebook
 
 - https://github.com/petersirka/partial.js-modules/tree/master/facebook
+
+## Less CSS
+
+- https://github.com/petersirka/partial.js-modules/tree/master/less
