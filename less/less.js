@@ -9,8 +9,15 @@ exports.install = function(framework) {
 
 	var accept = framework.config['static-accepts'];
 
-	if (accept.indexOf('less') === -1)
-		accept.push('less');
+	if (accept.indexOf('.less') === -1)
+		accept.push('.less');
+
+	framework.helpers.less = function(name, tag) {
+		var self = this;
+		var url = self.framework._routeStatic(name, self.config['static-url-css']);
+		return (tag || true) ? '<link type="text/css" rel="stylesheet" href="' + url + '" />' : url;
+	};
+
 };
 
 function less_compiler(req, res) {
@@ -18,9 +25,10 @@ function less_compiler(req, res) {
 	// this === framework
 	var self = this;
 
+
 	// create temporary filename
 	// we'll compile file
-	var filename = self.path.temp(req.url.replace(/\//g, '-')).substring(1);
+	var filename = self.path.temp(req.url.replace(/\//g, '-').substring(1));
 
 	// Cache for RELEASE MODE ONLY
 	if (framework.isProcessed(filename)) {
