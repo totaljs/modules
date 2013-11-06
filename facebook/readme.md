@@ -23,7 +23,7 @@ facebook.redirect(key, url);
 
 
 /*
-	Get URL to login
+	Get user profile
 	@key {String} :: facebook key
 	@secret {String} :: facebook secret
 	@code {String} :: code parameter (from URL address - Facebook return this parameter)
@@ -33,5 +33,6 @@ facebook.redirect(key, url);
 */
 facebook.profile(key, secret, code, url, callback);
 
-// EXAMPLE: controller.redirect('key', 'secret', controller.get.code, controller.host('/login/facebook/'), function(err, user) {});
+// EXAMPLE:
+// controller.profile('key', 'secret', controller.get.code, controller.host('/login/facebook/'), function(err, user) {});
 ```
