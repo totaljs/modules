@@ -1,0 +1,7 @@
+title = "Things"
+
+h1= title
+
+ul#users
+  each user, name in users
+    li(class='user-' + name) #{name} #{user.email}
