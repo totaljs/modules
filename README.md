@@ -15,3 +15,7 @@
 ## Less CSS
 
 - https://github.com/petersirka/partial.js-modules/tree/master/less
+
+## Jade view engine
+
+- https://github.com/petersirka/partial.js-modules/tree/master/jade
