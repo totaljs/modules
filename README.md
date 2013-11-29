@@ -28,3 +28,7 @@
 ## Markdown parser
 
 - https://github.com/petersirka/partial.js-modules/tree/master/markdown
+
+## Fulltext search engine
+
+- https://github.com/petersirka/partial.js-modules/tree/master/fulltext

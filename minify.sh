@@ -27,3 +27,7 @@ node minify.js session/session.js
 ECHO "....... storage.js"
 uglifyjs storage/storage-debug.js -o storage/storage.js
 node minify.js storage/storage.js
+
+ECHO "....... fulltext.js"
+uglifyjs fulltext/fulltext-debug.js -o fulltext/fulltext.js
+node minify.js fulltext/fulltext.js
