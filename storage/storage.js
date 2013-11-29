@@ -4,7 +4,7 @@ function Storage() {
 	this.repositoryTimeout = null;
 };
 
-Storage.prototype.onStorageLoad = function() {
+Storage.prototype.onLoad = function() {
 	var self = this;
 	fs.readFile(self.framework.path.root('storage'), function(err, data) {
 		if (err)
@@ -16,7 +16,7 @@ Storage.prototype.onStorageLoad = function() {
 	});
 };
 
-Storage.prototype.onStorageSave = function() {
+Storage.prototype.onSave = function() {
 	var self = this;
 	fs.writeFile(self.framework.path.root('storage'), JSON.stringify(self.repository), utils.noop);
 };
@@ -49,7 +49,7 @@ Storage.prototype.clear = function() {
 Storage.prototype.refresh = function() {
 	var self = this;
 	clearTimeout(self.repositoryTimeout);
-	self.onStorageLoad();
+	self.onLoad();
 	return self;
 };
 
@@ -57,7 +57,7 @@ Storage.prototype._save = function() {
 	var self = this;
 	clearTimeout(self.repositoryTimeout);
 	self.repositoryTimeout = setTimeout(function() {
-		self.onStorageSave();
+		self.onSave();
 		if (typeof(process.send) === FUNCTION) {
 			setTimeout(function() {
 				process.send('storage');

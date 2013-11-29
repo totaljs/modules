@@ -5,7 +5,7 @@ exports.install = function(framework) {
 	// THE PROBLEM:
 	// LESS CSS does not support synchronous compiler
 	// We must create a file route
-	framework.file('LESS CSS', function(req) { return req.url.indexOf('.css') !== -1 || req.url.indexOf('.less') !== -1; }, less_compiler);
+	framework.file('LESS CSS', less_compiler);
 
 	var accept = framework.config['static-accepts'];
 
@@ -20,11 +20,13 @@ exports.install = function(framework) {
 
 };
 
-function less_compiler(req, res) {
+function less_compiler(req, res, isValidation) {
+
+	if (isValidation)
+		return req.url.indexOf('.css') !== -1 || req.url.indexOf('.less') !== -1;
 
 	// this === framework
 	var self = this;
-
 
 	// create temporary filename
 	// we'll compile file
