@@ -12,10 +12,18 @@
 
 - https://github.com/petersirka/partial.js-modules/tree/master/facebook
 
-## Less CSS
+## Less CSS (www.lesscss.org)
 
 - https://github.com/petersirka/partial.js-modules/tree/master/less
 
 ## Jade view engine
 
 - https://github.com/petersirka/partial.js-modules/tree/master/jade
+
+## Storage
+
+- https://github.com/petersirka/partial.js-modules/tree/master/storage
+
+## Markdown render
+
+- https://github.com/petersirka/partial.js-modules/tree/master/markdown
