@@ -25,6 +25,6 @@
 
 - https://github.com/petersirka/partial.js-modules/tree/master/storage
 
-## Markdown render
+## Markdown parser
 
 - https://github.com/petersirka/partial.js-modules/tree/master/markdown
