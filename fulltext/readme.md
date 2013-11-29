@@ -12,9 +12,9 @@ $ npm install fulltext
 Live storage stores data into the file. If you restart an app this data will be loaded automatically to the original state.
 
 ```js
-var fulltext = framework.fulltext('database-name');
+var fulltext = framework.fulltext('blogs');
 
 // or
 
-var fulltext = controller.fulltext('database-name');
+var fulltext = controller.fulltext('blogs');
 ```
