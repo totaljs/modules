@@ -9,15 +9,11 @@ var definition = (function() {
 			return framework.databases[key];
 
 		var dir_db = framework.path.databases();
-		var dir_doc = framework.path.databases(key);
 
 		if (!fs.existsSync(dir_db))
 			fs.mkdirSync(dir_db);
 
-		if (!fs.existsSync(dir_doc))
-			fs.mkdirSync(dir_doc);
-
-		framework.databases[key] = require('fulltext').load(name, dir_db, dir_doc);
+		framework.databases[key] = require('fulltext').load(name, dir_db);
 		return framework.databases[key];
 	};
 
