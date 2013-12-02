@@ -14,7 +14,7 @@ var facebook = controller.module('facebook');
 /*
 	Get URL to login
 	@key {String} :: facebook key
-	@url {String} :: redirect after Facebook authorization
+	@url {String} :: redirect after is authorized
 	return {String}
 */
 facebook.redirect(key, url);
@@ -27,7 +27,7 @@ facebook.redirect(key, url);
 	@key {String} :: facebook key
 	@secret {String} :: facebook secret
 	@code {String} :: code parameter (from URL address - Facebook return this parameter)
-	@url {String} :: redirect after Facebook authorization
+	@url {String} :: redirect after is authorized (same URL as facebook.redirect())
 	@callback {Function} :: function(err, user) {}
 	return {String}
 */
