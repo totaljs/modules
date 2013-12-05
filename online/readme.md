@@ -82,12 +82,34 @@ today.desktop;    // desktops per day (unique)
 
 ### online.xhr
 
-> Allow XHR requests. Default: __true__.
+> Allow XHR requests for stats. Default: __true__.
 
 ```js
 var online = framework.module('online');
 
 online.xhr = false;
+```
+
+### online.social
+
+> Names of social networks for stats.
+
+```js
+var online = framework.module('online');
+
+// default: ['plus.google', 'twitter', 'facebook', 'linkedin', 'tumblr', 'flickr', 'instagram']
+online.social.push('stackoverflow');
+```
+
+### online.search
+
+> Names of search engine for stats.
+
+```js
+var online = framework.module('online');
+
+// default: ['google', 'bing', 'yahoo']
+online.search.push('seznam');
 ```
 
 ## Methods
