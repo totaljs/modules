@@ -7,6 +7,45 @@
 - module is resists at the restart app
 - __IMPORTANT:__ this module do not work with the cluster
 
+## Using
+
+```js
+var online = framework.module('online');
+
+// or
+
+var online = controller.module('online');
+```
+
+## What are statistics from the module?
+
+```js
+var online = framework.module('online');
+
+online.on('change', function(count) {
+    console.log('online:', count);
+});
+
+// or
+
+console.log(online.online);
+
+// EXAMPLE:
+online.daily(function(arr) {
+    arr.forEach(function(stats) {
+        stats.hits;       // page hits per day (impressions)
+        stats.unique;     // unique users per day
+        stats.count;      // users count per day
+        stats.search;     // search traffic (according the referer header or utm_medium param) per day
+        stats.social;     // social network traffic (according the referer header or utm_medium param) per day
+        stats.direct;     // direct traffic per day
+        stats.unknown;    // other traffic per day
+        stats.mobile;     // mobile devices per day (unique)
+        stats.desktop;    // desktops per day (unique)
+    });
+});
+```
+
 ## Properties
 
 ### online.online
