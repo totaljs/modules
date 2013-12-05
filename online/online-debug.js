@@ -18,8 +18,10 @@ function Online() {
 	this.last = 0;
 	this.social = ['plus.google', 'twitter', 'facebook', 'linkedin', 'tumblr', 'flickr', 'instagram'];
 	this.search = ['google', 'bing', 'yahoo'];
+	this.ip = [];
 
-	this.xhr = true;
+	this.allowXHR = true;
+	this.allowIP = true;
 
 	this.onValid = function(req) { return true; };
 
@@ -88,7 +90,11 @@ Online.prototype.clean = function() {
 	if (tmp0 !== arr[0] || tmp1 !== arr[1]) {
 		var online = arr[0] + arr[1];
 		if (online != self.last) {
-			self.emit('change', online);
+
+			if (self.allowIP)
+				self.ip = self.ip.slice(tmp0);
+
+			self.emit('change', online, self.ip);
 			self.last = online;
 		}
 	}
@@ -104,7 +110,7 @@ Online.prototype.add = function(req, res) {
 	if (!self.onValid(req))
 		return self;
 
-	if (req.xhr && !self.xhr)
+	if (req.xhr && !self.allowXHR)
 		return self;
 
 	var arr = self.arr;
@@ -124,13 +130,13 @@ Online.prototype.add = function(req, res) {
 
 	if (user > 0) {
 		var date = new Date(user);
-		if (date.day !== now.day || date.month !== now.month || date.year !== now.year)
+		if (date.getDate() !== now.getDate() || date.getMonth() !== now.getMonth() || date.getFullYear() !== now.getFullYear())
 			isUnique = true;
 	} else
 		isUnique = true;
 
 	if (user > 0) {
-		sum = (self.current - user) / 1000;
+		sum = Math.abs(self.current - user) / 1000;
 		if (sum < 40)
 			return;
 	}
@@ -145,7 +151,10 @@ Online.prototype.add = function(req, res) {
 	}
 
 	arr[1]++;
-	res.cookie(COOKIE, ticks, new Date().add('d', 5));
+	res.cookie(COOKIE, ticks, now.add('d', 5));
+
+	if (self.allowIP)
+		self.ip.push(req.ip);
 
 	var online = self.online;
 
@@ -153,7 +162,11 @@ Online.prototype.add = function(req, res) {
 
 	if (self.last !== online) {
 		self.last = online;
-		self.emit('change', online);
+		
+		if (self.allowIP)
+			self.ip = self.ip.slice(Math.abs(self.last - online));
+
+		self.emit('change', online, self.ip);
 	}
 
 	stats.count++;

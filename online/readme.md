@@ -1,7 +1,10 @@
 # Online counter
 
+> partial.js analytic tool :-) for counting of visitors without using of client-side script and registration.
+
 - __partial.js version +v1.3.0__
 - copy **online.js** to __/your-partialjs-website/modules/__
+- the module counts requests into the controller
 - this module counts online users (according the cookies)
 - reads statistics for the period (daily, monthly, yearly)
 - easy use in views
@@ -82,14 +85,34 @@ today.mobile;     // mobile devices per day (unique)
 today.desktop;    // desktops per day (unique)
 ```
 
-### online.xhr
+### online.allowXHR
 
 > Allow XHR requests for stats. Default: __true__.
 
 ```js
 var online = framework.module('online');
 
-online.xhr = false;
+online.allowXHR = false;
+```
+
+### online.allowIP
+
+> Allow IP storing for GEO IP. Default: __true__.
+
+```js
+var online = framework.module('online');
+
+online.allowIP = false;
+```
+
+### online.ip
+
+> Online IP collections.
+
+```js
+var online = framework.module('online');
+
+console.log(online.ip);
 ```
 
 ### online.social
@@ -194,7 +217,8 @@ online.on('online', function(req) {
 > Online count is changed.
 
 ```js
-online.on('change', function(count) {
-
+online.on('change', function(count, ip) {
+	// count === online visitors
+	// ip    === online IP collections (if allowIP is true)
 });
 ```
