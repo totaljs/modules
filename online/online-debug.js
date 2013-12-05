@@ -143,7 +143,7 @@ Online.prototype.add = function(req, res) {
 
 	if (isUnique) {
 		stats.unique++;
-		var agent = req['user-agent'] || '';
+		var agent = req.headers['user-agent'] || '';	
 		if (agent.match(REG_MOBILE) === null)
 			stats.desktop++;
 		else
