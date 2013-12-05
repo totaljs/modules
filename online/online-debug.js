@@ -184,7 +184,7 @@ Online.prototype.add = function(req, res) {
 	var type = 0;
 
 	for (var i = 0; i < length; i++) {
-		if (referer.indexOf(self.social[i]) === -1) {
+		if (referer.indexOf(self.social[i]) !== -1) {
 			type = 1;
 			break;
 		}
@@ -192,7 +192,7 @@ Online.prototype.add = function(req, res) {
 
 	if (type === 0) {
 		for (var i = 0; i < length; i++) {
-			if (referer.indexOf(self.search[i]) === -1) {
+			if (referer.indexOf(self.search[i]) !== -1) {
 				type = 2;
 				break;
 			}
