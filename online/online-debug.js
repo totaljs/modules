@@ -422,3 +422,24 @@ framework.on('controller', function(controller, name) {
 framework.helpers.online = 0;
 
 module.exports = online;
+
+module.exports.usage = function() {
+	var builder = [];
+	builder.push('Online           : ' + online.online);
+	builder.push('Hits             : ' + online.stats.hits);
+	builder.push('Unique           : ' + online.stats.unique);
+	builder.push('Count            : ' + online.stats.count);
+	builder.push('');
+	builder.push('Acquisition:');
+	builder.push('');
+	builder.push('Search           : ' + online.stats.search);
+	builder.push('Direct           : ' + online.stats.direct);
+	builder.push('Social           : ' + online.stats.social);
+	builder.push('Unknown          : ' + online.stats.unknown);
+	builder.push('');
+	builder.push('Devices:');
+	builder.push('');
+	builder.push('Mobile           : ' + online.stats.mobile);
+	builder.push('Desktop          : ' + online.stats.desktop);	
+	return builder.join('\n');
+}

@@ -5,6 +5,7 @@
 - install [FileStorage](https://github.com/petersirka/node-filestorage)
 - [filestorage documentation](https://github.com/petersirka/node-filestorage)
 - all files will stored in __/your-partialjs-website/filestorage/__ directory
+- __IMPORTANT:__ this module does not work with the cluster
 
 ```
 $ npm install filestorage

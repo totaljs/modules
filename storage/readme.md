@@ -2,6 +2,7 @@
 
 - __partial.js version +v1.3.0__
 - copy **storage.js** to __/your-partialjs-website/modules/__
+- __IMPORTANT:__ this module does not work with the cluster
 
 Live storage stores data into the file. If you restart an app this data will be loaded automatically to the original state.
 

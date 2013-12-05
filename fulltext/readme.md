@@ -5,6 +5,7 @@
 - install [fulltext module from NPM](https://github.com/petersirka/node-fulltext)
 - [fulltext engine documentation](https://github.com/petersirka/node-fulltext)
 - all files will stored in database directory
+- __IMPORTANT:__ this module does not work with the cluster
 
 ```
 $ npm install fulltext
