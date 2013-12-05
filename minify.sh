@@ -35,3 +35,7 @@ node minify.js fulltext/fulltext.js
 ECHO "....... filestorage.js"
 uglifyjs filestorage/filestorage-debug.js -o filestorage/filestorage.js
 node minify.js filestorage/filestorage.js
+
+ECHO "....... online.js"
+uglifyjs online/online-debug.js -o online/online.js
+node minify.js online/online.js

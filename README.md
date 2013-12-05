@@ -36,3 +36,7 @@
 ## FileStorage
 
 - https://github.com/petersirka/partial.js-modules/tree/master/filestorage
+
+## Online
+
+- https://github.com/petersirka/partial.js-modules/tree/master/online
