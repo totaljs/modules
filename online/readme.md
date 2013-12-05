@@ -11,7 +11,7 @@
 - module stores data into the database directory as plain text
 - module is resists at the restart app
 - __IMPORTANT:__ this module does not work with the cluster
-- [DEMO](http://www.partialjs.com/stats/) preview of stats only for Chrome, Firefox, Safari and Opera.
+- [DEMO on www.partialjs.com](http://www.partialjs.com/stats/) preview of stats only for Chrome, Firefox, Safari and Opera.
 
 ## Using
 
