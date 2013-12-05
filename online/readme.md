@@ -1,11 +1,11 @@
 # Online counter
 
 - this module counts online users (according the cookies)
-- read statistics for the period (daily, monthly, yearly)
+- reads statistics for the period (daily, monthly, yearly)
 - easy use in views
 - module stores data into the database directory as plain text
 - module is resists at the restart app
-- __IMPORTANT:__ this module do not work with the cluster
+- __IMPORTANT:__ this module does not work with the cluster
 
 ## Using
 
