@@ -140,6 +140,8 @@ online.yearly(function(stats) {
 
 ### online.onValid(req);
 
+> Validation of request. If return false then is request skipped.
+
 ```js
 var online = framework.module('online');
 
