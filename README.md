@@ -37,6 +37,6 @@
 
 - https://github.com/petersirka/partial.js-modules/tree/master/filestorage
 
-## Online
+## Online counter
 
 - https://github.com/petersirka/partial.js-modules/tree/master/online
