@@ -1,5 +1,7 @@
 # Online counter
 
+- __partial.js version +v1.3.0__
+- copy **online.js** to __/your-partialjs-website/modules/__
 - this module counts online users (according the cookies)
 - reads statistics for the period (daily, monthly, yearly)
 - easy use in views
