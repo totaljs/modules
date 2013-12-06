@@ -16,7 +16,7 @@ function Online() {
 	this.interval = 0;
 	this.current = 0;
 	this.last = 0;
-	this.social = ['plus.google', 'twitter', 'facebook', 'linkedin', 'tumblr', 'flickr', 'instagram'];
+	this.social = ['plus.url.google', 'plus.google', 'twitter', 'facebook', 'linkedin', 'tumblr', 'flickr', 'instagram'];
 	this.search = ['google', 'bing', 'yahoo'];
 	this.ip = [];
 
