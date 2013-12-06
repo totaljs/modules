@@ -6,6 +6,7 @@ var fs = require('fs');
 var events = require('events');
 var COOKIE = '__po';
 var REG_MOBILE = /Android|webOS|iPhone|iPad|iPod|BlackBerry|Windows.?Phone/i;
+var REG_ROBOT = /bot|crawler/i;
 
 // http://freegeoip.net/json/77.247.227.34
 
@@ -23,7 +24,14 @@ function Online() {
 	this.allowXHR = true;
 	this.allowIP = true;
 
-	this.onValid = function(req) { return true; };
+	this.onValid = function(req) {
+
+		var agent = req.headers['user-agent'] || '';
+		if (agent.length === 0)
+			return false;
+
+		return agent.match(REG_ROBOT) === null;
+	};
 
 	this.load();
 
