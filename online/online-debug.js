@@ -4,7 +4,7 @@
 
 var fs = require('fs');
 var events = require('events');
-var COOKIE = '__partialonline';
+var COOKIE = '__po';
 var REG_MOBILE = /Android|webOS|iPhone|iPad|iPod|BlackBerry|Windows.?Phone/i;
 
 // http://freegeoip.net/json/77.247.227.34
