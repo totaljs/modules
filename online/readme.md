@@ -100,12 +100,22 @@ online.allowXHR = false;
 
 ### online.allowIP
 
-> Allow IP storing for GEO IP. Default: __true__.
+> Allow IP storing of online visitors for GEO IP. Default: __false__.
 
 ```js
 var online = framework.module('online');
 
 online.allowIP = false;
+```
+
+### online.allowURL
+
+> Allow URL storing of online visitors. Default: __false__.
+
+```js
+var online = framework.module('online');
+
+online.allowURL = false;
 ```
 
 ### online.ip
@@ -117,6 +127,13 @@ var online = framework.module('online');
 
 console.log(online.ip);
 ```
+
+> Online URL collections.
+
+```js
+var online = framework.module('online');
+
+console.log(online.url);
 
 ### online.social
 
@@ -232,8 +249,9 @@ online.on('online', function(req) {
 > Online count is changed.
 
 ```js
-online.on('change', function(count, ip) {
+online.on('change', function(count, ip, url) {
 	// count === online visitors
-	// ip    === online IP collections (if allowIP is true)
+	// ip    === online IP collections (if allowIP is true (default: false))
+	// url   === online URL collections (if allowURL is true (default: false))
 });
 ```

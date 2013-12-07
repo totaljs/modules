@@ -20,9 +20,11 @@ function Online() {
 	this.social = ['plus.url.google', 'plus.google', 'twitter', 'facebook', 'linkedin', 'tumblr', 'flickr', 'instagram'];
 	this.search = ['google', 'bing', 'yahoo'];
 	this.ip = [];
+	this.url = [];
 
 	this.allowXHR = true;
-	this.allowIP = true;
+	this.allowIP = false;
+	this.allowURL = false;
 
 	this.onValid = function(req) {
 
@@ -106,6 +108,9 @@ Online.prototype.clean = function() {
 			if (self.allowIP)
 				self.ip = self.ip.slice(tmp0);
 
+			if (self.allowURL)
+				self.url = self.url.slice(tmp0);
+
 			self.emit('change', online, self.ip);
 			self.last = online;
 		}
@@ -155,7 +160,7 @@ Online.prototype.add = function(req, res) {
 
 	if (isUnique) {
 		stats.unique++;
-		var agent = req.headers['user-agent'] || '';	
+		var agent = req.headers['user-agent'] || '';
 		if (agent.match(REG_MOBILE) === null)
 			stats.desktop++;
 		else
@@ -168,17 +173,20 @@ Online.prototype.add = function(req, res) {
 	if (self.allowIP)
 		self.ip.push(req.ip);
 
+	if (self.allowURL)
+		self.url.push(req.uri.href);
+
 	var online = self.online;
 
 	self.emit('online', req);
 
 	if (self.last !== online) {
 		self.last = online;
-		
+
 		if (self.allowIP)
 			self.ip = self.ip.slice(Math.abs(self.last - online));
 
-		self.emit('change', online, self.ip);
+		self.emit('change', online, self.ip, self.url);
 	}
 
 	stats.count++;
@@ -462,6 +470,6 @@ module.exports.usage = function() {
 	builder.push('Devices:');
 	builder.push('');
 	builder.push('Mobile           : ' + online.stats.mobile);
-	builder.push('Desktop          : ' + online.stats.desktop);	
+	builder.push('Desktop          : ' + online.stats.desktop);
 	return builder.join('\n');
 }
