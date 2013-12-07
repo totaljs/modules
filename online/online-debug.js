@@ -11,7 +11,7 @@ var REG_ROBOT = /bot|crawler/i;
 // http://freegeoip.net/json/77.247.227.34
 
 function Online() {
-	this.stats = { day: 0, month: 0, year: 0, hits: 0, unique: 0, count: 0, search: 0, direct: 0, social: 0, unknown: 0, mobile: 0, desktop: 0 };
+	this.stats = { day: 0, month: 0, year: 0, hits: 0, unique: 0, count: 0, search: 0, direct: 0, social: 0, unknown: 0, advert: 0, mobile: 0, desktop: 0 };
 	this.online = 0;
 	this.arr = [0, 0];
 	this.interval = 0;
@@ -31,6 +31,10 @@ function Online() {
 			return false;
 
 		return agent.match(REG_ROBOT) === null;
+	};
+
+	this.isAdvert = function(req) {
+		return false;
 	};
 
 	this.load();
@@ -191,10 +195,15 @@ Online.prototype.add = function(req, res) {
 	var length = self.social.length;
 	var type = 0;
 
-	for (var i = 0; i < length; i++) {
-		if (referer.indexOf(self.social[i]) !== -1) {
-			type = 1;
-			break;
+	if (self.isAdvert(req))
+		type = 3;
+
+	if (type === 0) {
+		for (var i = 0; i < length; i++) {
+			if (referer.indexOf(self.social[i]) !== -1) {
+				type = 1;
+				break;
+			}
 		}
 	}
 
@@ -216,6 +225,9 @@ Online.prototype.add = function(req, res) {
 			break;
 		case 2:
 			stats.search++;
+			break;
+		case 3:
+			stats.advert++;
 			break;
 	}
 
@@ -322,6 +334,7 @@ Online.prototype.monthly = function(callback) {
 					stats[key].unique += current.unique;
 					stats[key].mobile += current.mobile;
 					stats[key].desktop += current.desktop;
+					stats[key].advert += current.advert;
 				}
 			} catch (ex) {}
 		}
@@ -367,6 +380,7 @@ Online.prototype.yearly = function(callback) {
 					stats[key].unique += current.unique;
 					stats[key].mobile += current.mobile;
 					stats[key].desktop += current.desktop;
+					stats[key].advert += current.advert;
 				}
 			} catch (ex) {}
 		}
@@ -407,13 +421,13 @@ Online.prototype.statistics = function(callback) {
 
 function getReferer(url, def) {
 
+	if ((def || '').length > 0)
+		return def;
+
 	var host = url || '';
 
-	if (host.length === 0) {
-		if ((def || '').length > 0)
-			return def;
+	if (host.length === 0)
 		return null;
-	}
 
 	var index = host.indexOf('/') + 2;
 	host = host.substring(index, host.indexOf('/', index));

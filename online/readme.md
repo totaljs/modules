@@ -11,6 +11,7 @@
 - module stores data into the database directory as plain text
 - module is resists at the restart app
 - __IMPORTANT:__ this module does not work with the cluster
+- auto-read _utm_medium_ param
 - [__DEMO__ on www.partialjs.com](http://www.partialjs.com/stats/)
 
 ## Using
@@ -148,7 +149,7 @@ online.search.push('seznam');
 var online = framework.module('online');
 
 online.daily(function(stats) {
-	
+
 	// collection of stats
 	console.log(stats);
 
@@ -162,7 +163,7 @@ online.daily(function(stats) {
 
 ```js
 online.monthly(function(stats) {
-	
+
 	// object of stats
 	// Object.keys(stats);
 	console.log(stats);
@@ -176,7 +177,7 @@ online.monthly(function(stats) {
 
 ```js
 online.yearly(function(stats) {
-	
+
 	// object of stats
 	// Object.keys(stats);
 	console.log(stats);
@@ -188,7 +189,7 @@ online.yearly(function(stats) {
 
 ### online.onValid(req);
 
-> Validation of request. If return false then is request skipped.
+> Validation of request. If return false then is request skipped. This delegate must return Boolean.
 
 ```js
 var online = framework.module('online');
@@ -196,6 +197,18 @@ var online = framework.module('online');
 // default settings
 online.onValid = function(req) {
 	return true;
+};
+```
+
+### online.isAdvert(req);
+
+> Is click from an advert? This delegate must return Boolean.
+
+```js
+var online = framework.module('online');
+
+online.isAdvert = function(req) {
+	return req.data.get.adv === '1';
 };
 ```
 
@@ -209,7 +222,7 @@ online.onValid = function(req) {
 var online = framework.module('online');
 
 online.on('online', function(req) {
-	
+
 });
 ```
 
