@@ -12,6 +12,7 @@
 - module is resists at the restart app
 - __IMPORTANT:__ this module does not work with the cluster
 - auto-read _utm_medium_ param
+- robots (according the user-agent string) are skipped
 - [__DEMO__ on www.partialjs.com](http://www.partialjs.com/stats/)
 
 ## Using
