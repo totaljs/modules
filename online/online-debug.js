@@ -125,10 +125,10 @@ Online.prototype.add = function(req, res) {
 	var self = this;
 
 	if (!self.onValid(req))
-		return self;
+		return false;
 
 	if (req.xhr && !self.allowXHR)
-		return self;
+		return false;
 
 	var arr = self.arr;
 	var user = req.cookie(COOKIE).parseInt();
@@ -137,11 +137,14 @@ Online.prototype.add = function(req, res) {
 	var sum = user === 0 ? 1000 : (ticks - user) / 1000;
 	var exists = sum < 35;
 	var stats = self.stats;
+	var referer = req.headers['referer'] || '';
 
 	stats.hits++;
 
-	if (exists)
-		return;
+ 	if (exists) {
+ 		self.refreshURL(referer, req);
+		return true;
+	}
 
 	var isUnique = false;
 
@@ -154,8 +157,10 @@ Online.prototype.add = function(req, res) {
 
 	if (user > 0) {
 		sum = Math.abs(self.current - user) / 1000;
-		if (sum < 40)
-			return;
+		if (sum < 40) {
+			self.refreshURL(referer, req);
+			return true;
+		}
 	}
 
 	if (isUnique) {
@@ -193,11 +198,11 @@ Online.prototype.add = function(req, res) {
 
 	framework.helpers.online = online;
 
-	var referer = getReferer(req.headers['referer'], req.data.get['utm_medium']);
+	referer = getReferer(referer, req.data.get['utm_medium']);
 
 	if (referer === null) {
 		stats.direct++;
-		return self;
+		return true;
 	}
 
 	var length = self.social.length;
@@ -239,7 +244,7 @@ Online.prototype.add = function(req, res) {
 			break;
 	}
 
-	return self;
+	return true;
 };
 
 Online.prototype.save = function() {
@@ -427,12 +432,30 @@ Online.prototype.statistics = function(callback) {
 	return self;
 };
 
-function getReferer(url, def) {
+Online.prototype.refreshURL = function(referer, req) {
+
+	var self = this;
+
+	if (referer.length === 0)
+		return;
+
+	if (!self.allowURL)
+		return;
+
+	var length = self.url.length;
+
+	for (var i = 0; i < length; i++) {
+		if (self.url[i] === referer) {
+			self.url[i] = req.uri.href;
+			return;
+		}
+	}
+}
+
+function getReferer(host, def) {
 
 	if ((def || '').length > 0)
 		return def;
-
-	var host = url || '';
 
 	if (host.length === 0)
 		return null;
