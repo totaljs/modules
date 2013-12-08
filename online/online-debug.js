@@ -11,7 +11,7 @@ var REG_ROBOT = /bot|crawler/i;
 // http://freegeoip.net/json/77.247.227.34
 
 function Online() {
-	this.stats = { day: 0, month: 0, year: 0, hits: 0, unique: 0, count: 0, search: 0, direct: 0, social: 0, unknown: 0, advert: 0, mobile: 0, desktop: 0 };
+	this.stats = { day: 0, month: 0, year: 0, hits: 0, unique: 0, count: 0, search: 0, direct: 0, social: 0, unknown: 0, advert: 0, mobile: 0, desktop: 0, pages: 0 };
 	this.online = 0;
 	this.arr = [0, 0];
 	this.interval = 0;
@@ -41,8 +41,8 @@ function Online() {
 
 	this.load();
 
-	// every 60 seconds
-	setInterval(this.clean.bind(this), 1000 * 60);
+	// every 30 seconds
+	setInterval(this.clean.bind(this), 1000 * 30);
 }
 
 Online.prototype = {
@@ -51,7 +51,9 @@ Online.prototype = {
 		return arr[0] + arr[1];
 	},
 	get today() {
-		return utils.copy({ hits: 0, unique: 0, count: 0, search: 0, direct: 0, social: 0, unknown: 0, mobile: 0, desktop: 0 }, this.stats);
+		var stats = utils.copy({ hits: 0, unique: 0, count: 0, search: 0, direct: 0, social: 0, advert: 0, unknown: 0, mobile: 0, desktop: 0, pages: 0 }, this.stats);
+		stats.pages = (stats.pages / stats.count).floor(2);
+		return stats;
 	}
 };
 
@@ -135,13 +137,14 @@ Online.prototype.add = function(req, res) {
 	var now = new Date();
 	var ticks = now.getTime();
 	var sum = user === 0 ? 1000 : (ticks - user) / 1000;
-	var exists = sum < 65;
+	var exists = sum < 31;
 	var stats = self.stats;
 	var referer = req.headers['referer'] || '';
 
 	stats.hits++;
 
  	if (exists) {
+ 		stats.pages++;
  		self.refreshURL(referer, req);
 		return true;
 	}
@@ -151,7 +154,8 @@ Online.prototype.add = function(req, res) {
 	if (user > 0) {
 
 		sum = Math.abs(self.current - user) / 1000;
-		if (sum < 91) {
+		if (sum < 41) {
+			stats.pages++;
 			self.refreshURL(referer, req);
 			return true;
 		}
@@ -302,7 +306,9 @@ Online.prototype.daily = function(callback) {
 
 			try
 			{
-				output.push(JSON.parse(value));
+				var value = JSON.parse(value);
+				value.pages = (value.pages / value.count).floor(2);
+				output.push(value);
 			} catch (ex) {}
 		}
 
@@ -348,9 +354,16 @@ Online.prototype.monthly = function(callback) {
 					stats[key].mobile += current.mobile;
 					stats[key].desktop += current.desktop;
 					stats[key].advert += current.advert;
+					stats[key].pages += current.pages;
 				}
 			} catch (ex) {}
 		}
+
+		var keys = Object.keys(stats)
+		length = keys.length;
+
+		for (var i = 0; i < length; i++)
+			current.pages = (current.pages / current.count).floor(2);
 
 		callback(stats);
 	});
@@ -394,9 +407,16 @@ Online.prototype.yearly = function(callback) {
 					stats[key].mobile += current.mobile;
 					stats[key].desktop += current.desktop;
 					stats[key].advert += current.advert;
+					stats[key].pages += current.pages;
 				}
 			} catch (ex) {}
 		}
+
+		var keys = Object.keys(stats)
+		length = keys.length;
+
+		for (var i = 0; i < length; i++)
+			current.pages = (current.pages / current.count).floor(2);
 
 		callback(stats);
 	});
