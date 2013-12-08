@@ -38,7 +38,7 @@ function Online() {
 	};
 
 	this.isAdvert = function(req) {
-		return (req.headers['utm_medium'] || '').length > 0;
+		return (req.data.get['utm_medium'] || '').length > 0;
 	};
 
 	this.load();
@@ -500,6 +500,7 @@ module.exports = online;
 module.exports.usage = function() {
 	var builder = [];
 	builder.push('Online           : ' + online.online);
+	builder.push('Last visit       : ' + online.lasttime.format('yyyy-MM-dd HH:mm:ss'));
 	builder.push('Hits             : ' + online.stats.hits);
 	builder.push('Unique           : ' + online.stats.unique);
 	builder.push('Count            : ' + online.stats.count);
@@ -508,6 +509,7 @@ module.exports.usage = function() {
 	builder.push('');
 	builder.push('Search           : ' + online.stats.search);
 	builder.push('Direct           : ' + online.stats.direct);
+	builder.push('Advert           : ' + online.stats.advert);
 	builder.push('Social           : ' + online.stats.social);
 	builder.push('Unknown          : ' + online.stats.unknown);
 	builder.push('');
