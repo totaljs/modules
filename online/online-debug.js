@@ -278,7 +278,7 @@ Online.prototype.load = function() {
 
 		try
 		{
-			self.stats = JSON.parse(data.toString('utf8'));
+			self.stats = utils.copy(JSON.parse(data.toString('utf8')), self.stats);
 		} catch (ex) {}
 
 	});
