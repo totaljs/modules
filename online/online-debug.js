@@ -41,8 +41,8 @@ function Online() {
 
 	this.load();
 
-	// every 30 seconds
-	setInterval(this.clean.bind(this), 1000 * 30);
+	// every 60 seconds
+	setInterval(this.clean.bind(this), 1000 * 60);
 }
 
 Online.prototype = {
@@ -135,7 +135,7 @@ Online.prototype.add = function(req, res) {
 	var now = new Date();
 	var ticks = now.getTime();
 	var sum = user === 0 ? 1000 : (ticks - user) / 1000;
-	var exists = sum < 35;
+	var exists = sum < 65;
 	var stats = self.stats;
 	var referer = req.headers['referer'] || '';
 
@@ -149,19 +149,19 @@ Online.prototype.add = function(req, res) {
 	var isUnique = false;
 
 	if (user > 0) {
-		var date = new Date(user);
-		if (date.getDate() !== now.getDate() || date.getMonth() !== now.getMonth() || date.getFullYear() !== now.getFullYear())
-			isUnique = true;
-	} else
-		isUnique = true;
 
-	if (user > 0) {
 		sum = Math.abs(self.current - user) / 1000;
-		if (sum < 40) {
+		if (sum < 91) {
 			self.refreshURL(referer, req);
 			return true;
 		}
-	}
+
+		var date = new Date(user);
+		if (date.getDate() !== now.getDate() || date.getMonth() !== now.getMonth() || date.getFullYear() !== now.getFullYear())
+			isUnique = true;
+
+	} else
+		isUnique = true;
 
 	if (isUnique) {
 		stats.unique++;
