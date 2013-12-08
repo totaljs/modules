@@ -54,7 +54,7 @@ Online.prototype = {
 	},
 	get today() {
 		var stats = utils.copy({ hits: 0, unique: 0, count: 0, search: 0, direct: 0, social: 0, advert: 0, unknown: 0, mobile: 0, desktop: 0, pages: 0 }, this.stats);
-		stats.pages = (stats.pages / stats.count).floor(2);
+		stats.pages = stats.pages = stats.pages > 0 && stats.count > 0 ? (stats.pages / stats.count).floor(2) : 0;
 		stats.last = this.lastvisit;
 		return stats;
 	}
@@ -146,9 +146,10 @@ Online.prototype.add = function(req, res) {
 
 	stats.hits++;
 
+	self.refreshURL(referer, req);
+
  	if (exists) {
- 		stats.pages++;
- 		self.refreshURL(referer, req);
+ 		stats.pages++; 		
 		return true;
 	}
 
@@ -159,7 +160,6 @@ Online.prototype.add = function(req, res) {
 		sum = Math.abs(self.current - user) / 1000;
 		if (sum < 41) {
 			stats.pages++;
-			self.refreshURL(referer, req);
 			return true;
 		}
 
@@ -180,6 +180,7 @@ Online.prototype.add = function(req, res) {
 	}
 
 	arr[1]++;
+	self.lastvisit = new Date();
 	res.cookie(COOKIE, ticks, now.add('d', 5));
 
 	if (self.allowIP)
@@ -206,6 +207,11 @@ Online.prototype.add = function(req, res) {
 
 	framework.helpers.online = online;
 
+	if (self.isAdvert(req)) {
+		stats.advert++;
+		return true;
+	}
+
 	referer = getReferer(referer);
 
 	if (referer === null) {
@@ -216,15 +222,10 @@ Online.prototype.add = function(req, res) {
 	var length = self.social.length;
 	var type = 0;
 
-	if (self.isAdvert(req))
-		type = 3;
-
-	if (type === 0) {
-		for (var i = 0; i < length; i++) {
-			if (referer.indexOf(self.social[i]) !== -1) {
-				type = 1;
-				break;
-			}
+	for (var i = 0; i < length; i++) {
+		if (referer.indexOf(self.social[i]) !== -1) {
+			type = 1;
+			break;
 		}
 	}
 
@@ -246,9 +247,6 @@ Online.prototype.add = function(req, res) {
 			break;
 		case 2:
 			stats.search++;
-			break;
-		case 3:
-			stats.advert++;
 			break;
 	}
 
@@ -311,7 +309,7 @@ Online.prototype.daily = function(callback) {
 			try
 			{
 				var value = JSON.parse(value);
-				value.pages = (value.pages / value.count).floor(2);
+				value.pages = value.pages > 0 && value.count > 0 ? (value.pages / value.count).floor(2) : 0;
 				output.push(value);
 			} catch (ex) {}
 		}
@@ -367,7 +365,7 @@ Online.prototype.monthly = function(callback) {
 		length = keys.length;
 
 		for (var i = 0; i < length; i++)
-			current.pages = (current.pages / current.count).floor(2);
+			current.pages = current.pages > 0 && current.count > 0 ? (current.pages / current.count).floor(2) : 0;
 
 		callback(stats);
 	});
@@ -420,7 +418,7 @@ Online.prototype.yearly = function(callback) {
 		length = keys.length;
 
 		for (var i = 0; i < length; i++)
-			current.pages = (current.pages / current.count).floor(2);
+			current.pages = current.pages > 0 && current.count > 0 ? (current.pages / current.count).floor(2) : 0
 
 		callback(stats);
 	});
@@ -500,7 +498,7 @@ module.exports = online;
 module.exports.usage = function() {
 	var builder = [];
 	builder.push('Online           : ' + online.online);
-	builder.push('Last visit       : ' + online.lasttime.format('yyyy-MM-dd HH:mm:ss'));
+	builder.push('Last visit       : ' + online.lastvisit.format('yyyy-MM-dd HH:mm:ss'));
 	builder.push('Hits             : ' + online.stats.hits);
 	builder.push('Unique           : ' + online.stats.unique);
 	builder.push('Count            : ' + online.stats.count);
