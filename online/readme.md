@@ -47,9 +47,11 @@ online.daily(function(arr) {
         stats.search;     // search traffic (according the referer header or utm_medium param) per day
         stats.social;     // social network traffic (according the referer header or utm_medium param) per day
         stats.direct;     // direct traffic per day
+        stats.advert;	  // advert traffict per day
         stats.unknown;    // other traffic per day
         stats.mobile;     // mobile devices per day (unique)
         stats.desktop;    // desktops per day (unique)
+        stats.pages;      // page per visit
     });
 });
 ```
@@ -83,9 +85,12 @@ today.count;      // users count per day
 today.search;     // search traffic (according the referer header or utm_medium param) per day
 today.social;     // social network traffic (according the referer header or utm_medium param) per day
 today.direct;     // direct traffic per day
+today.advert;     // direct traffic per day
 today.unknown;    // other traffic per day
 today.mobile;     // mobile devices per day (unique)
 today.desktop;    // desktops per day (unique)
+today.pages;      // page per visit
+today.last;       // a last visit date
 ```
 
 ### online.allowXHR

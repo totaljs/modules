@@ -17,6 +17,8 @@ function Online() {
 	this.interval = 0;
 	this.current = 0;
 	this.last = 0;
+	this.lastvisit = null;
+
 	this.social = ['plus.url.google', 'plus.google', 'twitter', 'facebook', 'linkedin', 'tumblr', 'flickr', 'instagram'];
 	this.search = ['google', 'bing', 'yahoo'];
 	this.ip = [];
@@ -53,6 +55,7 @@ Online.prototype = {
 	get today() {
 		var stats = utils.copy({ hits: 0, unique: 0, count: 0, search: 0, direct: 0, social: 0, advert: 0, unknown: 0, mobile: 0, desktop: 0, pages: 0 }, this.stats);
 		stats.pages = (stats.pages / stats.count).floor(2);
+		stats.last = this.lastvisit;
 		return stats;
 	}
 };
