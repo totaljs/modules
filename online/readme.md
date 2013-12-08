@@ -51,7 +51,6 @@ online.daily(function(arr) {
         stats.unknown;    // other traffic per day
         stats.mobile;     // mobile devices per day (unique)
         stats.desktop;    // desktops per day (unique)
-        stats.pages;      // page per visit
     });
 });
 ```
@@ -89,7 +88,6 @@ today.advert;     // advert traffic per day
 today.unknown;    // other traffic per day
 today.mobile;     // mobile devices per day (unique)
 today.desktop;    // desktops per day (unique)
-today.pages;      // page per visit
 today.last;       // a last visit date
 ```
 

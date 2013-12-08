@@ -11,7 +11,7 @@ var REG_ROBOT = /bot|crawler/i;
 // http://freegeoip.net/json/77.247.227.34
 
 function Online() {
-	this.stats = { day: 0, month: 0, year: 0, hits: 0, unique: 0, count: 0, search: 0, direct: 0, social: 0, unknown: 0, advert: 0, mobile: 0, desktop: 0, pages: 0 };
+	this.stats = { day: 0, month: 0, year: 0, hits: 0, unique: 0, count: 0, search: 0, direct: 0, social: 0, unknown: 0, advert: 0, mobile: 0, desktop: 0 };
 	this.online = 0;
 	this.arr = [0, 0];
 	this.interval = 0;
@@ -53,8 +53,7 @@ Online.prototype = {
 		return arr[0] + arr[1];
 	},
 	get today() {
-		var stats = utils.copy({ hits: 0, unique: 0, count: 0, search: 0, direct: 0, social: 0, advert: 0, unknown: 0, mobile: 0, desktop: 0, pages: 0 }, this.stats);
-		stats.pages = stats.pages = stats.pages > 0 && stats.count > 0 ? (stats.pages / stats.count).floor(2) : 0;
+		var stats = utils.copy({ hits: 0, unique: 0, count: 0, search: 0, direct: 0, social: 0, advert: 0, unknown: 0, mobile: 0, desktop: 0 }, this.stats);
 		stats.last = this.lastvisit;
 		return stats;
 	}
@@ -83,14 +82,15 @@ Online.prototype.clean = function() {
 
 	if (stats.day !== day || stats.month !== month || stats.year !== year) {
 
-		if (stats.day !== 0 || stats.month !== 0 || stats.year !== 0)
+		if (stats.day !== 0 || stats.month !== 0 || stats.year !== 0) {
 			self.append();
 
-		var keys = Object.keys(stats);
-		length = keys.length;
+			var keys = Object.keys(stats);
+			length = keys.length;
 
-		for (var i = 0; i < length; i++)
-			stats[keys[i]] = 0;
+			for (var i = 0; i < length; i++)
+				stats[keys[i]] = 0;
+		}
 
 		stats.day = day;
 		stats.month = month;
@@ -148,20 +148,16 @@ Online.prototype.add = function(req, res) {
 
 	self.refreshURL(referer, req);
 
- 	if (exists) {
- 		stats.pages++; 		
+ 	if (exists)
 		return true;
-	}
 
 	var isUnique = false;
 
 	if (user > 0) {
 
 		sum = Math.abs(self.current - user) / 1000;
-		if (sum < 41) {
-			stats.pages++;
+		if (sum < 41)
 			return true;
-		}
 
 		var date = new Date(user);
 		if (date.getDate() !== now.getDate() || date.getMonth() !== now.getMonth() || date.getFullYear() !== now.getFullYear())
@@ -202,7 +198,6 @@ Online.prototype.add = function(req, res) {
 		self.emit('change', online, self.ip, self.url);
 	}
 
-	stats.pages++;
 	stats.count++;
 
 	framework.helpers.online = online;
@@ -308,9 +303,7 @@ Online.prototype.daily = function(callback) {
 
 			try
 			{
-				var value = JSON.parse(value);
-				value.pages = value.pages > 0 && value.count > 0 ? (value.pages / value.count).floor(2) : 0;
-				output.push(value);
+				output.push(JSON.parse(value));
 			} catch (ex) {}
 		}
 
@@ -356,16 +349,9 @@ Online.prototype.monthly = function(callback) {
 					stats[key].mobile += current.mobile;
 					stats[key].desktop += current.desktop;
 					stats[key].advert += current.advert;
-					stats[key].pages += current.pages;
 				}
 			} catch (ex) {}
 		}
-
-		var keys = Object.keys(stats)
-		length = keys.length;
-
-		for (var i = 0; i < length; i++)
-			current.pages = current.pages > 0 && current.count > 0 ? (current.pages / current.count).floor(2) : 0;
 
 		callback(stats);
 	});
@@ -409,16 +395,9 @@ Online.prototype.yearly = function(callback) {
 					stats[key].mobile += current.mobile;
 					stats[key].desktop += current.desktop;
 					stats[key].advert += current.advert;
-					stats[key].pages += current.pages;
 				}
 			} catch (ex) {}
 		}
-
-		var keys = Object.keys(stats)
-		length = keys.length;
-
-		for (var i = 0; i < length; i++)
-			current.pages = current.pages > 0 && current.count > 0 ? (current.pages / current.count).floor(2) : 0
 
 		callback(stats);
 	});
@@ -497,23 +476,24 @@ module.exports = online;
 
 module.exports.usage = function() {
 	var builder = [];
-	builder.push('Online           : ' + online.online);
-	builder.push('Last visit       : ' + online.lastvisit.format('yyyy-MM-dd HH:mm:ss'));
-	builder.push('Hits             : ' + online.stats.hits);
-	builder.push('Unique           : ' + online.stats.unique);
-	builder.push('Count            : ' + online.stats.count);
+	builder.push('Online              : ' + online.online);
+	builder.push('Last visit          : ' + online.lastvisit.format('yyyy-MM-dd HH:mm:ss'));
+	builder.push('Hits                : ' + online.stats.hits);
+	builder.push('Unique              : ' + online.stats.unique);
+	builder.push('Count               : ' + online.stats.count);
+	builder.push('Pages per visit     : ' + (online.stats.hits > 0 && online.stats.count > 0 ? (online.stats.hits / online.stats.count).floor(2) : 0));
 	builder.push('');
 	builder.push('Acquisition:');
 	builder.push('');
-	builder.push('Search           : ' + online.stats.search);
-	builder.push('Direct           : ' + online.stats.direct);
-	builder.push('Advert           : ' + online.stats.advert);
-	builder.push('Social           : ' + online.stats.social);
-	builder.push('Unknown          : ' + online.stats.unknown);
+	builder.push('Search              : ' + online.stats.search);
+	builder.push('Direct              : ' + online.stats.direct);
+	builder.push('Social              : ' + online.stats.social);
+	builder.push('Unknown             : ' + online.stats.unknown);
+	builder.push('Advert              : ' + online.stats.advert);
 	builder.push('');
 	builder.push('Devices:');
 	builder.push('');
-	builder.push('Mobile           : ' + online.stats.mobile);
-	builder.push('Desktop          : ' + online.stats.desktop);
+	builder.push('Mobile              : ' + online.stats.mobile);
+	builder.push('Desktop             : ' + online.stats.desktop);
 	return builder.join('\n');
 }
