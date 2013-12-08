@@ -11,7 +11,7 @@
 - module stores data into the database directory as plain text
 - module is resists at the restart app
 - __IMPORTANT:__ this module does not work with the cluster
-- auto-read _utm_medium_ param
+- auto-read _utm_medium_ param for adverts
 - robots (according the user-agent string) are skipped
 - [__DEMO__ on www.partialjs.com](http://www.partialjs.com/stats/)
 
@@ -85,7 +85,7 @@ today.count;      // users count per day
 today.search;     // search traffic (according the referer header or utm_medium param) per day
 today.social;     // social network traffic (according the referer header or utm_medium param) per day
 today.direct;     // direct traffic per day
-today.advert;     // direct traffic per day
+today.advert;     // advert traffic per day
 today.unknown;    // other traffic per day
 today.mobile;     // mobile devices per day (unique)
 today.desktop;    // desktops per day (unique)
@@ -231,7 +231,8 @@ online.onValid = function(req) {
 var online = framework.module('online');
 
 online.isAdvert = function(req) {
-	return req.data.get.adv === '1';
+    // default
+	return (req.headers['utm_medium'] || '').length > 0;
 };
 ```
 

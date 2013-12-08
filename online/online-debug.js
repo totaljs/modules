@@ -38,7 +38,7 @@ function Online() {
 	};
 
 	this.isAdvert = function(req) {
-		return false;
+		return (req.headers['utm_medium'] || '').length > 0;
 	};
 
 	this.load();
@@ -206,7 +206,7 @@ Online.prototype.add = function(req, res) {
 
 	framework.helpers.online = online;
 
-	referer = getReferer(referer, req.data.get['utm_medium']);
+	referer = getReferer(referer);
 
 	if (referer === null) {
 		stats.direct++;
@@ -476,10 +476,7 @@ Online.prototype.refreshURL = function(referer, req) {
 	}
 }
 
-function getReferer(host, def) {
-
-	if ((def || '').length > 0)
-		return def;
+function getReferer(host) {
 
 	if (host.length === 0)
 		return null;
