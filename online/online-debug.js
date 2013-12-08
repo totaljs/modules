@@ -38,7 +38,7 @@ function Online() {
 	};
 
 	this.isAdvert = function(req) {
-		return (req.data.get['utm_medium'] || '').length > 0;
+		return (req.data.get['utm_medium'] || '').length > 0 || (req.data.get['utm_source'] || '').length > 0;
 	};
 
 	this.load();
