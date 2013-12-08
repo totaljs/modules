@@ -198,6 +198,7 @@ Online.prototype.add = function(req, res) {
 		self.emit('change', online, self.ip, self.url);
 	}
 
+	stats.pages++;
 	stats.count++;
 
 	framework.helpers.online = online;
