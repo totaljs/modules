@@ -26,7 +26,6 @@ function Online() {
 
 	this.allowXHR = true;
 	this.allowIP = false;
-	this.allowURL = false;
 
 	this.onValid = function(req) {
 
@@ -113,9 +112,6 @@ Online.prototype.clean = function() {
 			if (self.allowIP)
 				self.ip = self.ip.slice(tmp0);
 
-			if (self.allowURL)
-				self.url = self.url.slice(tmp0);
-
 			self.emit('change', online, self.ip);
 			self.last = online;
 		}
@@ -180,10 +176,7 @@ Online.prototype.add = function(req, res) {
 	res.cookie(COOKIE, ticks, now.add('d', 5));
 
 	if (self.allowIP)
-		self.ip.push(req.ip);
-
-	if (self.allowURL)
-		self.url.push(req.uri.href);
+		self.ip.push({ ip: req.ip, url: req.uri.href });
 
 	var online = self.online;
 
@@ -195,7 +188,7 @@ Online.prototype.add = function(req, res) {
 		if (self.allowIP)
 			self.ip = self.ip.slice(Math.abs(self.last - online));
 
-		self.emit('change', online, self.ip, self.url);
+		self.emit('change', online, self.ip);
 	}
 
 	stats.count++;
@@ -440,14 +433,15 @@ Online.prototype.refreshURL = function(referer, req) {
 	if (referer.length === 0)
 		return;
 
-	if (!self.allowURL)
+	if (!self.allowIP)
 		return;
 
-	var length = self.url.length;
+	var length = self.ip.length;
 
 	for (var i = 0; i < length; i++) {
-		if (self.url[i] === referer) {
-			self.url[i] = req.uri.href;
+		var item = self.ip[i];
+		if (item.ip === req.ip && item.url === referer) {
+			item.url = req.uri.href;
 			return;
 		}
 	}

@@ -111,16 +111,6 @@ var online = framework.module('online');
 online.allowIP = false;
 ```
 
-### online.allowURL
-
-> Allow URL storing of online visitors. Default: __false__.
-
-```js
-var online = framework.module('online');
-
-online.allowURL = false;
-```
-
 ### online.ip
 
 > Online IP collections.
@@ -131,16 +121,9 @@ var online = framework.module('online');
 console.log(online.ip);
 ```
 
-> Online URL collections.
-
-```js
-var online = framework.module('online');
-
-console.log(online.url);
-
 ### online.social
 
-> Names of social networks for stats.
+> Collection of social networks for stats.
 
 ```js
 var online = framework.module('online');
@@ -151,7 +134,7 @@ online.social.push('stackoverflow');
 
 ### online.search
 
-> Names of search engine for stats.
+> Collection of search engines for stats.
 
 ```js
 var online = framework.module('online');
@@ -253,9 +236,16 @@ online.on('online', function(req) {
 > Online count is changed.
 
 ```js
-online.on('change', function(count, ip, url) {
+online.on('change', function(count, ip) {
 	// count === online visitors
-	// ip    === online IP collections (if allowIP is true (default: false))
-	// url   === online URL collections (if allowURL is true (default: false))
+	// ip    === online IP and URL collections (if allowIP is true (default: false))
+
+    var first = ip[0];
+    if (!first)
+        return;
+
+    console.log(first.ip);
+    console.log(first.url);
+
 });
 ```
