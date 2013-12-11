@@ -27,13 +27,20 @@ function Online() {
 	this.allowXHR = true;
 	this.allowIP = false;
 
-	this.onValid = function(req) {
+	this.onValid = null;
 
+	this._onValid = function(req) {
+
+		var self = this;
 		var agent = req.headers['user-agent'] || '';
+
 		if (agent.length === 0)
 			return false;
 
 		if (req.headers['X-moz'] === 'prefetch')
+			return false;
+
+		if (self.onValid !== null && !self.onValid(req))
 			return false;
 
 		return agent.match(REG_ROBOT) === null;
@@ -128,7 +135,7 @@ Online.prototype.add = function(req, res) {
 
 	var self = this;
 
-	if (!self.onValid(req))
+	if (!self._onValid(req))
 		return false;
 
 	if (req.xhr && !self.allowXHR)
