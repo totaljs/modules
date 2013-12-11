@@ -33,6 +33,9 @@ function Online() {
 		if (agent.length === 0)
 			return false;
 
+		if (req.headers['X-moz'] === 'prefetch')
+			return false;
+
 		return agent.match(REG_ROBOT) === null;
 	};
 
