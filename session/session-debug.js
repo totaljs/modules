@@ -37,7 +37,7 @@ Session.prototype._read = function(res, req, next, controller) {
 		return self;
 	}
 
-	var obj = self.framework.decode(id, self.options.secret);
+	var obj = self.framework.decrypt(id, self.options.secret);
 	if (obj === null) {
 		self._create(res, req, next, controller);
 		return self;
@@ -70,14 +70,13 @@ Session.prototype._create = function(res, req, next) {
 	var self = this;
 	var id = utils.GUID(10);
 	var obj = { id: 'ssid_' + id, sign: self._signature(id, req) };
-	var json = self.framework.encode(obj, self.options.secret);
+	var json = self.framework.encrypt(obj, self.options.secret);
 
 	req._sessionId = obj.id;
 	req._session = self;
 	req.session = {};
 
 	res.cookie(self.options.cookie, json);
-
 	next();
 
 	return self;

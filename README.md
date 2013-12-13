@@ -1,5 +1,8 @@
 # partial.js modules
 
+> IMPORTANT:
+> Authorization & Session module are prepared for the new version of partial.js. New version comming in this weekend.
+
 ## Authorization
 
 - https://github.com/petersirka/partial.js-modules/tree/master/authorization

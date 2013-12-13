@@ -42,8 +42,8 @@ Users.prototype._onAuthorization = function(req, res, flags, callback) {
 		return;
 	}
 
-	var value = framework.decode(cookie, options.secret);
-	if (value.length === 0) {
+	var value = framework.decrypt(cookie, options.secret, false);
+	if (value === null || value.length === 0) {
 		callback(false);
 		return;
 	}
@@ -196,7 +196,7 @@ Users.prototype._writeOK = function(id, req, res) {
 	var self = this;
 	var framework = self.framework;
 	var value = id + '|' + SUGAR + '|' + req.headers['user-agent'].substring(0, USERAGENT).replace(/\s/g, '') + '|';
-	res.cookie(self.options.cookie, framework.encode(value, self.options.secret), new Date().add('d', self.options.expireCookie));
+	res.cookie(self.options.cookie, framework.encrypt(value, self.options.secret), new Date().add('d', self.options.expireCookie));
 	return this;
 };
 
