@@ -4,7 +4,7 @@
 - install npm dot
 - copy **dot.js** to __/your-partialjs-website/modules/__
 - supports !!! __prefixes__ !!!
-- [EXAMPLE](https://github.com/petersirka/partial.js-modules/tree/master/doT/example)
+- [EXAMPLE](https://github.com/petersirka/partial.js-modules/tree/master/dot/example)
 
 ## Functions
 
