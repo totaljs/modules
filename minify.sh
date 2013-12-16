@@ -39,3 +39,11 @@ node minify.js filestorage/filestorage.js
 ECHO "....... online.js"
 uglifyjs online/online-debug.js -o online/online.js
 node minify.js online/online.js
+
+ECHO "....... dot.js"
+uglifyjs dot/dot-debug.js -o dot/dot.js
+node minify.js dot/dot.js
+
+ECHO "....... sass.js"
+uglifyjs sass/sass-debug.js -o sass/sass.js
+node minify.js sass/sass.js
