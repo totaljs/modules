@@ -12,6 +12,13 @@ FileCache.prototype.init = function(framework) {
 	});
 }
 
+FileCache.prototype.has = function(id) {
+	var obj = this.list[id];
+	if (typeof(obj) === 'undefined')
+		return false;
+	return obj.expire.getTime() < new Date().getTime();
+};
+
 FileCache.prototype.add = function(file, expire, id, callback) {
 	
 	var self = this;
@@ -37,7 +44,7 @@ FileCache.prototype.add = function(file, expire, id, callback) {
 	}
 
 	file.copy(framework.path.temp(id + '.filecache'), function() {
-		callback(id);
+		callback(id, self.list[id]);
 	});
 
 	return id;

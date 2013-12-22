@@ -6,18 +6,25 @@
 
 Filecache stores uploaded files for some time. The module automatically removed older files.
 
-#### Add a file
+#### Add a file: filecache.add(file, expire, [callback])
 
 ```js
 // this === controller
 var self = this;
 var filecache = self.module('filecache');
-var id = filecache.add(self.files[0], new Date().add('minute', 5));
 
+var id = filecache.add(self.files[0], new Date().add('minute', 5));
 console.log(id);
+
+// or
+
+filecache.add(self.files[0], new Date().add('minute', 5), function(id, header) {
+	console.log(id);
+	console.log(header);
+});
 ```
 
-#### Read a file
+#### Read a file: filecache.read(id, calllback);
 
 ```js
 // this === controller
@@ -39,7 +46,17 @@ filecache.read('id', function(err, header, stream) {
 });
 ```
 
-#### Remove a file
+#### Has a file: filecache.has(id);
+
+```js
+// this === controller
+var self = this;
+var filecache = self.module('filecache');
+
+console.log(filecache.has('id')); // TRUE or FALSE
+```
+
+#### Remove a file: filecache.remove(id)
 
 ```js
 // this === controller
