@@ -12,18 +12,35 @@ FileCache.prototype.init = function(framework) {
 	});
 }
 
-FileCache.prototype.add = function(file, expire, id) {
+FileCache.prototype.add = function(file, expire, id, callback) {
+	
 	var self = this;
+	var type = typeof(id);
 
-	if (typeof(id) === 'undefined')
+	if (type === 'function') {
+		var tmp = callback;
+		callback = id;
+		id = tmp;
+		type = typeof(id);
+	}
+
+	if (type === 'undefined')
 		id = utils.GUID(20);
 	else if (typeof(self.list[id]) === 'undefined')
 		self.length++;
 
 	self.list[id] = { expire: expire, contentType: file.contentType, filename: file.filename };
-	file.copy(framework.path.temp(id + '.filecache'));
 
-	return self;
+	if (!callback) {
+		file.copy(framework.path.temp(id + '.filecache'));
+		return id;
+	}
+
+	file.copy(framework.path.temp(id + '.filecache'), function() {
+		callback(id);
+	});
+
+	return id;
 };
 
 FileCache.prototype.read = function(id, callback) {
