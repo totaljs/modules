@@ -36,7 +36,7 @@ FileCache.prototype.add = function(file, expire, id, callback) {
 	else if (typeof(self.list[id]) === 'undefined')
 		self.length++;
 
-	self.list[id] = { expire: expire, contentType: file.contentType, filename: file.filename };
+	self.list[id] = { expire: expire, contentType: file.contentType, filename: file.filename, length: file.length };
 
 	if (!callback) {
 		file.copy(framework.path.temp(id + '.filecache'));
