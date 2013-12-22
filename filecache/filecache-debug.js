@@ -97,6 +97,9 @@ FileCache.prototype.clear = function() {
 		self.length--;
 	}
 
+	if (tmp.length > 0)
+		framework._clear(tmp);
+
 	return self;
 };
 
