@@ -11,7 +11,7 @@
 $ npm install filestorage
 ```
 
-Filestorage store uploaded files.
+Filestorage stores uploaded files.
 
 ```js
 var filestorage = framework.filestorage('products');
