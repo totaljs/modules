@@ -50,7 +50,7 @@ FileCache.prototype.add = function(file, expire, id, callback) {
 	return id;
 };
 
-FileCache.prototype.read = function(id, callback) {
+FileCache.prototype.read = function(id, callback, remove) {
 
 	var self = this;
 
@@ -67,7 +67,15 @@ FileCache.prototype.read = function(id, callback) {
 		return;
 	}
 
-	callback(null, obj, fs.createReadStream(framework.path.temp(id + '.filecache')));
+	var stream = fs.createReadStream(framework.path.temp(id + '.filecache'));
+
+	if (remove) {
+		stream.on('close', function() {
+			self.remove(id);
+		});
+	}
+
+	callback(null, obj, stream);
 	return self;
 };
 
