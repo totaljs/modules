@@ -5,7 +5,7 @@
 - copy **fileserver.js** to __/your-partialjs-website/modules/__
 - FileServer using [FileStorage](https://github.com/petersirka/node-filestorage)
 
-FileServer stores uploaded files in other server via HTTP protocol.
+FileServer stores uploaded files on other server via HTTP protocol.
 
 #### Configure
 
@@ -41,18 +41,6 @@ fileserver.remove('mywebsite', 1, function(err) {
 // or remove multiple files
 
 fileserver.remove('mywebsite', [1, 3, 4, 5], function(err) {
-	
-});
-```
-
-#### Read a file: module.read(name, id, [callback], [headers])
-
-```js
-// this === controller
-var self = this;
-var fileserver = self.module('fileserver');
-
-fileserver.read('mywebsite', 1, function(err, stream, contentType, length, width, height) {
 
 });
 ```
@@ -105,3 +93,53 @@ fileserver.listing('mywebsite', function(err, list) {
 });
 ```
 
+#### Pipe to current response: module.pipe(req, res, name, id, [headers]);
+
+```js
+function onFile(req, res, isValidation) {
+
+	// this === framework
+	var self = this;
+	var fileserver = self.module('fileserver');
+
+	fileserver.pipe(req, res, 'mywebsite', 1);
+}
+```
+
+#### Pipe to current response as Image: module.pipe_image(req, res, name, id, fnProcess, [headers], [useImageMagick]);
+
+```js
+function onFile(req, res, isValidation) {
+
+	// this === framework
+	var self = this;
+	var fileserver = self.module('fileserver');
+
+	// EVERYTIME CACHED
+
+	fileserver.pipe_image(req, res, 'mywebsite', 1, function(image) {
+        image.resizeCenter(180, 180);
+        image.quality(80);
+        image.minify();
+        image.output('jpg');
+	});
+}
+```
+
+#### Pipe to current response as Image: module.pipe_image_withoutcache(req, res, name, id, fnProcess, [headers], [useImageMagick]);
+
+```js
+function onFile(req, res, isValidation) {
+
+	// this === framework
+	var self = this;
+	var fileserver = self.module('fileserver');
+
+	fileserver.pipe_image_withoutcache(req, res, 'mywebsite', 1, function(image) {
+        image.resizeCenter(180, 180);
+        image.quality(80);
+        image.minify();
+        image.output('jpg');
+	});
+}
+```

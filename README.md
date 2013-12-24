@@ -66,8 +66,13 @@
 
 #### FileCache
 
-- Filecache stores files for some time (with expiration).
+- FileCache stores files for some time (with expiration).
 - https://github.com/petersirka/partial.js-modules/tree/master/filecache
+
+#### FileServer
+
+- FileServer stores uploaded files on other server via HTTP protocol.
+- https://github.com/petersirka/partial.js-modules/tree/master/fileserver
 
 #### Online counter
 
