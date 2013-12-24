@@ -79,29 +79,50 @@ FileCache.prototype.read = function(id, callback, remove) {
 	return self;
 };
 
-FileCache.prototype.fileserver = function(name, id, callback, headers) {
+FileCache.prototype.fileserver = function(name, id, callback, headers, remove) {
 
 	var self = this;
 
 	if (!(id instanceof Array))
 		id = [id];
 
+	if (typeof(remove) === 'undefined')
+		remove = true;
+
 	var arr = [];
 	var length = id.length;
 
 	for (var i = 0; i < length; i++) {
-		var file = self.list[id[i]];
+
+		if (typeof(id[i]) === 'undefined' || id[i] === null)
+			continue;
+
+		var key = id[i].toString();
+		if (key.length === 0)
+			continue;
+
+		var file = self.list[key];
+
 		if (typeof(file) === 'undefined')
 			continue;
+
 		arr.push({ name: id[i], contentType: file.contentType, filename: file.filename, path: framework.path.temp(id[i] + '.filecache') });
 	}
 
 	if (arr.length === 0) {
-		callback(new Error('Collection doesn\'t contain files.'))
+		callback(new Error('Collection doesn\'t contain files.'), {});
 		return false;
 	}
 
-	self.module('fileserver').upload(name, arr, callback, headers);
+	framework.module('fileserver').upload(name, arr, function(err, rows) {
+
+		if (remove)
+			self.remove(id);
+
+		callback(err, rows || {});
+
+	}, headers);
+
 	return true;
 };
 
@@ -125,8 +146,11 @@ FileCache.prototype.remove = function(id) {
 
 		delete self.list[key];
 		self.length--;
-		arr.push(framework.path.temp(id + '.filecache'));
+		arr.push(framework.path.temp(key + '.filecache'));
 	}
+
+	if (arr.length === 0)
+		return self;
 
 	arr.waiting(function(path, next) {
 		fs.unlink(path, function() {
