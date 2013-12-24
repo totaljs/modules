@@ -51,3 +51,7 @@ node minify.js sass/sass.js
 ECHO "....... filecache.js"
 uglifyjs filecache/filecache-debug.js -o filecache/filecache.js
 node minify.js filecache/filecache.js
+
+ECHO "....... fileserver.js"
+uglifyjs fileserver/fileserver-debug.js -o fileserver/fileserver.js
+node minify.js fileserver/fileserver.js
