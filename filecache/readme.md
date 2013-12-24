@@ -37,7 +37,7 @@ filecache.read('id', function(err, header, stream) {
 		self.view500(err);
 		return;
 	}
-	
+
 	// header.contentType {String}
 	// header.filename {String}
 	// header.expire {DateTime}
@@ -64,4 +64,27 @@ var self = this;
 var filecache = self.module('filecache');
 
 filecache.remove('id');
+
+// or
+
+filecache.remove(['id1', 'id2', 'id3']);
+```
+
+#### Send files to FileServer: filecache.fileserver(name, id, [callback], [headers])
+
+```js
+// this === controller
+var self = this;
+var filecache = self.module('filecache');
+var fileserver = self.module('fileserver');
+
+var files = filecache.fileserver('mywebsite', 'id', function(err, result) {
+
+});
+
+// or
+
+var files = filecache.fileserver('mywebsite', ['id1', 'id2', 'id3'], function(err, result) {
+
+});
 ```

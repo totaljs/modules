@@ -235,7 +235,7 @@ function send_write(files, req, boundary, index) {
 		return;
 	}
 
-	var header = NEWLINE + NEWLINE + '--' + boundary + NEWLINE + 'Content-Disposition: form-data; name="' + file.name + '"; filename="' + file.filename + '"' + NEWLINE + 'Content-Type: ' + file.contentType + NEWLINE + NEWLINE;
+	var header = NEWLINE + NEWLINE + '--' + boundary + NEWLINE + 'Content-Disposition: form-data; name="' + (file.name || 'file' + index) + '"; filename="' + file.filename + '"' + NEWLINE + 'Content-Type: ' + file.contentType + NEWLINE + NEWLINE;
 	req.write(header);
 
 	var stream = fs.createReadStream(file.path, { flags: 'r' });

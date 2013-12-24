@@ -20,7 +20,7 @@ FileCache.prototype.has = function(id) {
 };
 
 FileCache.prototype.add = function(file, expire, id, callback) {
-	
+
 	var self = this;
 	var type = typeof(id);
 
@@ -79,17 +79,61 @@ FileCache.prototype.read = function(id, callback, remove) {
 	return self;
 };
 
+FileCache.prototype.fileserver = function(name, id, callback, headers) {
+
+	var self = this;
+
+	if (!(id instanceof Array))
+		id = [id];
+
+	var arr = [];
+	var length = id.length;
+
+	for (var i = 0; i < length; i++) {
+		var file = self.list[id[i]];
+		if (typeof(file) === 'undefined')
+			continue;
+		arr.push({ name: id[i], contentType: file.contentType, filename: file.filename, path: framework.path.temp(id[i] + '.filecache') });
+	}
+
+	if (arr.length === 0) {
+		callback(new Error('Collection doesn\'t contain files.'))
+		return false;
+	}
+
+	self.module('fileserver').upload(name, arr, callback, headers);
+	return true;
+};
+
 FileCache.prototype.remove = function(id) {
 
 	var self = this;
 
-	if (typeof(self.list[id]) === 'undefined')
-		return;
+	if (!(id instanceof Array))
+		id = [id];
 
-	delete self.list[id];
-	self.length--;
+	var arr = [];
+	var length = id.length;
 
-	fs.unlink(framework.path.temp(id + '.filecache'));
+	for (var i = 0; i < length; i++) {
+
+		var key = id[i];
+		var file = self.list[key];
+
+		if (typeof(file) === 'undefined')
+			continue;
+
+		delete self.list[key];
+		self.length--;
+		arr.push(framework.path.temp(id + '.filecache'));
+	}
+
+	arr.waiting(function(path, next) {
+		fs.unlink(path, function() {
+			next();
+		});
+	});
+
 	return self;
 };
 
