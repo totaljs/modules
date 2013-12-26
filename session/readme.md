@@ -1,6 +1,6 @@
 # Session module
 
-- partial.js version +v1.2.5-0
+- partial.js version +v1.3.1
 - copy **session.js** to __/your-partialjs-website/modules/__
 - [REDIS EXAMPLE](https://github.com/petersirka/partial.js-modules/tree/master/session/example)
 - [IN-MEMORY EXAMPLE](https://github.com/petersirka/partial.js-modules/tree/master/session/example-in-memory)

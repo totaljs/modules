@@ -1,6 +1,6 @@
 # FileCache
 
-- __partial.js version +v1.3.2__
+- __partial.js version +v1.3.1__
 - copy **filecache.js** to __/your-partialjs-website/modules/__
 - __IMPORTANT:__ this module does not work with the cluster
 

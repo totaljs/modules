@@ -1,6 +1,6 @@
 # Authorization module
 
-- partial.js version +v1.2.4-4
+- partial.js version +v1.3.1
 - copy **authorization.js** to __/your-partialjs-website/modules/__
 - [EXAMPLE](https://github.com/petersirka/partial.js-modules/tree/master/authorization/example)
 
