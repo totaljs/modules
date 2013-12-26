@@ -4,7 +4,7 @@
 - copy **filecache.js** to __/your-partialjs-website/modules/__
 - __IMPORTANT:__ this module does not work with the cluster
 
-Filecache stores uploaded files for some time. The module automatically removed older files.
+FileCache stores uploaded files for some time. The module automatically removed older files.
 
 #### Add a file: filecache.add(file, expire, [callback])
 
