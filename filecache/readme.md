@@ -21,7 +21,22 @@ console.log(id);
 filecache.add(self.files[0], new Date().add('minute', 5), function(id, header) {
 	console.log(id);
 	console.log(header);
+	// { expire: Date, contentType: String, filename: String, length: Number, width: Number, height: Number }
 }, true);
+```
+
+#### Read a file informations: filecache.info(id);
+
+> If the file is expired or doesn't exist then function return __null__.
+
+```js
+// this === controller
+var self = this;
+var filecache = self.module('filecache');
+
+console.log(filechace.info('d4e2ec5edbc4eda32e48'));
+// { expire: Date, contentType: String, filename: String, length: Number, width: Number, height: Number }
+
 ```
 
 #### Read a file: filecache.read(id, calllback, [removeAfterRead]);

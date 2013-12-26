@@ -16,7 +16,7 @@ FileCache.prototype.has = function(id) {
 	var obj = this.list[id];
 	if (typeof(obj) === 'undefined')
 		return false;
-	return obj.expire.getTime() < new Date().getTime();
+	return obj.expire < new Date();
 };
 
 FileCache.prototype.add = function(file, expire, id, callback) {
@@ -36,7 +36,7 @@ FileCache.prototype.add = function(file, expire, id, callback) {
 	else if (typeof(self.list[id]) === 'undefined')
 		self.length++;
 
-	self.list[id] = { expire: expire, contentType: file.contentType, filename: file.filename, length: file.length };
+	self.list[id] = { expire: expire, contentType: file.contentType, filename: file.filename, length: file.length, width: file.width, height: file.height };
 
 	if (!callback) {
 		file.copy(framework.path.temp(id + '.filecache'));
@@ -50,6 +50,13 @@ FileCache.prototype.add = function(file, expire, id, callback) {
 	return id;
 };
 
+FileCache.prototype.info = function(id) {
+	var obj = this.list[id] || null;
+	if (obj === null || obj.expire < new Date())
+		return null;
+	return obj;
+};
+
 FileCache.prototype.read = function(id, callback, remove) {
 
 	var self = this;
@@ -61,7 +68,7 @@ FileCache.prototype.read = function(id, callback, remove) {
 
 	var obj = self.list[id];
 
-	if (obj.expire.getTime() < new Date().getTime()) {
+	if (obj.expire < new Date()) {
 		self.remove(id);
 		callback(new Error('File not found.'));
 		return;
@@ -167,12 +174,12 @@ FileCache.prototype.clear = function() {
 	var arr = Object.keys(self.list);
 	var length = arr.length;
 	var tmp = [];
-	var now = new Date().getTime();
+	var now = new Date();
 
 	for (var i = 0; i < length; i++) {
 		var obj = self.list[arr[i]];
 
-		if (obj.expire.getTime() >= now)
+		if (obj.expire >= now)
 			continue;
 
 		delete self.list[arr[i]];
