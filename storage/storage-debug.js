@@ -1,3 +1,5 @@
+var fs = require('fs');
+
 function Storage() {
 	this.framework = null;
 	this.repository = {};
@@ -29,7 +31,7 @@ Storage.prototype.set = function(name, value) {
 };
 
 Storage.prototype.get = function(name, def) {
-	return this.temporary[name] || def;
+	return this.repository[name] || def;
 };
 
 Storage.prototype.remove = function(name) {
@@ -58,7 +60,7 @@ Storage.prototype._save = function() {
 	clearTimeout(self.repositoryTimeout);
 	self.repositoryTimeout = setTimeout(function() {
 		self.onSave();
-		if (typeof(process.send) === FUNCTION) {
+		if (typeof(process.send) === 'function') {
 			setTimeout(function() {
 				process.send('storage');
 			}, 1000);
