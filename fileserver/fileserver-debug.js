@@ -5,31 +5,33 @@ var https = require('https');
 var fs = require('fs');
 var NEWLINE = '\r\n';
 var ERROR = 'You haven\'t defined URL address to file server. Define a server: module.configure(name, url)';
-var setting = {};
+var settings = {};
 
 exports.upload = function(name, files, callback, headers) {
 
-	if (typeof(setting[name]) === 'undefined') {
+	if (typeof(settings[name]) === 'undefined') {
 		if (callback)
 			callback(new Error(ERROR));
-		return;
+		return exports;;
 	}
 
 	if (!(files instanceof Array))
 		files = [files];
 
-	send(setting[name], name, files, callback, headers);
+	send(settings[name], name, files, callback, headers);
+
+	return exports;
 };
 
 exports.info = function(name, id, callback, headers) {
 
-	if (typeof(setting[name]) === 'undefined') {
+	if (typeof(settings[name]) === 'undefined') {
 		if (callback)
 			callback(new Error(ERROR));
-		return;
+		return exports;;
 	}
 
-	utils.request(utils.path(setting[name]) + name + '/info/' + id + '/', 'GET', null, function(err, data, status) {
+	utils.request(utils.path(settings[name]) + name + '/info/' + id + '/', 'GET', null, function(err, data, status) {
 
 		if (status !== 200) {
 			callback(new Error(status));
@@ -38,17 +40,19 @@ exports.info = function(name, id, callback, headers) {
 
 		callback(null, JSON.parse(data));
 	}, headers);
+
+	return exports;
 };
 
 exports.remove = function(name, id, callback, headers) {
 
-	if (typeof(setting[name]) === 'undefined') {
+	if (typeof(settings[name]) === 'undefined') {
 		if (callback)
 			callback(new Error(ERROR));
-		return;
+		return exports;
 	}
 
-	utils.request(utils.path(setting[name]) + name + '/' + (id instanceof Array ? id.join('-') : id) + '/', 'DELETE', null, function(err, data, status) {
+	utils.request(utils.path(settings[name]) + name + '/' + (id instanceof Array ? id.join('-') : id) + '/', 'DELETE', null, function(err, data, status) {
 
 		if (status !== 200) {
 			callback(new Error(status));
@@ -57,18 +61,20 @@ exports.remove = function(name, id, callback, headers) {
 
 		callback(null);
 	}, headers);
+
+	return exports;
 };
 
 
 exports.count = function(name, callback, headers) {
 
-	if (typeof(setting[name]) === 'undefined') {
+	if (typeof(settings[name]) === 'undefined') {
 		if (callback)
 			callback(new Error(ERROR));
-		return;
+		return exports;
 	}
 
-	utils.request(utils.path(setting[name]) + name + '/count/', 'GET', null, function(err, data, status) {
+	utils.request(utils.path(settings[name]) + name + '/count/', 'GET', null, function(err, data, status) {
 
 		if (status !== 200) {
 			callback(new Error(status));
@@ -77,36 +83,40 @@ exports.count = function(name, callback, headers) {
 
 		callback(null, JSON.parse(data));
 	}, headers);
+
+	return exports;
 };
 
 exports.listing = function(name, callback, headers) {
 
-	if (typeof(setting[name]) === 'undefined') {
+	if (typeof(settings[name]) === 'undefined') {
 		if (callback)
 			callback(new Error(ERROR));
-		return;
+		return exports;
 	}
 
-	utils.request(utils.path(setting[name]) + name + '/listing/', 'GET', null, function(err, data, status) {
+	utils.request(utils.path(settings[name]) + name + '/listing/', 'GET', null, function(err, data, status) {
 
 		if (status !== 200) {
 			callback(new Error(status));
-			return;
+			return exports;
 		}
 
 		callback(null, JSON.parse(data));
 	}, headers);
+
+	return exports;
 };
 
 exports.read = function(name, id, callback, headers) {
 
-	if (typeof(setting[name]) === 'undefined') {
+	if (typeof(settings[name]) === 'undefined') {
 		if (callback)
 			callback(new Error(ERROR));
-		return;
+		return exports;
 	}
 
-	var uri = parser.parse(utils.path(setting[name]) + name + '/' + id + '/');
+	var uri = parser.parse(utils.path(settings[name]) + name + '/' + id + '/');
 	var options = { protocol: uri.protocol, auth: uri.auth, method: 'GET', hostname: uri.hostname, port: uri.port, path: uri.path, agent: false, headers: h };
 
 	var h = {};
@@ -124,19 +134,21 @@ exports.read = function(name, id, callback, headers) {
 	});
 
 	req.end();
+	return exports;
 };
 
 exports.pipe = function(req, res, name, id, headers) {
 	exports.read(name, id, function(err, stream, filename, contentType, length, width, height) {
 		framework.responseStream(req, res, contentType, stream, filename);
 	}, headers);
+	return exports;
 };
 
 exports.pipe_image = function(req, res, name, id, fnProcess, headers, useImageMagick) {
 
-	if (typeof(setting[name]) === 'undefined') {
+	if (typeof(settings[name]) === 'undefined') {
 		framework.response500(req, res, new Error(ERROR));
-		return;
+		return exports;
 	}
 
 	exports.read(name, id, function(err, stream, filename, contentType, length, width, height) {
@@ -154,13 +166,15 @@ exports.pipe_image = function(req, res, name, id, fnProcess, headers, useImageMa
 		framework.responseImage(req, res, stream, fnProcess, null, null, useImageMagick);
 
 	}, headers);
+	return exports;
+
 };
 
 exports.pipe_image_withoutcache = function(req, res, name, id, fnProcess, headers, useImageMagick) {
 
-	if (typeof(setting[name]) === 'undefined') {
+	if (typeof(settings[name]) === 'undefined') {
 		framework.response500(req, res, new Error(ERROR));
-		return;
+		return exports;
 	}
 
 	exports.read(name, id, function(err, stream, filename, contentType, length, width, height) {
@@ -170,10 +184,34 @@ exports.pipe_image_withoutcache = function(req, res, name, id, fnProcess, header
 		}
 		framework.responseImageWithoutCache(req, res, stream, fnProcess, null, null, useImageMagick);
 	}, headers);
+
+	return exports;
 };
 
-exports.configure = function(name, url) {
-	setting[name] = url;
+exports.configure = function(name, url, callback) {
+
+	settings[name] = url;
+
+	if (callback)
+		exports.availability(name, callback);
+
+	return exports;
+};
+
+exports.availability = function(name, callback) {
+	var self = this;
+	var url = settings[name];
+
+	if (typeof(url) === 'undefined') {
+		callback(new Error(ERROR));
+		return exports;
+	}
+
+	utils.request(utils.path(url) + 'availability/', 'GET', null, function(err, data) {
+		callback(err, name, err || data === null ? null : data.isJSON() ? JSON.parse(data) : null);
+	});
+
+	return exports;
 };
 
 function send(url, name, files, callback, headers) {

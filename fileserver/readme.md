@@ -13,6 +13,14 @@ Use the definition:
 
 ```js
 framework.module('fileserver').configure('mywebsite', 'http://127.0.0.1:8000');
+
+// or
+
+framework.module('fileserver').configure('mywebsite', 'http://127.0.0.1:8000', function(err) {
+	// check availability
+	if (err)
+		console.log(err);
+});
 ```
 
 #### Add a file or files: module.upload(name, httpFile/httpFiles, [callback], [headers])
@@ -90,6 +98,21 @@ var fileserver = self.module('fileserver');
 
 fileserver.listing('mywebsite', function(err, list) {
 	console.log(list);
+});
+```
+
+#### Server availability: module.availability(name, callback)
+
+```js
+// this === controller
+var self = this;
+var fileserver = self.module('fileserver');
+
+fileserver.availability('mywebsite', function(err, name) {
+	if (err)
+		console.log(err);
+	else
+		console.log('FileServer ' + name + ' is available.');
 });
 ```
 
