@@ -16,6 +16,7 @@ controller.module('storage').set('key', 'value');
 controller.module('storage').set('json', { A: true, B: 10 });
 
 var json = framework.module('storage').get('json');
+var key = framework.module('storage').get('key', 'default value');
 
 // json.A
 // json.B
