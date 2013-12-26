@@ -141,6 +141,12 @@ Online.prototype.add = function(req, res) {
 	if (req.xhr && !self.allowXHR)
 		return false;
 
+	if (req.method !== 'GET')
+		return false;
+
+	if ((req.headers['accept'] || '').length === 0 || (req.headers['accept-aanguage'] || '').length === 0)
+		return false;
+
 	var arr = self.arr;
 	var user = req.cookie(COOKIE).parseInt();
 	var now = new Date();
