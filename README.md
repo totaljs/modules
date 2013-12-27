@@ -45,6 +45,7 @@
 #### FileCache
 
 - FileCache stores files for some time (with expiration).
+- __FileCache works with FileServer__
 - https://github.com/petersirka/partial.js-modules/tree/master/filecache
 
 #### FileServer
