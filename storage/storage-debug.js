@@ -25,14 +25,8 @@ Storage.prototype.onSave = function() {
 
 Storage.prototype.set = function(name, value) {
 	var self = this;
-
-	if (typeof(value) !== 'function') {
-		self.repository[name] = value;
-		self._save();
-		return;
-	}
-
-	self.repository[name] = value(self.repository[name]);
+	self.repository[name] = typeof(value) !== 'function' ? value : value(self.repository[name]);
+	self._save();
 	return self;
 };
 
@@ -71,7 +65,7 @@ Storage.prototype._save = function() {
 				process.send('storage');
 			}, 1000);
 		}
-	}, 500);	
+	}, 500);
 };
 
 framework.helpers.storage = function(name, def) {
