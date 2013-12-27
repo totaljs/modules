@@ -25,8 +25,14 @@ Storage.prototype.onSave = function() {
 
 Storage.prototype.set = function(name, value) {
 	var self = this;
-	self.repository[name] = value;
-	self._save();
+
+	if (typeof(value) !== 'function') {
+		self.repository[name] = value;
+		self._save();
+		return;
+	}
+
+	self.repository[name] = value(self.repository[name]);
 	return self;
 };
 
