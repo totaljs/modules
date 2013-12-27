@@ -144,7 +144,7 @@ Online.prototype.add = function(req, res) {
 	if (req.method !== 'GET')
 		return false;
 
-	if ((req.headers['accept'] || '').length === 0 || (req.headers['accept-aanguage'] || '').length === 0)
+	if ((req.headers['accept'] || '').length === 0 || (req.headers['accept-language'] || '').length === 0)
 		return false;
 
 	var arr = self.arr;
@@ -487,7 +487,7 @@ module.exports = online;
 module.exports.usage = function() {
 	var builder = [];
 	builder.push('Online              : ' + online.online);
-	builder.push('Last visit          : ' + online.lastvisit.format('yyyy-MM-dd HH:mm:ss'));
+	builder.push('Last visit          : ' + (online.lastvisit ? online.lastvisit.format('yyyy-MM-dd HH:mm:ss') : '...'));
 	builder.push('Hits                : ' + online.stats.hits);
 	builder.push('Unique              : ' + online.stats.unique);
 	builder.push('Count               : ' + online.stats.count);
@@ -506,4 +506,4 @@ module.exports.usage = function() {
 	builder.push('Mobile              : ' + online.stats.mobile);
 	builder.push('Desktop             : ' + online.stats.desktop);
 	return builder.join('\n');
-}
+};
