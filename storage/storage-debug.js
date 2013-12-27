@@ -75,7 +75,7 @@ Storage.prototype._save = function() {
 };
 
 framework.helpers.storage = function(name, def) {
-	return this.framework.module('framework').get(name, def) || '';
+	return this.framework.module('storage').get(name, def) || '';
 };
 
 module.exports = new Storage();
