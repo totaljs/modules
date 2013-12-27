@@ -25,6 +25,8 @@ framework.module('fileserver').configure('mywebsite', 'http://127.0.0.1:8000', f
 
 #### Add a file or files: module.upload(name, httpFile/httpFiles, [callback], [headers])
 
+> Module return FileID collection from the FileServer.
+
 ```js
 // this === controller
 var self = this;
@@ -32,6 +34,15 @@ var fileserver = self.module('fileserver');
 
 fileserver.upload('mywebsite', self.files, function(err, result) {
 	self.json(result);
+});
+
+// or
+
+fileserver.upload('mywebsite', self.files[0], function(err, result) {
+	var file = result[self.file[0].name];
+	// file.id
+	self.json(file);
+	//	self.json(result);
 });
 ```
 
