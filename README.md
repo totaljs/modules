@@ -3,16 +3,6 @@
 > IMPORTANT:
 > Authorization & Session module are prepared for the new version of partial.js. New version comming in this weekend.
 
-## View engines
-
-#### Jade view engine
-
-- https://github.com/petersirka/partial.js-modules/tree/master/jade
-
-#### doT view engine
-
-- https://github.com/petersirka/partial.js-modules/tree/master/dot
-
 ## Users / Session
 
 #### Authorization
@@ -29,18 +19,6 @@
 
 - Login button with Facebook
 - https://github.com/petersirka/partial.js-modules/tree/master/facebook
-
-## Compilers
-
-#### Less CSS
-
-- www.lesscss.org
-- https://github.com/petersirka/partial.js-modules/tree/master/less
-
-#### SASS CSS
-
-- www.sass-lang.com
-- https://github.com/petersirka/partial.js-modules/tree/master/sass
 
 ## Others
 
@@ -78,3 +56,25 @@
 
 - Analytics module for counting unique visitors and other.
 - https://github.com/petersirka/partial.js-modules/tree/master/online
+
+## Compilers
+
+#### Less CSS
+
+- www.lesscss.org
+- https://github.com/petersirka/partial.js-modules/tree/master/less
+
+#### SASS CSS
+
+- www.sass-lang.com
+- https://github.com/petersirka/partial.js-modules/tree/master/sass
+
+## View engines
+
+#### Jade view engine
+
+- https://github.com/petersirka/partial.js-modules/tree/master/jade
+
+#### doT view engine
+
+- https://github.com/petersirka/partial.js-modules/tree/master/dot
