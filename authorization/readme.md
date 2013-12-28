@@ -109,11 +109,11 @@ function view_logged() {
 
 ```
 
-### /modules/#.js
+### /definitions/authorization.js
 
 ```javascript
 
-framework.on('load', function() {
+framework.once('load', function() {
 
 	var auth = self.module('authorization');
 
