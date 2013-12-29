@@ -76,7 +76,7 @@ Users.prototype._onAuthorization = function(req, res, flags, callback) {
 		}
 
 		callback(false);
-	});
+	}, flags);
 
 };
 

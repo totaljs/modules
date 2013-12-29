@@ -112,17 +112,16 @@ function view_logged() {
 ### /definitions/authorization.js
 
 ```javascript
-
 framework.once('load', function() {
 
 	var auth = self.module('authorization');
 
-	auth.onAuthorization = function(id, callback) {
+	auth.onAuthorization = function(id, callback, flags) {
 
         // - this is cached
         // - read user information from database
         // - into callback insert the user object (this object is saved to session/cache)
-        // - this is an example
+        // - this is the example
         callback({ id: '1', alias: 'Peter Sirka' });
 
         // if user not exist then
@@ -130,5 +129,50 @@ framework.once('load', function() {
 	};
 
 });
+```
 
+### How to use roles?
+
+> Use a definition.
+
+```javascript
+framework.once('load', function() {
+
+	var auth = self.module('authorization');
+
+	auth.onAuthorization = function(id, callback, flags) {
+
+        // - this is cached
+        // - read user information from database
+        // - into callback insert the user object (this object is saved to session/cache)
+        // - this is the example
+        callback({ id: '1', alias: 'Peter Sirka', roles: ['admin'] });
+
+        // if user not exist then
+        // callback(null);
+	};
+
+});
+
+// Documentation: http://docs.partialjs.com/Framework/#framework.on('controller')
+framework.on('controller', function(self, name) {
+
+	var user = self.user;
+	if (user === null)
+		return;
+
+	var length = user.roles.length;
+	for (var i = 0; i < length; i++) {
+		var role = '!' + users.roles[i];
+		if (self.flags.indexOf(roles) === -1) {
+
+			// cancel executing of controller
+			self.cancel();
+
+			// redirect
+			self.redirect('/you-do-not-have-permission/')
+			return;
+		}
+	}
+});
 ```
