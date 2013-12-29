@@ -163,8 +163,9 @@ framework.on('controller', function(self, name) {
 
 	var length = user.roles.length;
 	for (var i = 0; i < length; i++) {
+
 		var role = '!' + users.roles[i];
-		if (self.flags.indexOf(roles) === -1) {
+		if (self.flags.indexOf(role) === -1) {
 
 			// cancel executing of controller
 			self.cancel();
@@ -173,6 +174,7 @@ framework.on('controller', function(self, name) {
 			self.redirect('/you-do-not-have-permission/')
 			return;
 		}
+
 	}
 });
 ```
