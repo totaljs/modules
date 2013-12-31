@@ -118,14 +118,41 @@ framework.once('load', function() {
 
 	auth.onAuthorization = function(id, callback, flags) {
 
-        // - this is cached
-        // - read user information from database
-        // - into callback insert the user object (this object is saved to session/cache)
-        // - this is the example
+		if (id)
+
+        // - this function is cached
+        // - here you must read user information from a database
+        // - insert the user object into the callback (this object will be saved to session/cache)
         callback({ id: '1', alias: 'Peter Sirka' });
 
         // if user not exist then
         // callback(null);
+	};
+
+});
+```
+
+In practice:
+
+```javascript
+framework.once('load', function() {
+
+	var auth = self.module('authorization');
+
+	auth.onAuthorization = function(id, callback, flags) {
+		var filter = function(user) {			
+			return user.id === id;
+		};
+
+		framework.database('users').one(filter, function(user) {
+
+			if (user === null) {
+				callback(null);
+				return;
+			}
+
+			callback(user);
+		});
 	};
 
 });
@@ -142,10 +169,9 @@ framework.once('load', function() {
 
 	auth.onAuthorization = function(id, callback, flags) {
 
-        // - this is cached
-        // - read user information from database
-        // - into callback insert the user object (this object is saved to session/cache)
-        // - this is the example
+        // - this function is cached
+        // - here you must read user information from a database
+        // - insert the user object into the callback (this object will be saved to session/cache)
         callback({ id: '1', alias: 'Peter Sirka', roles: ['admin'] });
 
         // if user not exist then
