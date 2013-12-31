@@ -118,8 +118,6 @@ framework.once('load', function() {
 
 	auth.onAuthorization = function(id, callback, flags) {
 
-		if (id)
-
         // - this function is cached
         // - here you must read user information from a database
         // - insert the user object into the callback (this object will be saved to session/cache)
@@ -132,7 +130,7 @@ framework.once('load', function() {
 });
 ```
 
-In practice:
+__IMPORTANT__ in practice:
 
 ```javascript
 framework.once('load', function() {
