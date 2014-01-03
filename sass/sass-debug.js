@@ -1,4 +1,5 @@
 var sass = require('node-sass');
+var fs = require('fs');
 
 exports.install = function(framework) {
 
@@ -45,7 +46,7 @@ function scss_compiler(req, res, isValidation) {
 			return;
 		}
 
-		var css = sass.renderSync({ data: content, outputStyle: 'compressed' });
+		var css = sass.renderSync({ data: data.toString(), outputStyle: 'compressed' });
 
 		// write compiled content into the temporary file
 		fs.writeFileSync(filename, css);

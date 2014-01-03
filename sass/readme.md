@@ -1,6 +1,6 @@
 # SASS CSS module
 
-- partial.js version +v1.2.8-0
+- partial.js version +v1.3.2
 - install npm node-sass
 - copy **sass.js** to __/your-partialjs-website/modules/__
 
