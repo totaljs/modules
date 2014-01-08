@@ -55,3 +55,7 @@ node minify.js filecache/filecache.js
 ECHO "....... fileserver.js"
 uglifyjs fileserver/fileserver-debug.js -o fileserver/fileserver.js
 node minify.js fileserver/fileserver.js
+
+ECHO "....... swig.js"
+uglifyjs swig/swig-debug.js -o swig/swig.js
+node minify.js swig/swig.js

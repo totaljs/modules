@@ -76,3 +76,7 @@
 #### doT view engine
 
 - https://github.com/petersirka/partial.js-modules/tree/master/dot
+
+#### Swig view engine
+
+- https://github.com/petersirka/partial.js-modules/tree/master/swig
