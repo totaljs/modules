@@ -1,6 +1,6 @@
 // MIT License
 // Copyright Peter Širka (www.petersirka.sk)
-// Version 1.01
+// Version 1.02
 
 global.jade = require('jade');
 
@@ -68,7 +68,7 @@ var definition = (function() {
 		self.subscribe.success();
 
 		if (self.isConnected) {
-			self.framework.responseContent(self.req, self.res, self.status, fn(model), self.internal.contentType, true, headers);
+			self.framework.responseContent(self.req, self.res, self.status, fn(model), 'text/html', true, headers);
 			self.framework.stats.response.view++;
 		}
 
