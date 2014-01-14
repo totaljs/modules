@@ -1,9 +1,8 @@
 # Online counter
 
-> partial.js analytic tool :-) for counting of visitors without using of client-side script and registration.
+> total.js analytic tool :-) for counting of visitors without using of client-side script and registration.
 
-- __partial.js version +v1.3.0__
-- copy **online.js** to __/your-partialjs-website/modules/__
+- copy **online.js** to __/your-totaljs-website/modules/__
 - the module counts requests into the controller
 - this module counts online users (according the cookies)
 - reads statistics for the period (daily, monthly, yearly)
@@ -13,7 +12,7 @@
 - __IMPORTANT:__ this module does not work with the cluster
 - auto-read _utm_medium_ param for adverts
 - robots (according the user-agent string) are skipped
-- [__DEMO__ on www.partialjs.com](http://www.partialjs.com/stats/)
+- [__DEMO__ on www.totaljs.com](http://www.totaljs.com/stats/)
 
 ## Using
 

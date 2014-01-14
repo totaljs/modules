@@ -1,8 +1,7 @@
 # Authorization module
 
-- partial.js version +v1.3.1
-- copy **authorization.js** to __/your-partialjs-website/modules/__
-- [EXAMPLE](https://github.com/petersirka/partial.js-modules/tree/master/authorization/example)
+- copy **authorization.js** to __/your-totaljs-website/modules/__
+- [EXAMPLE](https://github.com/petersirka/total.js-modules/tree/master/authorization/example)
 
 ## Functions and Events
 
@@ -178,7 +177,7 @@ framework.once('load', function() {
 
 });
 
-// Documentation: http://docs.partialjs.com/Framework/#framework.on('controller')
+// Documentation: http://docs.totaljs.com/Framework/#framework.on('controller')
 framework.on('controller', function(self, name) {
 
 	var user = self.user;

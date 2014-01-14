@@ -125,7 +125,7 @@ exports.read = function(name, id, callback, headers) {
 		utils.extend(h, headers);
 
 	h['Cache-Control'] = 'max-age=0';
-	h['X-Powered-By'] = 'partial.js v' + framework.version;
+	h['X-Powered-By'] = 'total.js v' + framework.version;
 
 	var connection = options.protocol === 'https:' ? https : http;
 	var req = connection.request(options, function(res) {
@@ -228,7 +228,7 @@ function send(url, name, files, callback, headers) {
 
 	h['Cache-Control'] = 'max-age=0';
 	h['Content-Type'] = 'multipart/form-data; boundary=' + BOUNDARY;
-	h['X-Powered-By'] = 'partial.js v' + framework.version;
+	h['X-Powered-By'] = 'total.js v' + framework.version;
 
 	var uri = parser.parse(utils.path(url) + name + '/');
 	var options = { protocol: uri.protocol, auth: uri.auth, method: 'PUT', hostname: uri.hostname, port: uri.port, path: uri.path, agent: false, headers: h };

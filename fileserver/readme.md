@@ -1,8 +1,7 @@
 # FileServer
 
-- __partial.js version +v1.3.1__
 - You must download [FileServer application](https://github.com/petersirka/fileserver).
-- copy **fileserver.js** to __/your-partialjs-website/modules/__
+- copy **fileserver.js** to __/your-totaljs-website/modules/__
 - FileServer using [FileStorage](https://github.com/petersirka/node-filestorage)
 
 FileServer stores uploaded files on other server via HTTP protocol.

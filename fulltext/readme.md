@@ -1,7 +1,6 @@
 # Fulltext Search Engine
 
-- __partial.js version +v1.3.0__
-- copy **fulltext.js** to __/your-partialjs-website/modules/__
+- copy **fulltext.js** to __/your-totaljs-website/modules/__
 - install [fulltext module from NPM](https://github.com/petersirka/node-fulltext)
 - [fulltext engine documentation](https://github.com/petersirka/node-fulltext)
 - all files will stored in database directory

@@ -1,5 +1,5 @@
 // MIT License
-// Copyright Peter Širka (www.petersirka.sk)
+// Copyright Peter Širka <petersirka@gmail.com>
 // Version 1.01
 
 var events = require('events');

@@ -1,9 +1,8 @@
 # Swig view engine
 
-- partial.js version +v1.3.1
 - install npm swig
-- copy **swig.js** to __/your-partialjs-website/modules/__
-- [EXAMPLE](https://github.com/petersirka/partial.js-modules/tree/master/swig/example)
+- copy **swig.js** to __/your-totaljs-website/modules/__
+- [EXAMPLE](https://github.com/petersirka/total.js-modules/tree/master/swig/example)
 
 ## Functions
 

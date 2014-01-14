@@ -1,7 +1,6 @@
 # Markdown parser
 
-- __partial.js version +v1.3.0__
-- copy **markdown.js** to __/your-partialjs-website/modules/__
+- copy **markdown.js** to __/your-totaljs-website/modules/__
 
 ## Using
 
@@ -111,9 +110,9 @@ markdown.onFormat = function(type, value) {
 ### markdown.onImage(alt, src, [width], [height], [url])
 
 ```
-TEXT TEXT TEXT ![Image description](http://www.partialjs.com/upload/logo-black.png#309x94) TEXT TEXT
+TEXT TEXT TEXT ![Image description](http://www.totaljs.com/upload/logo-black.png#309x94) TEXT TEXT
 TEXT TEXT TEXT TEXT TEXT TEXT __STRONG__ TEXT TEXT TEXT TEXT TEXT TEXT TEXT TEXT
-TEXT [![Image description](http://www.partialjs.com/upload/logo-black.png)](http://www.partialjs.com)
+TEXT [![Image description](http://www.totaljs.com/upload/logo-black.png)](http://www.totaljs.com)
 ```
 
 Parsing:
@@ -199,7 +198,7 @@ markdown.onLine = function(value) {
 Markdown:
 
 ```
-TEXT TEXT TEXT [partial.js](http://www.partialjs.com) TEXT TEXT TEXT TEXT TEXT
+TEXT TEXT TEXT [partial.js](http://www.totaljs.com) TEXT TEXT TEXT TEXT TEXT
 TEXT TEXT TEXT www.github.com TEXT TEXT TEXT TEXT TEXT TEXT <www.google.com> TEXT TEXT
 ```
 

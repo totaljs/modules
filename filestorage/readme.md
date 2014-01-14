@@ -1,10 +1,9 @@
 # FileStorage
 
-- __partial.js version +v1.3.0__
-- copy **filestorage.js** to __/your-partialjs-website/modules/__
+- copy **filestorage.js** to __/your-totaljs-website/modules/__
 - install [FileStorage](https://github.com/petersirka/node-filestorage)
 - [filestorage documentation](https://github.com/petersirka/node-filestorage)
-- all files will stored in __/your-partialjs-website/filestorage/__ directory
+- all files will stored in __/your-totaljs-website/filestorage/__ directory
 - __IMPORTANT:__ this module does not work with the cluster
 
 ```

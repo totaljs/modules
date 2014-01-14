@@ -1,10 +1,9 @@
 # doT view engine
 
-- partial.js version +v1.2.8-0
 - install npm dot
-- copy **dot.js** to __/your-partialjs-website/modules/__
+- copy **dot.js** to __/your-totaljs-website/modules/__
 - supports !!! __prefixes__ !!!
-- [EXAMPLE](https://github.com/petersirka/partial.js-modules/tree/master/dot/example)
+- [EXAMPLE](https://github.com/petersirka/total.js-modules/tree/master/dot/example)
 
 ## Functions
 

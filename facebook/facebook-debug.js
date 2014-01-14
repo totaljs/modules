@@ -1,5 +1,5 @@
 // MIT License
-// Copyright Peter Širka (www.petersirka.sk)
+// Copyright Peter Širka <petersirka@gmail.com>
 // Version 1.01
 
 const URL = 'https://graph.facebook.com/oauth/authorize?type=web_server&client_id={0}&redirect_uri={1}&scope=email,user_birthday,user_hometown';

@@ -1,9 +1,8 @@
 # Login with Facebook
 
-- partial.js version +v1.2.7-0
-- copy **facebook.js** to __/your-partialjs-website/modules/__
+- copy **facebook.js** to __/your-totaljs-website/modules/__
 - For testing use: [NGROK - proxy tunnel](https://ngrok.com/)
-- [EXAMPLE](https://github.com/petersirka/partial.js-modules/tree/master/facebook/example)
+- [EXAMPLE](https://github.com/petersirka/total.js-modules/tree/master/facebook/example)
 
 ## Functions and Events
 
