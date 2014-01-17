@@ -1,7 +1,7 @@
 # Module adds support of models
 
 - copy **model.js** to __/your-totaljs-website/modules/__
-- this module read models from __/your-totaljs-website/models/__ directory
+- this module reads models from __/your-totaljs-website/models/__ directory
 
 Example of structure:
 
