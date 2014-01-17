@@ -59,3 +59,7 @@ node minify.js fileserver/fileserver.js
 ECHO "....... swig.js"
 uglifyjs swig/swig-debug.js -o swig/swig.js
 node minify.js swig/swig.js
+
+ECHO "....... model.js"
+uglifyjs model/model-debug.js -o model/model.js
+node minify.js model/model.js
