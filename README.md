@@ -19,6 +19,11 @@
 
 ## Others
 
+#### Module adds support of models
+
+- You can create your custom models in /your-totaljs-app/models/ directory
+- https://github.com/petersirka/total.js-modules/tree/master/model
+
 #### Live Storage
 
 - Live Storage is storing a key/value data which is resistant for the restart of application.
