@@ -43,6 +43,8 @@ exports.product = function(name, price) {
 };
 ```
 
+#### Usage
+
 ```js
 framework.module('model')('user')('my-custom-param');
 framework.module('model')('subdirectory/user')(mongoose);
