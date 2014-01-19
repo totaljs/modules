@@ -63,6 +63,9 @@ Users.prototype._onAuthorization = function(req, res, flags, callback) {
 		req.user = user.user;
 		callback(true);
 		return;
+	}else{
+        	callback(false);
+        	return;
 	}
 
 	self.onAuthorization(id, function(user) {
