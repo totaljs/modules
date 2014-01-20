@@ -3,7 +3,7 @@
 - copy **authorization.js** to __/your-totaljs-website/modules/__
 - [EXAMPLE](https://github.com/petersirka/total.js-modules/tree/master/authorization/example)
 
-## Functions and Events
+## Properties and Functions and Events
 
 ```javascript
 var auth = framework.module('authorization');
