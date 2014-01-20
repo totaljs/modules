@@ -6,8 +6,22 @@
 ## Functions and Events
 
 ```javascript
-
 var auth = framework.module('authorization');
+
+// ==========================================
+// PROPERTIES
+// ==========================================
+
+auth.options.cookie = '__user'; // cookie name, default __user
+auth.options.autoLogin = true; // default true
+auth.options.expireSession = 10; // in minutes, default 10
+auth.options.expireCookie = 10; // in days, defualt 10
+
+auth.online; // get online users
+
+// ==========================================
+// METHODS
+// ==========================================
 
 /*
 	Login an user
@@ -46,13 +60,9 @@ auth.on('online', function(online) {});
 auth.on('expire', function(id, user) {});
 ```
 
-
-## Example
-
 ### /controllers/default.js
 
 ```javascript
-
 exports.install = function(framework) {
 	// ...
 	// ...

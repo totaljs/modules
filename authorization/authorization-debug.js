@@ -10,7 +10,7 @@ var USERAGENT = 20;
 // expireSession in minutes
 
 function Users() {
-	this.options = { cookie: '__user', secret: 'AbcUASOU389ASDadsl', expireSession: 10, expireCookie: 10 };
+	this.options = { cookie: '__user', secret: 'AbcUASOU389ASDadsl', expireSession: 10, expireCookie: 10, autoLogin: true };
 	this.framework = null;
 	this.online = 0;
 	this.users = {};
@@ -67,15 +67,18 @@ Users.prototype._onAuthorization = function(req, res, flags, callback) {
 
 	self.onAuthorization(id, function(user) {
 
-		if (user) {
-			req.user = user;
-			self.users[id] = { user: user, expire: new Date().add('m', self.options.expireSession) };
-			self.emit('login', id, user);
-			callback(true);
+		if (!user || !options.autoLogin) {
+			// remove cookie
+			res.cookie(options.cookie, '', new Date().add('d', -1));
+			callback(false);
 			return;
 		}
 
-		callback(false);
+		req.user = user;
+		self.users[id] = { user: user, expire: new Date().add('m', self.options.expireSession) };
+		self.emit('login', id, user);
+		callback(true);
+
 	}, flags);
 
 };
