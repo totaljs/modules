@@ -13,7 +13,7 @@ Example of structure:
     | user.js
     | product.js
     | order.js
-| models
+| modules
     | model.js
 | public
 | debugging.js
