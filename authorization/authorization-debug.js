@@ -100,7 +100,8 @@ Users.prototype.login = function(controller, id, user, expire) {
 	if (typeof(expire) !== 'number')
 		expire = null;
 
-	self.users[id] = { user: user, expire: new Date().add('m', expire || self.options.expireSession).getTime() };
+
+	self.users[id] = { user: user, expire: utils.isDate(expire) ? expire : new Date().add('m', expire || self.options.expireSession).getTime() };
 	self.refresh();
 	self.emit('login', id, user);
 	self._writeOK(id, controller.req, controller.res);
@@ -136,18 +137,64 @@ Users.prototype.logoff = function(controller, id) {
 	@newUser {Object}
 	return {Users}
 */
-Users.prototype.change = function(id, newUser) {
+Users.prototype.change = function(id, newUser, expire) {
 
 	id = id.toString();
 
 	var self = this;
-	var old = self.users[id];
+	var old = self.users[id] || null;
 
-	if (typeof(old) === 'undefined' || old === null)
+	if (old === null)
 		return self;
 
-	self.users[id] = newUser;
-	self.emit('change', id, newUsers, old || null);
+	self.users[id].user = newUser;
+	self.emit('change', id, newUser, old);
+
+	return self;
+};
+
+/*
+	Update an user
+	@id {Number}
+	@fn {function}
+	return {Users}
+*/
+Users.prototype.update = function(id, fn) {
+
+	id = id.toString();
+
+	var self = this;
+	var old = self.users[id] || null;
+
+	if (old === null)
+		return null;
+
+	var tmp = fn(old);
+	
+	if (tmp)
+		self.users[id] = tmp;
+
+	self.emit('update', id, old);
+
+	return self;
+};
+
+/*
+	Set Expires
+	@id {Number}
+	@expire {Date}
+	return {Users}
+*/
+Users.prototype.setExpires = function(id, expire) {
+	id = id.toString();
+
+	var self = this;
+	var old = self.users[id] || null;
+
+	if (old === null)
+		return self;
+
+	self.users[id].expire = utils.isDate(expire) ? expire : new Date().add('m', expire || self.options.expireSession).getTime();
 	return self;
 };
 

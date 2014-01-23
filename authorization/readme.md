@@ -49,6 +49,23 @@ auth.logoff(controller, id);
 */
 auth.change(id, newUser);
 
+/*
+	Update an user
+	@id {Number}
+	@fn {Function} :: function(user) {}
+	return {Users}
+*/
+auth.update(id, fn);
+
+/*
+	Update an user
+	@id {Number}
+	expire {Date}
+	return {Users}
+*/
+auth.setExpire(id, expire);
+
+
 // ==========================================
 // EVENTS
 // ==========================================
