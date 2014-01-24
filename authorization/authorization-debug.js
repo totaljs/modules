@@ -16,11 +16,6 @@ function Users() {
 	this.users = {};
 }
 
-Users.prototype.usage = function() {
-	var self = this;
-	return 'Online users: ' + self.online + ' ' + self.online.pluralize('users', 'user', 'users');
-};
-
 Users.prototype = new events.EventEmitter;
 
 /*
@@ -29,6 +24,11 @@ Users.prototype = new events.EventEmitter;
 	@callback {Function} :: callback must have as parameter an object or null value
 */
 Users.prototype.onAuthorization = null;
+
+Users.prototype.usage = function() {
+	var self = this;
+	return 'Online users: ' + self.online + ' ' + self.online.pluralize('users', 'user', 'users');
+};
 
 Users.prototype._onAuthorization = function(req, res, flags, callback) {
 
@@ -77,6 +77,7 @@ Users.prototype._onAuthorization = function(req, res, flags, callback) {
 		req.user = user;
 		self.users[id] = { user: user, expire: new Date().add('m', self.options.expireSession) };
 		self.emit('login', id, user);
+		self.refresh();
 		callback(true);
 
 	}, flags);
