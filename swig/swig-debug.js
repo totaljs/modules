@@ -25,7 +25,7 @@ var definition = (function() {
 			headers = null;
 		}
 
-		var output = swig.renderFile(self.path.views(name + '.html'), model);
+		var output = swig.renderFile(directory + self.path.views(name + '.html').substring(1), model);
 
 		if (isPartial)
 			return output;
