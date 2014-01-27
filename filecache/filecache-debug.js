@@ -36,14 +36,15 @@ FileCache.prototype.add = function(file, expire, id, callback) {
 	else if (typeof(self.list[id]) === 'undefined')
 		self.length++;
 
-	self.list[id] = { expire: expire, contentType: file.contentType, filename: file.filename, length: file.length, width: file.width, height: file.height };
+	var path = framework.path.temp(id + '.filecache');
+	self.list[id] = { expire: expire, contentType: file.contentType, filename: file.filename, length: file.length, width: file.width, height: file.height, path: path };
 
 	if (!callback) {
-		file.copy(framework.path.temp(id + '.filecache'));
+		file.copy(path);
 		return id;
 	}
 
-	file.copy(framework.path.temp(id + '.filecache'), function() {
+	file.copy(path, function() {
 		callback(id, self.list[id]);
 	});
 

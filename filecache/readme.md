@@ -34,7 +34,7 @@ var self = this;
 var filecache = self.module('filecache');
 
 console.log(filechace.info('d4e2ec5edbc4eda32e48'));
-// { expire: Date, contentType: String, filename: String, length: Number, width: Number, height: Number }
+// { expire: Date, contentType: String, filename: String, path: String, length: Number, width: Number, height: Number }
 
 ```
 
