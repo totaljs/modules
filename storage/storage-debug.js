@@ -8,7 +8,7 @@ function Storage() {
 
 Storage.prototype.onLoad = function() {
 	var self = this;
-	fs.readFile(self.framework.path.root('storage'), function(err, data) {
+	fs.readFile(self.framework.path.databases('storage.json'), function(err, data) {
 		if (err)
 			return;
 		try
@@ -20,7 +20,7 @@ Storage.prototype.onLoad = function() {
 
 Storage.prototype.onSave = function() {
 	var self = this;
-	fs.writeFile(self.framework.path.root('storage'), JSON.stringify(self.repository), utils.noop);
+	fs.writeFile(self.framework.path.databases('storage.json'), JSON.stringify(self.repository), utils.noop);
 };
 
 Storage.prototype.set = function(name, value) {
