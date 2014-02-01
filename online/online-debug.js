@@ -37,7 +37,7 @@ function Online() {
 		if (agent.length === 0)
 			return false;
 
-		if (req.headers['X-moz'] === 'prefetch')
+		if (req.headers['x-moz'] === 'prefetch')
 			return false;
 
 		if (self.onValid !== null && !self.onValid(req))
@@ -199,11 +199,11 @@ Online.prototype.add = function(req, res) {
 	self.emit('online', req);
 
 	if (self.last !== online) {
-		self.last = online;
 
 		if (self.allowIP)
 			self.ip = self.ip.slice(Math.abs(self.last - online));
 
+		self.last = online;
 		self.emit('change', online, self.ip);
 	}
 
@@ -224,36 +224,24 @@ Online.prototype.add = function(req, res) {
 	}
 
 	var length = self.social.length;
-	var type = 0;
 
 	for (var i = 0; i < length; i++) {
 		if (referer.indexOf(self.social[i]) !== -1) {
-			type = 1;
-			break;
+			stat.social++;
+			return true;
 		}
 	}
 
-	if (type === 0) {
-		for (var i = 0; i < length; i++) {
-			if (referer.indexOf(self.search[i]) !== -1) {
-				type = 2;
-				break;
-			}
+	var length = self.search.length;
+
+	for (var i = 0; i < length; i++) {
+		if (referer.indexOf(self.search[i]) !== -1) {
+			stat.search++;
+			return true;
 		}
 	}
 
-	switch (type) {
-		case 0:
-			stats.unknown++;
-			break;
-		case 1:
-			stats.social++;
-			break;
-		case 2:
-			stats.search++;
-			break;
-	}
-
+	stats.unknown++;
 	return true;
 };
 
