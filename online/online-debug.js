@@ -227,7 +227,7 @@ Online.prototype.add = function(req, res) {
 
 	for (var i = 0; i < length; i++) {
 		if (referer.indexOf(self.social[i]) !== -1) {
-			stat.social++;
+			stats.social++;
 			return true;
 		}
 	}
@@ -236,7 +236,7 @@ Online.prototype.add = function(req, res) {
 
 	for (var i = 0; i < length; i++) {
 		if (referer.indexOf(self.search[i]) !== -1) {
-			stat.search++;
+			stats.search++;
 			return true;
 		}
 	}
