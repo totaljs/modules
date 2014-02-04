@@ -19,9 +19,9 @@
 
 ## Others
 
-#### Simple prevention of DDOS
+#### Simple DDOS protection
 
-- Simple prevention of DDOS attacks (IP prevent), works with IP.
+- Simple protection of DDOS attacks.
 - https://github.com/totaljs/modules/tree/master/ddos
 
 #### Live Storage

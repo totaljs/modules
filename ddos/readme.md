@@ -1,4 +1,4 @@
-# Simple preventing of DDOS
+# Simple DDOS protection
 
 - copy **ddos.js** to __/your-totaljs-website/modules/__
 
