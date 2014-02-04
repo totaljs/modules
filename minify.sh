@@ -60,6 +60,6 @@ ECHO "....... swig.js"
 uglifyjs swig/swig-debug.js -o swig/swig.js
 node minify.js swig/swig.js
 
-ECHO "....... model.js"
-uglifyjs model/model-debug.js -o model/model.js
-node minify.js model/model.js
+ECHO "....... ddos.js"
+uglifyjs ddos/ddos-debug.js -o ddos/ddos.js
+node minify.js ddos/ddos.js

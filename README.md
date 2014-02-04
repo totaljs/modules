@@ -19,10 +19,10 @@
 
 ## Others
 
-#### Module adds support of models
+#### Simple prevention of DDOS
 
-- You can create your custom models in /your-totaljs-app/models/ directory
-- https://github.com/totaljs/modules/tree/master/model
+- Simple prevention of DDOS attacks (IP prevent), works with IP.
+- https://github.com/totaljs/modules/tree/master/ddos
 
 #### Live Storage
 
