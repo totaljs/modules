@@ -199,10 +199,6 @@ Online.prototype.add = function(req, res) {
 	self.emit('online', req);
 
 	if (self.last !== online) {
-
-		if (self.allowIP)
-			self.ip = self.ip.slice(Math.abs(self.last - online));
-
 		self.last = online;
 		self.emit('change', online, self.ip);
 	}
