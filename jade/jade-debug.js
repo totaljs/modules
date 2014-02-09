@@ -8,13 +8,10 @@ var definition = (function() {
 	Controller.prototype.view = function (name, model, headers, isPartial) {
 
 		var self = this;
-		var first = name[0];
-		var skip = first === '~';
+		var skip = name[0] === '~';
 
-		if (!self.isLayout && first !== '/' && !skip) {
-			if (self.name !== 'default' && self.name[0] !== '#')
-				name = '/' + self.name + '/' + name;
-		}
+		if (!self.isLayout && !skip)
+			name = self._currentView + name;
 
 		if (skip)
 			name = name.substring(1);
@@ -35,6 +32,7 @@ var definition = (function() {
 			var fs = require('fs');
 			var ext = '.jade';
 			var isPrefix = prefix.length > 0;
+
 			var exists = fs.existsSync(self.path.views(filename + (isPrefix ? '#' + prefix : '') + ext));
 
 			if (!exists) {

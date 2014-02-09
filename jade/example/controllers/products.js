@@ -12,7 +12,8 @@ function view_products() {
 	};
 
 	// load from /views/each.jade
-	self.view('~each', { users: users });
+	self.currentView('');
+	self.view('each', { users: users });
 }
 
 function view_products_each() {
