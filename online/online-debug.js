@@ -469,25 +469,7 @@ framework.helpers.online = 0;
 module.exports = online;
 
 module.exports.usage = function() {
-	var builder = [];
-	builder.push('Online              : ' + online.online);
-	builder.push('Last visit          : ' + (online.lastvisit ? online.lastvisit.format('yyyy-MM-dd HH:mm:ss') : '...'));
-	builder.push('Hits                : ' + online.stats.hits);
-	builder.push('Unique              : ' + online.stats.unique);
-	builder.push('Count               : ' + online.stats.count);
-	builder.push('Pages per visit     : ' + (online.stats.hits > 0 && online.stats.count > 0 ? (online.stats.hits / online.stats.count).floor(2) : 0));
-	builder.push('');
-	builder.push('Acquisition:');
-	builder.push('');
-	builder.push('Search              : ' + online.stats.search);
-	builder.push('Direct              : ' + online.stats.direct);
-	builder.push('Social              : ' + online.stats.social);
-	builder.push('Unknown             : ' + online.stats.unknown);
-	builder.push('Advert              : ' + online.stats.advert);
-	builder.push('');
-	builder.push('Devices:');
-	builder.push('');
-	builder.push('Mobile              : ' + online.stats.mobile);
-	builder.push('Desktop             : ' + online.stats.desktop);
-	return builder.join('\n');
+	var stats = utils.extend({}, online.stats.hits);
+	stats.online = online.online;
+	return stats;
 };

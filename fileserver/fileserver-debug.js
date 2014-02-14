@@ -6,6 +6,8 @@ var fs = require('fs');
 var NEWLINE = '\r\n';
 var ERROR = 'You haven\'t defined URL address to file server. Define a server: module.configure(name, url)';
 var settings = {};
+var stats_download = 0;
+var stats_upload = 0;
 
 exports.upload = function(name, files, callback, headers) {
 
@@ -18,6 +20,7 @@ exports.upload = function(name, files, callback, headers) {
 	if (!(files instanceof Array))
 		files = [files];
 
+	stats_upload++;
 	send(settings[name], name, files, callback, headers);
 
 	return exports;
@@ -127,6 +130,8 @@ exports.read = function(name, id, callback, headers) {
 	h['Cache-Control'] = 'max-age=0';
 	h['X-Powered-By'] = 'total.js v' + framework.version;
 
+	stats_download++;
+
 	var connection = options.protocol === 'https:' ? https : http;
 	var req = connection.request(options, function(res) {
 		var filename = (res.headers['content-disposition'] || '').replace('attachment; filename=', '').trim();
@@ -196,6 +201,13 @@ exports.configure = function(name, url, callback) {
 		exports.availability(name, callback);
 
 	return exports;
+};
+
+exports.usage = function() {
+	return {
+		download: stats_download,
+		upload: stats_upload
+	};
 };
 
 exports.availability = function(name, callback) {

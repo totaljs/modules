@@ -83,7 +83,7 @@ exports.install = function() {
 };
 
 exports.usage = function() {
-	return 'Bans'.padRight(20) + ': ' + ban_length;
+	return { bans: ban_length };
 };
 
 exports.options = { maximum: 1000, minutes: 5 };

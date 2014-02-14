@@ -5,6 +5,8 @@
 var events = require('events');
 var SUGAR = 'XY1';
 var USERAGENT = 11;
+var stats_read = 0;
+var stats_write = 0;
 
 function Session() {
 
@@ -51,6 +53,8 @@ Session.prototype._read = function(res, req, next, controller) {
 	req._sessionId = obj.id;
 	req._session = self;
 
+	stats_read++;
+
 	self.onRead(obj.id, function(session) {
 		self.emit('read', req._sessionId, session);
 		req.session = session || {};
@@ -85,6 +89,7 @@ Session.prototype._create = function(res, req, next) {
 Session.prototype._write = function(id, obj) {
 	var self = this;
 
+	stats_write++;
 	self.emit('write', id, obj);
 
 	if (self.onWrite !== null)
@@ -94,6 +99,13 @@ Session.prototype._write = function(id, obj) {
 };
 
 module.exports = new Session();
+
+module.exports.usage = function() {
+	return {
+		read: stats_read,
+		write: stats_write
+	};
+};
 
 module.exports.install = function(framework) {
 

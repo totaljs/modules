@@ -26,8 +26,7 @@ Users.prototype = new events.EventEmitter;
 Users.prototype.onAuthorization = null;
 
 Users.prototype.usage = function() {
-	var self = this;
-	return 'Online users: ' + self.online + ' ' + self.online.pluralize('users', 'user', 'users');
+	return { online: this.online };
 };
 
 Users.prototype._onAuthorization = function(req, res, flags, callback) {

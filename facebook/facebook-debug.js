@@ -3,6 +3,7 @@
 // Version 1.01
 
 const URL = 'https://graph.facebook.com/oauth/authorize?type=web_server&client_id={0}&redirect_uri={1}&scope=email,user_birthday,user_hometown';
+var stats_login = 0;
 
 function redirect(key, url) {
 	return URL.format(key, url);
@@ -24,6 +25,7 @@ function profile(key, secret, code, url, callback) {
 			return;
 		}
 
+		stats_login++;
 		utils.request('https://graph.facebook.com/me?' + data, 'GET', '', function(err, data, status) {
 
 			if (err) {
@@ -41,3 +43,7 @@ function profile(key, secret, code, url, callback) {
 
 exports.redirect = redirect;
 exports.profile = profile;
+
+exports.usage = function() {
+	return { count: stats_login };
+};

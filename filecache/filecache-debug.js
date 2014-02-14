@@ -194,6 +194,10 @@ FileCache.prototype.clear = function() {
 	return self;
 };
 
+FileCache.prototype.usage = function() {
+	return { count: this.length };
+};
+
 var filecache = new FileCache();
 
 module.exports = filecache;
