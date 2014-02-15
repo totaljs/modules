@@ -469,7 +469,7 @@ framework.helpers.online = 0;
 module.exports = online;
 
 module.exports.usage = function() {
-	var stats = utils.extend({}, online.stats.hits);
+	var stats = utils.extend({}, online.stats);
 	stats.online = online.online;
 	return stats;
 };
