@@ -26,7 +26,7 @@ auth.online; // get online users
 /*
 	Login an user
 	@controller {Controller}
-	@id {Number}
+	@id {Number or String}
 	@user {Object}
 	@expire {Number} :: expire in minutes
 	return {Module}
@@ -43,7 +43,7 @@ auth.logoff(controller, id);
 
 /*
 	Change an user
-	@id {Number}
+	@id {Number or String}
 	@newUser {Object}
 	return {Users}
 */
@@ -51,7 +51,7 @@ auth.change(id, newUser);
 
 /*
 	Update an user
-	@id {Number}
+	@id {Number or String}
 	@fn {Function} :: function(user) {}
 	return {Users}
 */
@@ -59,7 +59,7 @@ auth.update(id, fn);
 
 /*
 	Update an user
-	@id {Number}
+	@id {Number or String}
 	expire {Date}
 	return {Users}
 */
