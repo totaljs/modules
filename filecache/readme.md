@@ -60,6 +60,23 @@ filecache.read('id', function(err, header, stream) {
 });
 ```
 
+#### Copy file: filecache.copy(id, path, [calllback], [removeAfterRead]);
+
+```js
+// this === controller
+var self = this;
+var filecache = self.module('filecache');
+
+filecache.copy('id', '/newpah/myfile.jpg', function(err, path) {
+
+	if (err) {
+		self.view500(err);
+		return;
+	}
+
+}, true);
+```
+
 #### Has a file: filecache.has(id);
 
 ```js

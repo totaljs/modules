@@ -87,6 +87,40 @@ FileCache.prototype.read = function(id, callback, remove) {
 	return self;
 };
 
+FileCache.prototype.copy = function(id, path, callback, remove) {
+
+	var self = this;
+
+	if (typeof(self.list[id]) === 'undefined') {
+		if (callback)
+			callback(new Error('File not found.'));
+		return;
+	}
+
+	var obj = self.list[id];
+
+	if (obj.expire < new Date()) {
+		self.remove(id);
+		if (callback)
+			callback(new Error('File not found.'));
+		return;
+	}
+
+	var stream = fs.createReadStream(framework.path.temp(id + '.filecache'));
+	stream.pipe(fs.createWriteStream(path));
+
+	if (remove) {
+		stream.on('close', function() {
+			self.remove(id);
+		});
+	}
+
+	if (callback)
+		callback(null, path);
+
+	return self;
+};
+
 FileCache.prototype.fileserver = function(name, id, callback, headers, remove) {
 
 	var self = this;
@@ -160,7 +194,7 @@ FileCache.prototype.remove = function(id) {
 	if (arr.length === 0)
 		return self;
 
-	arr.waiting(function(path, next) {
+	arr.wait(function(path, next) {
 		fs.unlink(path, function() {
 			next();
 		});
