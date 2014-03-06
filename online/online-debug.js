@@ -62,7 +62,14 @@ Online.prototype = {
 		return arr[0] + arr[1];
 	},
 	get today() {
-		var stats = utils.copy({ hits: 0, unique: 0, count: 0, search: 0, direct: 0, social: 0, advert: 0, unknown: 0, mobile: 0, desktop: 0 }, this.stats);
+
+		var stats = null;
+
+		if (framework.version < 1231)
+			stats = utils.copy({ hits: 0, unique: 0, count: 0, search: 0, direct: 0, social: 0, advert: 0, unknown: 0, mobile: 0, desktop: 0 }, this.stats);
+		else
+			stats = utils.copy(this.stats, { hits: 0, unique: 0, count: 0, search: 0, direct: 0, social: 0, advert: 0, unknown: 0, mobile: 0, desktop: 0 });
+
 		stats.last = this.lastvisit;
 		return stats;
 	}
@@ -264,7 +271,10 @@ Online.prototype.load = function() {
 
 		try
 		{
-			self.stats = utils.copy(self.stats, JSON.parse(data.toString('utf8')));
+			if (framework.version < 1231)
+				self.stats = utils.copy(self.stats, JSON.parse(data.toString('utf8')));
+			else
+				self.stats = utils.copy(JSON.parse(data.toString('utf8')), self.stats);
 		} catch (ex) {}
 
 	});
