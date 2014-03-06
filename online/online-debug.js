@@ -62,15 +62,9 @@ Online.prototype = {
 		return arr[0] + arr[1];
 	},
 	get today() {
-
-		var stats = null;
-
-		if (framework.version < 1231)
-			stats = utils.copy({ hits: 0, unique: 0, count: 0, search: 0, direct: 0, social: 0, advert: 0, unknown: 0, mobile: 0, desktop: 0 }, this.stats);
-		else
-			stats = utils.copy(this.stats, { hits: 0, unique: 0, count: 0, search: 0, direct: 0, social: 0, advert: 0, unknown: 0, mobile: 0, desktop: 0 });
-
-		stats.last = this.lastvisit;
+		var self = this;
+		var stats = framework.version >= 1231 ? utils.copy(self.stats, { hits: 0, unique: 0, count: 0, search: 0, direct: 0, social: 0, advert: 0, unknown: 0, mobile: 0, desktop: 0 }) : utils.copy({ hits: 0, unique: 0, count: 0, search: 0, direct: 0, social: 0, advert: 0, unknown: 0, mobile: 0, desktop: 0 }, self.stats);
+		stats.last = self.lastvisit;
 		return stats;
 	}
 };
