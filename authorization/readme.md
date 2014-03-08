@@ -84,9 +84,9 @@ exports.install = function(framework) {
 	// ...
 	// ...
 	// ...
-	framework.route('/xhr/login/', json_login, ['unlogged']);
-	framework.route('/xhr/logoff/', json_logoff, ['logged']);
-	framework.route('/', view_logged, ['logged']);
+	framework.route('/xhr/login/', json_login);
+	framework.route('/xhr/logoff/', json_logoff, ['authorize']);
+	framework.route('/', view_authorize, ['authorize']);
 };
 
 function json_login() {
@@ -123,7 +123,7 @@ function json_logoff() {
 	self.json({ r: true });
 }
 
-function view_logged() {
+function view_authorize() {
 	var self = this;
 	var user = self.user;
 
