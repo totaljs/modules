@@ -155,7 +155,7 @@ Online.prototype.add = function(req, res) {
 	var sum = user === 0 ? 1000 : (ticks - user) / 1000;
 	var exists = sum < 31;
 	var stats = self.stats;
-	var referer = req.headers['referer'] || '';
+	var referer = req.headers['x-referer'] || req.headers['referer'] || '';
 
 	stats.hits++;
 

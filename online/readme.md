@@ -248,3 +248,9 @@ online.on('change', function(count, ip) {
 
 });
 ```
+
+## Special headers
+
+### X-Referer
+
+> New HTML history API doesn't refresh a referer header in XHR requests. This module support X-Referer header for GeoIP location.
