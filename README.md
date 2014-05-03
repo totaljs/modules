@@ -17,6 +17,12 @@
 - Login button with Facebook
 - https://github.com/totaljs/modules/tree/master/facebook
 
+#### Simple Twitter API
+
+- Get tweets
+- https://github.com/totaljs/modules/tree/master/twitter
+
+
 ## Others
 
 #### Simple DDOS protection

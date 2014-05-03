@@ -63,3 +63,7 @@ node minify.js swig/swig.js
 ECHO "....... ddos.js"
 uglifyjs ddos/ddos-debug.js -o ddos/ddos.js
 node minify.js ddos/ddos.js
+
+ECHO "....... twitter.js"
+uglifyjs twitter/twitter-debug.js -o twitter/twitter.js
+node minify.js twitter/twitter.js
