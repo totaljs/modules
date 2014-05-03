@@ -1,4 +1,4 @@
-# Simple Twitter Api
+# Simple Twitter API
 
 - copy **twitter.js** to __/your-totaljs-website/modules/__
 
