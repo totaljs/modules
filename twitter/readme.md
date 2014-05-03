@@ -4,6 +4,10 @@
 
 ## How to get keys?
 
+1. Open <https://apps.twitter.com/app/>
+2. Create your application
+3. Click the application
+
 ![Twitter API](http://www.totaljs.com/github/module-twitter.png)
 
 ## Functions
