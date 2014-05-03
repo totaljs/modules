@@ -2,7 +2,7 @@
 
 - copy **twitter.js** to __/your-totaljs-website/modules/__
 
-## How to get keys?
+## How to obtain keys?
 
 1. Open <https://apps.twitter.com/app/>
 2. Create your application
