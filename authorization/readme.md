@@ -164,7 +164,7 @@ framework.once('load', function() {
 	var auth = self.module('authorization');
 
 	auth.onAuthorization = function(id, callback, flags) {
-		var filter = function(user) {			
+		var filter = function(user) {
 			return user.id === id;
 		};
 
@@ -214,7 +214,7 @@ framework.on('controller', function(self, name) {
 	var length = user.roles.length;
 	for (var i = 0; i < length; i++) {
 
-		var role = '!' + users.roles[i];
+		var role = '!' + user.roles[i];
 		if (self.flags.indexOf(role) === -1) {
 
 			// cancel executing of controller
