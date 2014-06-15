@@ -7,24 +7,31 @@ var SUGAR = 'XY1';
 var USERAGENT = 11;
 var stats_read = 0;
 var stats_write = 0;
+var VERSION = '2.0';
 
 function Session() {
 
-	this.options = { cookie: '__ssid', secret: 'N84' };
+	this.options = { cookie: '__ssid', secret: 'N84', timeout: 5 };
 
 	/*
 		Read session
 		@id {String}
 		fnCallback {Function} :: param - is value from DB
 	*/
-	this.onRead = null;
+	this.onRead = function(id, fnCallback) {
+        fnCallback(framework.cache.read(id));
+    };
 
 	/*
 		Write session
 		@id {String}
 		@obj {Object}
 	*/
-	this.onWrite = null;
+	this.onWrite = function(id, value) {
+		var self = this;
+        framework.cache.add(id, value, new Date().add('minute', self.options.timeout));
+        return self;
+    };
 }
 
 Session.prototype = new events.EventEmitter;
@@ -99,6 +106,7 @@ Session.prototype._write = function(id, obj) {
 };
 
 module.exports = new Session();
+module.exports.version = VERSION;
 
 module.exports.usage = function() {
 	return {
@@ -115,13 +123,14 @@ module.exports.install = function(framework) {
 
 	self.framework = framework;
 
-	self.framework.on('request-end', function(req, res) {
-		var self = this;
-		self.module('session')._write(req._sessionId, req.session);
+	self.framework.on('request', function(req, res) {
+		res.once('finish', function() {
+			self.framework.module('session')._write(req._sessionId, req.session);
+		});
 	});
 
-	self.framework.partial(function(next) {
+	self.framework.middleware(function(next) {
 		var self = this;
-		self.module('session')._read(self.res, self.req, next, self);
+		self.framework.module('session')._read(self.res, self.req, next, self);
 	});
 };
