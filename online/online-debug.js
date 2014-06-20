@@ -128,7 +128,6 @@ Online.prototype.clean = function() {
 		}
 	}
 
-	framework.helpers.online = self.online;
 	return self;
 };
 
@@ -205,8 +204,6 @@ Online.prototype.add = function(req, res) {
 	}
 
 	stats.count++;
-
-	framework.helpers.online = online;
 
 	if (self.isAdvert(req)) {
 		stats.advert++;
@@ -468,7 +465,9 @@ framework.on('controller', function(controller, name) {
 	online.add(controller.req, controller.res);
 });
 
-framework.helpers.online = 0;
+framework.helpers.online = function() {
+	return online.online;
+};
 
 module.exports = online;
 
