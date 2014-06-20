@@ -49,7 +49,7 @@ Users.prototype._onAuthorization = function(req, res, flags, callback) {
 
 	var arr = value.split('|');
 
-	if (arr[1] !== SUGAR || arr[2] !== req.headers['user-agent'].substring(0, USERAGENT).replace(/\s/g, '')) {
+	if (arr[1] !== SUGAR || arr[3] !== req.ip || arr[2] !== req.headers['user-agent'].substring(0, USERAGENT).replace(/\s/g, '')) {
 		callback(false);
 		return;
 	}
@@ -170,7 +170,7 @@ Users.prototype.update = function(id, fn) {
 		return null;
 
 	var tmp = fn(old);
-	
+
 	if (tmp)
 		self.users[id] = tmp;
 
@@ -245,7 +245,7 @@ Users.prototype.recycle = function() {
 Users.prototype._writeOK = function(id, req, res) {
 	var self = this;
 	var framework = self.framework;
-	var value = id + '|' + SUGAR + '|' + req.headers['user-agent'].substring(0, USERAGENT).replace(/\s/g, '') + '|';
+	var value = id + '|' + SUGAR + '|' + req.headers['user-agent'].substring(0, USERAGENT).replace(/\s/g, '') + '|' + req.ip + '|';
 	res.cookie(self.options.cookie, framework.encrypt(value, self.options.secret), new Date().add('d', self.options.expireCookie));
 	return this;
 };
