@@ -1,6 +1,5 @@
 # JADE VIEW ENGINE
 
-- partial.js version +v1.2.8-0
 - install npm jade
 - copy **jade.js** to __/your-partialjs-website/modules/__
 - supports !!! __prefixes__ !!!
