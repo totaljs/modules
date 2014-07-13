@@ -22,7 +22,7 @@ var webcounter = MODULE('webcounter');
 
 `console.log(webcounter.online);`
 
-### Today statistic
+### Today statistics
 
 `console.log(webcounter.today);`
 
