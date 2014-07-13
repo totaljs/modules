@@ -1,103 +1,51 @@
-# Session module
+# Installation
 
-- copy **session.js** to __/your-totaljs-website/modules/__
-- [REDIS EXAMPLE](https://github.com/petersirka/partial.js-modules/tree/master/session/example)
-- [IN-MEMORY EXAMPLE](https://github.com/petersirka/partial.js-modules/tree/master/session/example-in-memory)
+```js
+var options = {};
 
-## Functions and Events
+// Name of cookie
+// options.cookie = '__ssid';
 
-```javascript
+// Secret for encrypt/decrypt
+// options.secret = 'N84';
 
-var session = framework.module('session');
+// Timeout
+// options.timoeut = '5 minutes';
 
-/*
-	Load delegate
-	@id {String}
-	@fnCallback {Function} :: fnCallback(obj) :: @obj {Object}
-*/
-session.onRead = function(id, fnCallback) {
-
-	// read session value
-	// read from DB by @id param
-
-	fnCallback({ name: 'PETER' });
-	
-};
-
-/*
-	Save delegate
-	@id {String}
-	@value {Object}
-*/
-session.onWrite = function(id, value) {
-
-	// write session value to DB
-
-};
-
-// ==========================================
-// EVENTS
-// ==========================================
-
-session.on('read', function(id, value) {});
-session.on('write', function(id, value) {});
-
+framework.instal('module', 'http://modules.totaljs.com/session/v1.00/session.js', options);
 ```
 
+or __download module__ from GitHub and copy into `/your-totaljs-website/modules/`.
 
-## Example
+## Usage in Controller
 
-### /controllers/default.js
+- session is a middleware
+- session is automatically loaded
+- session is automatically saved after is response finished
 
-```javascript
+```js
+exports.install = function(framework, options) {
+    // IMPORTANT: #session is a middleware
+    // You can specify Session into all routes:
+    framework.install('/', some_action_in_controller, ['#session']);
 
-exports.install = function(framework) {
-	framework.route('/', view_homepage);
+    // or for all routes use (this is global middleware for all requests):
+    // framework.use('session');
 };
 
-function view_homepage() {
 
-	var self = this;
-	var session = self.session;
-
-	if (utils.isEmpty(session))
-		session = { count: 0 };
-
-	session.count++;
-	self.json(session);
-}
-
-```
-
-### /modules/#.js
-
-```javascript
-
-// npm install redis
-var redis = require("redis");
-var redis_session = redis.createClient();
-
-framework.on('load', function() {
-
+function some_action_in_controller() {
     var self = this;
-    var session = self.module('session');
 
-    // load values
-    session.onRead = function(id, fnCallback) {
+    if (typeof(self.session.counter) === 'undefined')
+        self.session.counter = 0;
 
-        // read session value
-        redis_session.get(id, function(err, reply) {
-            fnCallback(reply ? JSON.parse(reply) : {});
-        });
-
-    };
-
-    // save values
-    session.onWrite = function(id, value) {
-        // save session value
-        redis_session.set(id, JSON.stringify(value));
-    };
-
-});
+    self.session.counter++;
+    self.view('some-view');
+};
 
 ```
+
+## Additional features
+
+Reset all bans: `ddos.reset()`
