@@ -1,18 +1,25 @@
-# Simple DDOS protection
+# Installation
 
-- copy **ddos.js** to __/your-totaljs-website/modules/__
+```js
+var options = {};
 
-## Properties
+// Maximum requests for user
+// options.maximum = 1000;
 
-```javascript
-var ddos = framework.module('ddos');
+// Ban timeout
+// options.minutes = 5;
 
-// Maximum request per IP
-// ip += 1 every request, but every second ip -= 1;
-// default 1000
-ddos.options.maximum = 1000;
-
-// IP ban in minutes
-// default 5
-ddos.options.minutes = 5;
+framework.instal('module', 'http://modules.totaljs.com/ddos/v1.00/ddos.js', options);
 ```
+
+or __download module__ from GitHub and copy into `/your-totaljs-website/modules/`.
+
+## Instance
+
+```js
+var ddos = MODULE('ddos');
+```
+
+## Additional features
+
+Reset all bans: `ddos.reset()`
