@@ -1,5 +1,7 @@
 var fs = require('fs');
 
+exports.name = 'fulltext';
+
 var definition = (function() {
 
 	framework.fulltext = function(name) {
@@ -18,7 +20,7 @@ var definition = (function() {
 	};
 
 	Controller.prototype.fulltext = function(name) {
-		return this.framework.fulltext(name);
+		return framework.fulltext(name);
 	};
 
 });
