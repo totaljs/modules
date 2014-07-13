@@ -1,5 +1,5 @@
 /**
- * @module WebCounter
+ * @module DDOS
  * @version v1.0
  * @author Peter Širka
  */
@@ -13,9 +13,11 @@ var intervalService;
 
 exports.name = 'ddos';
 exports.version = 'v1.01';
-exports.options = { maximum: 1000, minutes: 5 };
+exports.options = null;
 
-exports.install = function() {
+exports.install = function(framework, options) {
+
+	exports.options = Utils.extend({ maximum: 1000, minutes: 5 }, options);
 
 	framework.middleware('ddos', function(req, res, next, options, controller) {
 
@@ -107,4 +109,15 @@ exports.uninstall = function(framework, options) {
 
 exports.usage = function() {
 	return { bans: ban_length };
+};
+
+/**
+ * Reset bans
+ */
+exports.reset = function() {
+	counter = 0;
+	ip = {};
+	ban = {};
+	ban_length = 0;
+	return this;
 };

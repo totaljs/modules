@@ -581,13 +581,9 @@ module.exports.uninstall = function(framework, options) {
     // clear views
     UNINSTALL('view', 'webcounter');
 
-    if (!options.reinstall) {
-
-        // clear files
-        framework.rm.database(FILE_CACHE);
-        framework.rm.database(FILE_STATS);
-
-    }
+    // clear files
+    // framework.rm.database(FILE_CACHE);
+    // framework.rm.database(FILE_STATS);
 
     delegate = null;
     webcounter = null;
