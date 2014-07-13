@@ -32,8 +32,8 @@ var webcounter = MODULE('webcounter');
 
 ## Helpers
 
-- Get online visitors @{online()}
-- Get count of all unique visitors @{visitors()}
+- Get online visitors `@{online()}`
+- Get count of all unique visitors `@{visitors()}`
 
 ## Additional features
 
