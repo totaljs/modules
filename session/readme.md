@@ -10,7 +10,7 @@ var options = {};
 // options.secret = 'N84';
 
 // Timeout
-// options.timoeut = '5 minutes';
+// options.timeout = '5 minutes';
 
 framework.instal('module', 'http://modules.totaljs.com/session/v1.00/session.js', options);
 ```
