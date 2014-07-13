@@ -39,8 +39,8 @@ var webcounter = MODULE('webcounter');
 
 ### Custom counter
 
-Append into statistics:
+#### Append into statistics:
 `MODULE('webcounter').increment('order')` or `MODULE('webcounter').increment('contact-form')`
 
-Read from statistics:
-`console.log(MODULE('webcounter').today.order);`
+#### Read from statistics:
+`console.log(MODULE('webcounter').today.order);` or `console.log(MODULE('webcounter').today['contact-form']);`
