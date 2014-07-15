@@ -9,7 +9,8 @@ var options = {};
 // Ban timeout
 // options.minutes = 5;
 
-framework.instal('module', 'http://modules.totaljs.com/ddos/v1.00/ddos.js', options);
+INSTALL('module', 'https://modules.totaljs.com/ddos/v1.00/ddos.js', options);
+// UNINSTALL('module', 'ddos');
 ```
 
 or __download module__ from GitHub and copy into `/your-totaljs-website/modules/`.

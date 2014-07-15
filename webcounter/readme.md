@@ -9,7 +9,8 @@ var options = {};
 // A default URL address of statistics
 // options.url = '/webcounter/';
 
-framework.instal('module', 'http://modules.totaljs.com/webcounter/v1.00/webcounter.js', options);
+INSTALL('module', 'https://modules.totaljs.com/webcounter/v1.00/webcounter.js', options);
+// UNINSTALL('module', 'webcounter');
 ```
 
 ## Instance
