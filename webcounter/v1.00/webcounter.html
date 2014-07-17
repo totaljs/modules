@@ -213,7 +213,7 @@
 	        $.ajax(window.location.pathname + '?ip=' + encodeURIComponent(ip), { success: function(data) {
 	        	if (data.r)
 	        		return;
-	        	cache[ip] = '!' + data.country_name + ((data.city || '').length > 0 ? ' (city: ' + data.city + ')' : '');
+	        	cache[ip] = '!' + data.country + ((data.city || '').length > 0 ? ' (city: ' + data.city + ')' : '');
 	        }, dataType: 'json' });
 	    }
 
