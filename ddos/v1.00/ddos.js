@@ -28,6 +28,8 @@ exports.install = function(framework, options) {
 
 		if (ban_length > 0 && ban[req.ip]) {
 			res.success = true;
+			framework.stats.response.destroy++;
+			framework._request_stats(false, req.isStaticFile);
 			req.connection.destroy();
 			next();
 			return;
