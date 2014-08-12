@@ -11,7 +11,6 @@ var USERAGENT = 20;
 
 function Users() {
 	this.options = { cookie: '__user', secret: 'AbcUASOU389ASDadsl', expireSession: 10, expireCookie: 10, autoLogin: true };
-	this.framework = null;
 	this.online = 0;
 	this.users = {};
 }
@@ -32,7 +31,6 @@ Users.prototype.usage = function() {
 Users.prototype._onAuthorization = function(req, res, flags, callback) {
 
 	var self = this;
-	var framework = self.framework;
 	var options = self.options;
 	var cookie = req.cookie(options.cookie) || '';
 
@@ -244,7 +242,6 @@ Users.prototype.recycle = function() {
 */
 Users.prototype._writeOK = function(id, req, res) {
 	var self = this;
-	var framework = self.framework;
 	var value = id + '|' + SUGAR + '|' + req.headers['user-agent'].substring(0, USERAGENT).replace(/\s/g, '') + '|' + req.ip + '|';
 	res.cookie(self.options.cookie, framework.encrypt(value, self.options.secret), new Date().add('d', self.options.expireCookie));
 	return this;
@@ -259,9 +256,12 @@ Users.prototype._writeNO = function(res) {
 	return self;
 };
 
-module.exports = new Users();
+var users = new Users();
+module.exports = users;
+module.exports.name = 'authorization';
+module.exports.version = '1.01';
 
-module.exports.install = function(framework) {
+module.exports.install = function(framework, options) {
 
 	SUGAR = (framework.config.name + framework.config.version + SUGAR).replace(/\s/g, '');
 
@@ -280,7 +280,7 @@ module.exports.install = function(framework) {
 			users.recycle();
 	});
 
-	this.framework = framework;
-};
+	if (options)
+		users.options = Utils.copy(options);
 
-var users = module.exports;
+};

@@ -1,12 +1,34 @@
-# Authorization module
+# Installation
 
-- copy **authorization.js** to __/your-totaljs-website/modules/__
+```js
+var options = {};
+
+// Name of cookie
+// options.cookie = '__user';
+
+// Secret for encrypt/decrypt
+// options.secret = 'N84';
+
+// Session expiration
+// options.expireSession = 10; // minutes
+
+// Cookie expiration
+// options.expireCookie = 10; // days
+
+// Auto-login
+// options.autoLogin = true;
+
+INSTALL('module', 'https://modules.totaljs.com/authorization/v1.00/authorization.js', options);
+// UNINSTALL('module', 'authorization');
+```
+
+or __download module__ from GitHub and copy into `/your-totaljs-website/modules/`.
 - [EXAMPLE](https://github.com/petersirka/total.js-modules/tree/master/authorization/example)
 
 ## Properties and Functions and Events
 
 ```javascript
-var auth = framework.module('authorization');
+var auth = MODULE('authorization');
 
 // ==========================================
 // PROPERTIES
@@ -84,7 +106,7 @@ exports.install = function(framework) {
 	// ...
 	// ...
 	// ...
-	framework.route('/xhr/login/', json_login);
+	framework.route('/xhr/login/', json_login, ['unauthorize']);
 	framework.route('/xhr/logoff/', json_logoff, ['authorize']);
 	framework.route('/', view_authorize, ['authorize']);
 };
