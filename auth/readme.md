@@ -18,17 +18,16 @@ var options = {};
 // Auto-login
 // options.autoLogin = true;
 
-INSTALL('module', 'https://modules.totaljs.com/authorization/v1.00/authorization.js', options);
-// UNINSTALL('module', 'authorization');
+INSTALL('module', 'https://modules.totaljs.com/auth/v1.00/auth.js', options);
+// UNINSTALL('module', 'auth');
 ```
 
 or __download module__ from GitHub and copy into `/your-totaljs-website/modules/`.
-- [EXAMPLE](https://github.com/petersirka/total.js-modules/tree/master/authorization/example)
 
 ## Properties and Functions and Events
 
 ```javascript
-var auth = MODULE('authorization');
+var auth = MODULE('auth');
 
 // ==========================================
 // PROPERTIES
@@ -114,7 +113,7 @@ exports.install = function(framework) {
 function json_login() {
 
 	var self = this;
-	var auth = self.module('authorization');
+	var auth = MODULE('auth');
 
     // read user information from database
     // this is an example
@@ -133,7 +132,7 @@ function json_login() {
 function json_logoff() {
 
 	var self = this;
-	var auth = self.module('authorization');
+	var auth = MODULE('auth');
 	var user = self.user;
 
     // remove cookie
@@ -160,9 +159,12 @@ function view_authorize() {
 ### /definitions/authorization.js
 
 ```javascript
-framework.once('load', function() {
+framework.on('install', function(type, name) {
 
-	var auth = self.module('authorization');
+	if (type !== 'module' && name !== 'auth')
+		return;
+
+	var auth = MODULE('auth');
 
 	auth.onAuthorization = function(id, callback, flags) {
 
@@ -181,11 +183,16 @@ framework.once('load', function() {
 __IMPORTANT__ in practice:
 
 ```javascript
-framework.once('load', function() {
+framework.on('install', function(type, name) {
 
-	var auth = self.module('authorization');
+	if (type !== 'module' && name !== 'auth')
+		return;
 
+	var auth = MODULE('auth');
+
+	// "id" from auth.login()
 	auth.onAuthorization = function(id, callback, flags) {
+		
 		var filter = function(user) {
 			return user.id === id;
 		};
@@ -209,9 +216,12 @@ framework.once('load', function() {
 > Use a definition.
 
 ```javascript
-framework.once('load', function() {
+framework.on('install', function(type, name) {
 
-	var auth = self.module('authorization');
+	if (type !== 'module' && name !== 'auth')
+		return;
+
+	var auth = MODULE('auth');
 
 	auth.onAuthorization = function(id, callback, flags) {
 
@@ -249,4 +259,18 @@ framework.on('controller', function(self, name) {
 
 	}
 });
+```
+
+> Some Controller:
+
+```javascript
+exports.install = function(framework) {
+	framework.route('/admin/', view_admin, ['!admin', '!moderator']);
+	framework.route('/admin/manage/', view_admin, ['!admin']);
+};
+
+// ....
+// ....
+// ....
+
 ```

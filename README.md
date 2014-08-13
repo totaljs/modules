@@ -2,14 +2,14 @@
 
 ## Users / Session
 
-#### Authorization
+#### Auth
 
-- Simple user authorization module
-- https://github.com/totaljs/modules/tree/master/authorization
+- A simple user authorization module
+- https://github.com/totaljs/modules/tree/master/auth
 
 #### Session
 
-- Simple session module
+- A simple session module
 - https://github.com/totaljs/modules/tree/master/session
 
 #### Login with Facebook
@@ -17,7 +17,7 @@
 - Login button with Facebook
 - https://github.com/totaljs/modules/tree/master/facebook
 
-#### Simple Twitter API
+#### A simple Twitter API
 
 - Get tweets
 - https://github.com/totaljs/modules/tree/master/twitter
@@ -25,10 +25,15 @@
 
 ## Others
 
-#### Simple DDOS protection
+#### A simple DDOS protection
 
-- Simple protection of DDOS attacks.
+- A simple protection of DDOS attacks.
 - https://github.com/totaljs/modules/tree/master/ddos
+
+#### A simple protection for e.g. "Login forms"
+
+- A simple protection for e.g. "Logins form"
+- https://github.com/totaljs/modules/tree/master/protection
 
 #### Live Storage
 
@@ -37,7 +42,7 @@
 
 #### Markdown parser
 
-- Simple and effective markdown parser
+- A simple and effective markdown parser
 - https://github.com/totaljs/modules/tree/master/markdown
 
 #### Fulltext search engine
