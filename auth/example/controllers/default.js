@@ -1,9 +1,9 @@
 exports.install = function(framework) {
-    
+
     framework.route('/', view_homepage);
     framework.route('/', view_profile, ['authorize']);
     framework.route('/usage/', view_usage);
-    
+
     framework.route('/login/', json_login, ['xhr', 'post']);
     framework.route('/logoff/', json_logoff, ['authorize']);
 };
@@ -21,21 +21,21 @@ function view_profile() {
     var self = this;
     self.json(self.user);
 
-    // in a view @{user.alias}    
+    // in a view @{user.alias}
 }
 
 // Framework usage
 // GET
 function view_usage() {
     var self = this;
-    self.plain(self.framework.usage(true));
+    self.plain(framework.usage(true));
 }
 
 // Login process
 // POST, [xhr, unlogged]
 function json_login() {
     var self = this;
-    var auth = self.module('authorization');
+    var auth = MODULE('auth');
 
     // read user information from database
     // this is an example
@@ -52,7 +52,7 @@ function json_login() {
 // POST, [+xhr, logged]
 function json_logoff() {
     var self = this;
-    var auth = self.module('authorization');
+    var auth = MODULE('auth');
     var user = self.user;
 
     // remove cookie
