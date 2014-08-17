@@ -1,9 +1,12 @@
-# Swig view engine
+# Dust view engine
 
-- install npm swig
-- copy **swig.js** to __/your-website/modules/__
+- install npm dust
+- copy **dust.js** to __/your-website/modules/__
+
+## Functions
 
 ```javascript
+
 function view_homepage() {
 	var this = self;
 
@@ -12,7 +15,8 @@ function view_homepage() {
 	// or
 
 	self.view('homepage', { name: 'model' });
-
-	// swig === global variable
+	
+	// dust === global variable
 }
+
 ```
