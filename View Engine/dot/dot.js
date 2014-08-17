@@ -2,7 +2,7 @@
 // Copyright Peter Širka <petersirka@gmail.com>
 // Version 1.01
 
-global.Handlebars = require('handlebars');
+global.dot = require('dot');
 
 var definition = (function() {
     Controller.prototype.view = function (name, model, headers, isPartial) {
@@ -29,7 +29,8 @@ var definition = (function() {
         if (skip)
             filename = name.substring(1);
 
-        var key = 'handlebars_' + name;
+        var key = 'dot_' + name;
+
         var fn = framework.cache.read(key);
 
         if (fn === null) {
@@ -39,20 +40,18 @@ var definition = (function() {
             var exists = fs.existsSync(framework.path.views(filename + ext));
 
             if (!exists) {
-                self.view500('View "' + name + '" not found.');
+                self.throw500('View "' + name + '" not found.');
                 return;
             }
 
             var path = framework.path.views(filename + ext);
-            var options = utils.extend({ filename: path }, exports.options);
-
-            var fn = Handlebars.compile(fs.readFileSync(path).toString('utf8'), options);
+            var fn = dot.template(fs.readFileSync(path).toString('utf8'));
 
             if (!framework.config.debug && fn !== null)
                 framework.cache.add(key, fn, new Date().add('m', 4));
 
             if (fn === null) {
-                self.view500('View "' + name + '" not found.');
+                self.throw500('View "' + name + '" not found.');
                 return;
             }
         }
@@ -74,14 +73,3 @@ var definition = (function() {
 setTimeout(function() {
     framework.eval(definition);
 }, 100);
-
-exports.name = 'handlebars';
-exports.version = '1.01';
-
-exports.helper = function(name, fn) {
-    Handlebars.registerHelper(name, fn);
-};
-
-exports.partial = function(name, value) {
-    Handlebars.registerPartial(name, value);
-};

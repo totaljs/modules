@@ -1,10 +1,7 @@
 # Swig view engine
 
 - install npm swig
-- copy **swig.js** to __/your-totaljs-website/modules/__
-- [EXAMPLE](https://github.com/petersirka/total.js-modules/tree/master/swig/example)
-
-## Functions
+- copy **swig.js** to __/your-website/modules/__
 
 ```javascript
 function view_homepage() {

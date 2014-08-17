@@ -1,14 +1,9 @@
 # JADE VIEW ENGINE
 
 - install npm jade
-- copy **jade.js** to __/your-partialjs-website/modules/__
-- supports !!! __prefixes__ !!!
-- [EXAMPLE](https://github.com/petersirka/partial.js-modules/tree/master/jade/example)
-
-## Functions
+- copy **jade.js** to __/your-website/modules/__
 
 ```javascript
-
 function view_homepage() {
 	var this = self;
 
@@ -23,5 +18,4 @@ function view_homepage() {
 	// jade === global variable
 	// jade.render();
 }
-
 ```

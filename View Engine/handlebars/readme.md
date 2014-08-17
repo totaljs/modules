@@ -9,15 +9,17 @@ MODULE('handlerbars').partial(name, value); // ---> handlebars.registerPartial()
 ```
 
 ```javascript
-
 function view_homepage() {
-	var this = self;
+    var this = self;
 
-	self.view('homepage');
+    self.view('homepage');
 
-	// or
+    // or
 
-	self.view('homepage', { name: 'model' });
+    self.view('homepage', { name: 'model' });
+
+    // ./views/homepage.html
+
+    // handlebars === global variable
 }
-
 ```

@@ -2,7 +2,7 @@
 // Copyright Peter Širka <petersirka@gmail.com>
 // Version 1.01
 
-global.Handlebars = require('handlebars');
+global.jade = require('jade');
 
 var definition = (function() {
     Controller.prototype.view = function (name, model, headers, isPartial) {
@@ -29,13 +29,14 @@ var definition = (function() {
         if (skip)
             filename = name.substring(1);
 
-        var key = 'handlebars_' + name;
+        var key = 'jade_' + name;
         var fn = framework.cache.read(key);
 
         if (fn === null) {
 
             var fs = require('fs');
-            var ext = '.html';
+            var ext = '.jade';
+
             var exists = fs.existsSync(framework.path.views(filename + ext));
 
             if (!exists) {
@@ -45,10 +46,9 @@ var definition = (function() {
 
             var path = framework.path.views(filename + ext);
             var options = utils.extend({ filename: path }, exports.options);
+            var fn = jade.compile(fs.readFileSync(path).toString('utf8'), options);
 
-            var fn = Handlebars.compile(fs.readFileSync(path).toString('utf8'), options);
-
-            if (!framework.config.debug && fn !== null)
+            if (!self.config.debug && fn !== null)
                 framework.cache.add(key, fn, new Date().add('m', 4));
 
             if (fn === null) {
@@ -74,14 +74,3 @@ var definition = (function() {
 setTimeout(function() {
     framework.eval(definition);
 }, 100);
-
-exports.name = 'handlebars';
-exports.version = '1.01';
-
-exports.helper = function(name, fn) {
-    Handlebars.registerHelper(name, fn);
-};
-
-exports.partial = function(name, value) {
-    Handlebars.registerPartial(name, value);
-};
