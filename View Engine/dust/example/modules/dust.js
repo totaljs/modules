@@ -29,7 +29,7 @@ var definition = (function() {
         if (skip)
             filename = name.substring(1);
 
-        var key = 'dot_' + name;
+        var key = 'dust_' + name;
 
         var fn = framework.cache.read(key);
 
