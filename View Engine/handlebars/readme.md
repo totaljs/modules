@@ -1,6 +1,6 @@
 # Handlebars.js
 
-- install npm jade
+- install npm handlebars
 - copy **handlebars.js** to __/your-website/modules/__
 
 ```javascript
