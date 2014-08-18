@@ -1,6 +1,6 @@
 // MIT License
 // Copyright Peter Širka <petersirka@gmail.com>
-// Version 1.01
+// Version 1.00
 
 global.swig = require('swig');
 
