@@ -3,9 +3,11 @@ INSTALL('module', 'https://modules.totaljs.com/auth/v1.00/auth.js');
 
 framework.on('install', function(type, name) {
 
-    if (type !== 'module' && name !== 'auth')
+    if (type !== 'module')
         return;
 
+    if (name !== 'auth'))
+        return;
 
     var self = this;
     var auth = MODULE('auth');
