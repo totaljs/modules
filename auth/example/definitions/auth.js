@@ -6,7 +6,7 @@ framework.on('install', function(type, name) {
     if (type !== 'module')
         return;
 
-    if (name !== 'auth'))
+    if (name !== 'auth')
         return;
 
     var self = this;
