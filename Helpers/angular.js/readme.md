@@ -1,4 +1,4 @@
-- total.js +1.7.0
+- total.js +v1.7.0
 
 # Installation
 
