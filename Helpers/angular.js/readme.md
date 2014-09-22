@@ -19,9 +19,9 @@ or __download module__ from GitHub and copy into `/your-totaljs-website/modules/
 
 ## Usage
 
-[angular.js](https://github.com/totaljs/examples/tree/master/angularjs)
-[angular.js + bootstrap](https://github.com/totaljs/examples/tree/master/angularjs-bootstrap)
-[angular.js + common scripts](https://github.com/totaljs/examples/tree/master/angularjs-common)
-[angular.js + resources + MongoDB](https://github.com/totaljs/examples/tree/master/angularjs-mongodb-rest-resources)
-[angular.js + routing](https://github.com/totaljs/examples/tree/master/angularjs-routing)
-[angular.js + websocket](https://github.com/totaljs/examples/tree/master/angularjs-websocket)
+- [angular.js](https://github.com/totaljs/examples/tree/master/angularjs)
+- [angular.js + bootstrap](https://github.com/totaljs/examples/tree/master/angularjs-bootstrap)
+- [angular.js + common scripts](https://github.com/totaljs/examples/tree/master/angularjs-common)
+- [angular.js + resources + MongoDB](https://github.com/totaljs/examples/tree/master/angularjs-mongodb-rest-resources)
+- [angular.js + routing](https://github.com/totaljs/examples/tree/master/angularjs-routing)
+- [angular.js + websocket](https://github.com/totaljs/examples/tree/master/angularjs-websocket)
