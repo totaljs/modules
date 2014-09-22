@@ -1,5 +1,12 @@
 # total.js modules
 
+## Helpers
+
+### Angular.js
+
+- View helpers for angular.js
+- https://github.com/totaljs/modules/tree/master/Helpers/angular.js
+
 ## Users / Session
 
 #### Auth
