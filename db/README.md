@@ -16,6 +16,32 @@ In total.js configuration file;
     db-password        : masterkey
 ```
 
+## Functions
+
+- init
+- get
+- from
+- join
+- select_min
+- select_sum
+- select_avg
+- select_max
+- get_where
+- or_where_not_in
+- where_not_in
+- or_where_in
+- where_in
+- or_where
+- or_not_like
+- not_like
+- or_like
+- like
+- where
+- group_by
+- select
+- query
+- load
+
 ## Examples
 
 ### Basic example
