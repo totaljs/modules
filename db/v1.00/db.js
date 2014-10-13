@@ -164,7 +164,6 @@ _db.prototype.load = function (cb) {
 _db.prototype.query = function (sql, params, cb) {
     var self = this;
     if (self.driverName === "firebird") {
-        console.log(sql);
         self.database.query(sql, params,
             function (err, result) {
                 if (err) {
