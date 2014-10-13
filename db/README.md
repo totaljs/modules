@@ -532,7 +532,7 @@ example:
 
 ### Basic example
 
-```
+```javascript
     db.load(function (err) {
         if (!err) {
             db.select("h.id");
