@@ -7,7 +7,7 @@ There are currently only support Firebird.
 ## Configuration
 In total.js configuration file;
 
-```
+```json
     db-driver          : firebird  //only support firebird
     db-host            : localhost
     db-port            : 3050
@@ -27,7 +27,7 @@ set - set field values.(fieldName, value)
 **value**: *, field value.
 
 example:
-```
+```javascript
     db.set("age", 31);
     
     or
@@ -48,7 +48,7 @@ delete - delete record in database.(tableName, data, cb)
 **cb**: function, callback function. return one argument. err handling.
 
 example:
-```
+```javascript
     db.where("id", 500);
     db.delete("test", function(err) {
         if (err) console.log("err:"+err.message);
@@ -72,7 +72,7 @@ update - update selected record.(tableName, data, cb)
 **cb**: function, callback function. return one argument. err handling.
 
 example:
-```
+```javascript
     db.where("id", 500);
     db.update("test", {"name": "test"}, function(err) {
         if (err)
@@ -101,7 +101,7 @@ insert - insert record to database.(tableName, data, cb)
 **cb**: function, callback function. return one argument. err handling.
 
 example:
-```
+```javascript
     db.insert("test", {"age": 31,
                        "name": "Ys"},
     function (err) {
@@ -136,7 +136,7 @@ query - this function execute sql on database(sql, params, cb)
 **cb**: function, callback have two params. result and err.
 
 example:
-```
+```javascript
     db.query("select * from test where age = ?", [31], function (result, err) {
         if (err) console.log(err.message);
         else
@@ -151,7 +151,7 @@ select - set select string to sql.(sel)
 **sel**: string, select string. required.
 
 example:
-```
+```javascript
     db.select("name");
     db.select("age");
     
@@ -174,7 +174,7 @@ having - add having.(param, value)
 **value**: string, having value.
 
 example:
-```
+```javascript
     db.having("age = 31");
     
     or
@@ -207,7 +207,7 @@ group_by - add group by clauses to a query.(param)
 **param**: string, group field name.
 
 example:
-```
+```javascript
     db.group_by("name");
     
     or
@@ -224,7 +224,7 @@ order_by - set a order by clause.(param, type)
 **type**: string, order by sorting type. default asc
 
 example:
-```
+```javascript
     db.order_by("age", "desc");
     db.order_by("name");
     
@@ -242,7 +242,7 @@ where - this function create where string in sql(param, value)
 **value**: string, value optional param.
 
 example:
-```
+```javascript
     db.where("name", "Ys");
     
     or
@@ -273,7 +273,7 @@ like - add like clauses in sql.(param, value, type)
 **type**: string, like clauses type. before, after or both. default both.
 
 example:
-```
+```javascript
     db.like("name", "Ys");
     
     or
@@ -292,7 +292,7 @@ or_like - add like clauses in sql.(param, value, type)
 **type**: string, like clauses type. before, after or both. default both.
 
 example:
-```
+```javascript
     db.where("age", 31);
     db.or_like("name", "Ys");
     
@@ -330,7 +330,7 @@ or_where - add or clauses.(param, value)
 **value**: string, value optional param.
 
 example:
-```
+```javascript
     db.where("age", 31);
     db.or_where("name", "Ys");
     
@@ -394,7 +394,7 @@ get_where - get and where sql.(tableName, where, limit, offset, cb)
 **cb**: function, callback have a two params. result and err handling.
 
 example:
-```
+```javascript
     db.get_where("test", [{field:"age",
                            value: 31},
                           {field:"name",
@@ -453,7 +453,7 @@ join - add sql join in sql string.(tableName, condition, joinType)
 **joinType**: string, join type. left, right. default value is join.
 
 example:
-```
+```javascript
     db.select("age");
     db.from("test");
     db.join("test2", "test2.user_id = test.id");
@@ -514,7 +514,7 @@ get - get rows from table.(tableName, limit, offset, cb)
 **cb**: function, callback have a two params. result and err handling.
 
 example:
-```
+```javascript
     db.select("name");
     db.select("age");
     db.from("test");
