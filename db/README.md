@@ -18,11 +18,6 @@ In total.js configuration file;
 
 ## Supported Functions
 
-Global
----
-
-
-
 set - set field values.(fieldName, value) 
 -----------------------------
 **Parameters**
@@ -30,6 +25,16 @@ set - set field values.(fieldName, value)
 **fieldName**: string | object, single field name or fields and values in json object.
 
 **value**: *, field value.
+
+example:
+```
+    db.set("age", 31);
+    
+    or
+    
+    db.set({"age": 31,
+            "name": "Ys"}); 
+```    
 
 
 delete - delete record in database.(tableName, data, cb) 
@@ -42,6 +47,19 @@ delete - delete record in database.(tableName, data, cb)
 
 **cb**: function, callback function. return one argument. err handling.
 
+example:
+```
+    db.where("id", 500);
+    db.delete("test", function(err) {
+        if (err) console.log("err:"+err.message);
+    });
+    
+    or
+    
+    db.delete("test", {"id": 500}, function(err) {
+        if (err) console.log("err:"+err.message);
+    });
+```
 
 update - update selected record.(tableName, data, cb) 
 -----------------------------
@@ -53,6 +71,24 @@ update - update selected record.(tableName, data, cb)
 
 **cb**: function, callback function. return one argument. err handling.
 
+example:
+```
+    db.where("id", 500);
+    db.update("test", {"name": "test"}, function(err) {
+        if (err)
+            console.log(err.message);
+    });
+    
+    or
+    
+    db.set("name", "test");
+    db.where("id", 500);
+    db.update("test", function(err) {
+            if (err)
+                console.log(err.message);
+    });        
+    
+```
 
 insert - insert record to database.(tableName, data, cb) 
 -----------------------------
@@ -64,6 +100,23 @@ insert - insert record to database.(tableName, data, cb)
 
 **cb**: function, callback function. return one argument. err handling.
 
+example:
+```
+    db.insert("test", {"age": 31,
+                       "name": "Ys"},
+    function (err) {
+        if (err) console.log(err.message);
+    });
+    
+    or
+    
+    db.set("age", 31);
+    db.set("name", "Ys");
+    db.insert("test", 
+    function (err) {
+        if (err) console.log(err.message);
+    });
+```
 
 load - this function load and connect db.(cb) 
 -----------------------------
@@ -82,6 +135,14 @@ query - this function execute sql on database(sql, params, cb)
 
 **cb**: function, callback have two params. result and err.
 
+example:
+```
+    db.query("select * from test where age = ?", [31], function (result, err) {
+        if (err) console.log(err.message);
+        else
+            console.log(result);
+    });
+```
 
 select - set select string to sql.(sel) 
 -----------------------------
@@ -89,6 +150,16 @@ select - set select string to sql.(sel)
 
 **sel**: string, select string. required.
 
+example:
+```
+    db.select("name");
+    db.select("age");
+    
+    or
+    
+    db.select("name, age");
+    db.select("(select sum(age) from test2) sum_age");
+```
 
 distinct - add distinct keyword to a query.() 
 -----------------------------
@@ -102,6 +173,23 @@ having - add having.(param, value)
 
 **value**: string, having value.
 
+example:
+```
+    db.having("age = 31");
+    
+    or
+    
+    db.having("age", 31);
+    
+    or
+    
+    db.having([{field: "age",
+                value: 31
+               },
+               {field: "name",
+                value: "Ys"}
+                ]);
+```
 
 or_having - onyl seperates multiple clauses with or(param, value) 
 -----------------------------
@@ -118,6 +206,14 @@ group_by - add group by clauses to a query.(param)
 
 **param**: string, group field name.
 
+example:
+```
+    db.group_by("name");
+    
+    or
+    
+    db.group_by(["name", "age"]);
+```
 
 order_by - set a order by clause.(param, type) 
 -----------------------------
@@ -127,6 +223,15 @@ order_by - set a order by clause.(param, type)
 
 **type**: string, order by sorting type. default asc
 
+example:
+```
+    db.order_by("age", "desc");
+    db.order_by("name");
+    
+    or
+    
+    db.order_by("age desc", "name asc");
+```
 
 where - this function create where string in sql(param, value) 
 -----------------------------
@@ -136,6 +241,26 @@ where - this function create where string in sql(param, value)
 
 **value**: string, value optional param.
 
+example:
+```
+    db.where("name", "Ys");
+    
+    or
+    
+    db.where("age >", 31);
+    
+    or
+    
+    db.where([{
+               field: "age >",
+               value: 31
+              },
+              {
+               field: "name",
+               value: "Ys"
+              }
+             ]);   
+```
 
 like - add like clauses in sql.(param, value, type) 
 -----------------------------
@@ -147,6 +272,14 @@ like - add like clauses in sql.(param, value, type)
 
 **type**: string, like clauses type. before, after or both. default both.
 
+example:
+```
+    db.like("name", "Ys");
+    
+    or
+    
+    db.like("name", "Ys", "both");
+```
 
 or_like - add like clauses in sql.(param, value, type) 
 -----------------------------
@@ -158,6 +291,13 @@ or_like - add like clauses in sql.(param, value, type)
 
 **type**: string, like clauses type. before, after or both. default both.
 
+example:
+```
+    db.where("age", 31);
+    db.or_like("name", "Ys");
+    
+    //output where age = 31 or name like '%Ys%'
+```
 
 not_like - add not like clauses in sql.(param, value, type) 
 -----------------------------
@@ -189,6 +329,13 @@ or_where - add or clauses.(param, value)
 
 **value**: string, value optional param.
 
+example:
+```
+    db.where("age", 31);
+    db.or_where("name", "Ys");
+    
+    //output: where age = 31 or name = 'Ys';
+```
 
 where_in - add &quot;in&quot; clauses.(param, value) 
 -----------------------------
@@ -198,6 +345,12 @@ where_in - add &quot;in&quot; clauses.(param, value)
 
 **value**: Array.&lt;string&gt;, in values. string array.
 
+example:
+```
+    db.where_in("age", [30, 31]);
+    
+    //output: age in (30, 31);
+```
 
 or_where_in - add &quot;in&quot; clauses.(param, value) 
 -----------------------------
@@ -226,21 +379,6 @@ or_where_not_in - add &quot;not in&quot; clauses.(param, value)
 **value**: Array.&lt;string&gt;, in values. string array.
 
 
-where - this function create where string in sql(self, param, value, type, operator) 
------------------------------
-**Parameters**
-
-**self**: object, db class instance.
-
-**param**: string | Array.&lt;string&gt;, key param
-
-**value**: string, value optional param.
-
-**type**: string, and, or. optional param. default value and.
-
-**operator**: string, optional. default value =.
-
-
 get_where - get and where sql.(tableName, where, limit, offset, cb) 
 -----------------------------
 **Parameters**
@@ -255,6 +393,18 @@ get_where - get and where sql.(tableName, where, limit, offset, cb)
 
 **cb**: function, callback have a two params. result and err handling.
 
+example:
+```
+    db.get_where("test", [{field:"age",
+                           value: 31},
+                          {field:"name",
+                           value: "Ys"}], 
+                 function(result, err) {
+                    if (err) console.log(err.message);
+                    else console.log(result);
+                 });
+                 //output: select * from test where age = 31 and name = 'Ys'
+```
 
 select_max - this function add max aggregate in select string.(field, alias) 
 -----------------------------
@@ -302,6 +452,20 @@ join - add sql join in sql string.(tableName, condition, joinType)
 
 **joinType**: string, join type. left, right. default value is join.
 
+example:
+```
+    db.select("age");
+    db.from("test");
+    db.join("test2", "test2.user_id = test.id");
+    //output select age from test join test2 on test2.user_id = test.id
+    
+    or
+    
+    db.select("age");
+    db.from("test");
+    db.join("test2", "test2.user_id = test.id", "left");
+    //output select age from test left join test2 on test2.user_id = test.id
+```
 
 from - add table name in sql(tableName) 
 -----------------------------
@@ -349,8 +513,20 @@ get - get rows from table.(tableName, limit, offset, cb)
 
 **cb**: function, callback have a two params. result and err handling.
 
-
----
+example:
+```
+    db.select("name");
+    db.select("age");
+    db.from("test");
+    db.where("name", "Ys");
+    db.where("age", 31);
+    db.get(function(result, err) {
+        if (err)
+            console.log("err:"+err.message);
+        else
+            console.log(result);
+    });
+```
 
 ## Examples
 
