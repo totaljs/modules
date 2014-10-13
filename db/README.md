@@ -2,13 +2,25 @@
 This module is compatible with CodeIgniter Active Record provides database support.
 [CodeIgniter Active Record] (https://ellislab.com/codeigniter/user-guide/database/active_record.html)
 
-There are currently only support Firebird.
+There are currently only support Firebird and MySQL.
+
+## Requirements
+
+need be installed for the Firebird;
+```
+    npm install node-firebird
+```    
+
+need be installed for the MySQL;
+```
+    npm install mysql
+```
 
 ## Configuration
 In total.js configuration file;
 
 ```json
-    db-driver          : firebird  //only support firebird
+    db-driver          : firebird  //only support firebird and mysql
     db-host            : localhost
     db-port            : 3050
     db-database-name   : test

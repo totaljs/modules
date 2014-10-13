@@ -1,7 +1,7 @@
 //author:  Serkan KOCAMAN - http://www.github.com/KiPSOFT
 
 exports.name = 'db';
-exports.version = '1.00';
+exports.version = '1.01';
 
 /**
  * db class.
@@ -62,12 +62,12 @@ _db.prototype.set = function (fieldName, value) {
  * @param {object} [data] - delete where object.
  * @param {function} cb - callback function. return one argument. err handling.
  */
-_db.prototype.delete = function(tableName, data, cb) {
+_db.prototype.delete = function (tableName, data, cb) {
     var self = this;
     if (typeof data !== "function" && typeof data === "object") {
         self.where(data);
     }
-    var sql = "DELETE FROM "+tableName+" "+self.wherestr;
+    var sql = "DELETE FROM " + tableName + " " + self.wherestr;
     self.query(sql, undefined, function (result, err) {
         if (typeof data === "function")
             data(err);
@@ -84,17 +84,17 @@ _db.prototype.delete = function(tableName, data, cb) {
  * @param {object} [data] - update data object. include fiels and values. optional.
  * @param {function} cb - callback function. return one argument. err handling.
  */
-_db.prototype.update = function(tableName, data, cb) {
+_db.prototype.update = function (tableName, data, cb) {
     var self = this;
     if (typeof data !== "function" && typeof data === "object") {
         self.set(data);
     }
     var tmp = "";
 
-    self.fields.forEach(function(element, index) {
+    self.fields.forEach(function (element, index) {
         if (tmp !== "")
-            tmp +=", ";
-        tmp += element + " = "+self.values[index];
+            tmp += ", ";
+        tmp += element + " = " + self.values[index];
     });
     var sql = "UPDATE " + tableName + " SET " + tmp + " " + self.wherestr;
     self.query(sql, undefined, function (result, err) {
@@ -153,6 +153,28 @@ _db.prototype.load = function (cb) {
             }
         );
     }
+    else if (self.driverName === "mysql") {
+        var connection = self.driver.createConnection({
+            host: self.options.host,
+            user: self.options.username,
+            password: self.options.password,
+            port: self.options.port,
+            database: self.options.database
+        });
+        connection.connect(function (err) {
+            if (err) {
+                var tmpErr = {
+                    message: err.stack
+                };
+                self.framework.error(err.stack, "db");
+                cb(tmpErr);
+            }
+            else {
+                self.database = connection;
+                cb();
+            }
+        });
+    }
 };
 
 /**
@@ -168,6 +190,19 @@ _db.prototype.query = function (sql, params, cb) {
             function (err, result) {
                 if (err) {
                     self.framework.error(err.message, "db");
+                    cb(undefined, err);
+                }
+                else {
+                    cb(result, err);
+                }
+            }
+        );
+    }
+    else if (self.driverName === "mysql") {
+        self.database.query(sql, params,
+            function (err, result) {
+                if (err) {
+                    self.framework.error(err.stack, "db");
                     cb(undefined, err);
                 }
                 else {
@@ -463,7 +498,7 @@ function _where(self, param, value, type, operator) {
     }
 
     function checkOperator(key) {
-        if (key.indexOf(">") > 0 || key.indexOf(">=") > 0 || key.indexOf("<=") > 0 || key.indexOf("!=") > 0 || key.indexOf("=") > 0 || key.indexOf("in") > 0 || key.indexOf("like") > 0)
+        if (key.indexOf(">") > 0 || key.indexOf(">=") > 0 || key.indexOf("<=") > 0 || key.indexOf("!=") > 0 || key.indexOf("=") > 0 || key.indexOf("like") > 0)
             return " ";
         else return " " + operator + " ";
     }
@@ -646,22 +681,21 @@ _db.prototype.get = function (tableName, limit, offset, cb) {
     var self = this;
     var sql = "";
     if (tableName !== undefined && typeof tableName !== "function") self.fromstr = tableName;
-    if (self.driverName === "firebird") {
-        if (limit !== undefined && typeof limit !== "function")
-            self.limitstr = "first " + limit;
-        if (limit !== undefined && offset !== undefined && typeof limit !== "function" && typeof offset !== "function")
-            self.limitstr = " skip " + offset;
-        sql = "select " + self.limitstr + " " + self.distinctstr + self.selectstr + " from " + self.fromstr + self.joinstr + self.wherestr + self.groupbystr + self.havingstr + self.orderbystr;
-        self.query(sql, undefined, function (result, err) {
-            clearValues(self);
-            if (typeof limit === "function")
-                limit(result, err);
-            else if (typeof tableName === "function")
-                tableName(result, err);
-            else
-                cb(result, err);
-        });
-    }
+
+    if (limit !== undefined && typeof limit !== "function")
+        self.limitstr = "first " + limit;
+    if (limit !== undefined && offset !== undefined && typeof limit !== "function" && typeof offset !== "function")
+        self.limitstr = " skip " + offset;
+    sql = "select " + self.limitstr + " " + self.distinctstr + self.selectstr + " from " + self.fromstr + self.joinstr + self.wherestr + self.groupbystr + self.havingstr + self.orderbystr;
+    self.query(sql, undefined, function (result, err) {
+        clearValues(self);
+        if (typeof limit === "function")
+            limit(result, err);
+        else if (typeof tableName === "function")
+            tableName(result, err);
+        else
+            cb(result, err);
+    });
 };
 
 /**
@@ -673,15 +707,18 @@ _db.prototype.init = function (framework) {
     var self = this;
     self.framework = framework;
     self.driverName = framework.config['db-driver'];
+    self.options = {
+        host: framework.config['db-host'],
+        port: framework.config['db-port'],
+        database: framework.config['db-database-name'],
+        username: framework.config['db-user-name'],
+        password: framework.config['db-password']
+    };
     if (framework.config['db-driver'] === "firebird") {
         self.driver = require("node-firebird");
-        self.options = {
-            host: framework.config['db-host'],
-            port: framework.config['db-port'],
-            database: framework.config['db-database-name'],
-            username: framework.config['db-user-name'],
-            password: framework.config['db-password']
-        };
+    }
+    else if (framework.config['db-driver'] === "mysql") {
+        self.driver = require("mysql");
     }
 };
 
@@ -695,6 +732,9 @@ exports.install = function (framework) {
 
 exports.uninstall = function (framework, options) {
     if (db.database !== undefined) {
-        db.database.detach();
+        if (framework.config['db-driver'] === "mysql")
+            db.database.end();
+        else if (framework.config['db-driver'] === "firebird")
+            db.database.detach();
     }
 }
