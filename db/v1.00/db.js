@@ -664,10 +664,23 @@ _db.prototype.count_all = function (tableName, cb) {
  */
 _db.prototype.limit = function (limit, offset) {
     var self = this;
-    if (limit !== undefined)
-        self.limitstr = "first " + limit;
-    if (limit !== undefined && offset !== undefined)
-        self.limitstr = " skip " + offset;
+    if (self.driverName === "firebird") {
+        if (limit !== undefined)
+            self.limitstr = "first " + limit;
+        if (limit !== undefined && offset !== undefined)
+            self.limitstr += " skip " + offset;
+    }
+    else
+    if (self.driverName === "mysql") {
+        if (limit !== undefined  && offset === undefined)
+            self.limitstr = " limit " + limit;
+        else
+        if (limit !== undefined && offset !== undefined)
+            self.limitstr = " limit " + offset +","+limit;
+        else
+        if (offset !== undefined && limit === undefined)
+            self.limitstr = " limit 0, "+ offset;
+    }
 };
 
 /**
@@ -682,11 +695,15 @@ _db.prototype.get = function (tableName, limit, offset, cb) {
     var sql = "";
     if (tableName !== undefined && typeof tableName !== "function") self.fromstr = tableName;
 
-    if (limit !== undefined && typeof limit !== "function")
-        self.limitstr = "first " + limit;
-    if (limit !== undefined && offset !== undefined && typeof limit !== "function" && typeof offset !== "function")
-        self.limitstr = " skip " + offset;
-    sql = "select " + self.limitstr + " " + self.distinctstr + self.selectstr + " from " + self.fromstr + self.joinstr + self.wherestr + self.groupbystr + self.havingstr + self.orderbystr;
+    if ((limit !== undefined && typeof limit !== "function") || (offset!==undefined && typeof offset !== "function"))
+        self.limit(limit, offset);
+    if (self.driverName === "mysql")
+        sql = "select " + " " + self.distinctstr + self.selectstr + " from " + self.fromstr + self.joinstr + self.wherestr + self.groupbystr + self.havingstr + self.orderbystr + self.limitstr;
+    else
+    if (self.driverName === "firebird")
+        sql = "select " + self.limitstr + " " + self.distinctstr + self.selectstr + " from " + self.fromstr + self.joinstr + self.wherestr + self.groupbystr + self.havingstr + self.orderbystr;
+    if (self.framework.config['db-debug-mode'])
+        self.framework.log("DB-MODULE", sql);
     self.query(sql, undefined, function (result, err) {
         clearValues(self);
         if (typeof limit === "function")
