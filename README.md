@@ -99,12 +99,20 @@
 
 #### Jade view engine
 
-- https://github.com/totaljs/modules/tree/master/jade
+- https://github.com/totaljs/modules/tree/master/View%20Engine/jade
 
 #### doT view engine
 
-- https://github.com/totaljs/modules/tree/master/dot
+- https://github.com/totaljs/modules/tree/master/View%20Engine/dot
 
 #### Swig view engine
 
-- https://github.com/totaljs/modules/tree/master/swig
+- https://github.com/totaljs/modules/tree/master/View%20Engine/swig
+
+#### Dust view engine
+
+- https://github.com/totaljs/modules/tree/master/View%20Engine/dust
+
+#### Handlebars view engine
+
+- https://github.com/totaljs/modules/tree/master/View%20Engine/handlebars
