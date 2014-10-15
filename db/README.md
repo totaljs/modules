@@ -26,7 +26,10 @@ In total.js configuration file;
     db-database-name   : test
     db-user-name       : SYSDBA
     db-password        : masterkey
+    db-debug-mode      : true
 ```
+
+if debug mode is true, get method is write sql output to log file.
 
 ## Supported Functions
 
