@@ -78,6 +78,11 @@
 - Analytics module for counting unique visitors and other.
 - https://github.com/totaljs/modules/tree/master/online
 
+#### Db
+
+- ORM module. Supports Mysql and Firebird databases. (like a codeigniter active record class)
+- https://github.com/totaljs/modules/tree/master/db
+
 ## Compilers
 
 #### Less CSS
