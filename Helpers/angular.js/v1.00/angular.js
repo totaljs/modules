@@ -16,7 +16,7 @@ var REPOSITORY_ANGULAR_OTHER = '$angular-other';
 
 exports.install = function(framework, options) {
 
-    Utils.extend(exports.options, options);
+    Utils.extend(exports.options, options, true);
 
     /*
         Include: Angular.js CDN into the head
