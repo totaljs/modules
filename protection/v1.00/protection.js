@@ -24,7 +24,7 @@ exports.usage = function() {
 
 function service(interval) {
 
-	if (interval % timeout !== 0)
+	if (interval % exports.options.timeout !== 0)
 		return;
 
 	var arr = Object.keys(db);
