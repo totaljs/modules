@@ -89,9 +89,15 @@ Session.prototype._create = function(res, req, next) {
     req._session = self;
     req.session = {};
 
-    res.cookie(self.options.cookie, json);
-    next();
+    if (!res) {
+        next();
+        return;
+    }
 
+    if (res.statusCode)
+        res.cookie(self.options.cookie, json);
+
+    next();
     return self;
 };
 
@@ -130,9 +136,17 @@ module.exports.install = function(framework, options) {
 
     framework.middleware('session', function(req, res, next) {
 
-        res.once('finish', function() {
-            session._write(req._sessionId, req.session);
-        });
+        if (res.statusCode) {
+            // classic HTTP
+            res.once('finish', function() {
+                session._write(req._sessionId, req.session);
+            });
+        } else {
+            // websocket
+            res.socket.on('close', function() {
+                session._write(req._sessionId, req.session);
+            });
+        }
 
         session._read(req, res, next);
 

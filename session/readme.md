@@ -29,6 +29,8 @@ exports.install = function(framework, options) {
     // IMPORTANT: #session is a middleware
     // You can specify Session into all routes:
     framework.route('/', some_action_in_controller, ['#session']);
+    // or
+    framework.websocket('/', some_action_in_controller, ['#session']);
 
     // or for all routes use (this is global middleware for all requests):
     // framework.use('session');
