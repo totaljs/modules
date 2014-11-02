@@ -258,7 +258,7 @@ Users.prototype._writeNO = function(res) {
 
 var users = new Users();
 module.exports = users;
-module.exports.name = 'auth';
+module.exports.name = module.exports.id = 'auth';
 module.exports.version = '1.01';
 
 function service(counter) {
@@ -287,6 +287,7 @@ module.exports.install = function(framework, options) {
     if (options)
         users.options = Utils.copy(options);
 
+    this.emit('auth', users);
 };
 
 module.exports.uninstall = function(framework, options) {
