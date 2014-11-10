@@ -5,7 +5,7 @@
 
 ```javascript
 function view_homepage() {
-	var this = self;
+	var self = this;
 
 	self.view('homepage');
 
