@@ -10,7 +10,7 @@ MODULE('handlerbars').partial(name, value); // ---> handlebars.registerPartial()
 
 ```javascript
 function view_homepage() {
-    var this = self;
+    var self = this;
 
     self.view('homepage');
 
