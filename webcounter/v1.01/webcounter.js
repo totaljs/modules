@@ -1,6 +1,6 @@
 /**
  * @module WebCounter
- * @version v1.00
+ * @version v1.01
  * @author Peter Širka
  */
 
@@ -14,8 +14,7 @@ var fs = require('fs');
 var events = require('events');
 
 function WebCounter() {
-
-    this.stats = { day: 0, month: 0, year: 0, hits: 0, unique: 0, count: 0, search: 0, direct: 0, social: 0, unknown: 0, advert: 0, mobile: 0, desktop: 0, visitors: 0 };
+    this.stats = { pages: 0, day: 0, month: 0, year: 0, hits: 0, unique: 0, count: 0, search: 0, direct: 0, social: 0, unknown: 0, advert: 0, mobile: 0, desktop: 0, visitors: 0 };
     this.online = 0;
     this.arr = [0, 0];
     this.interval = 0;
@@ -25,17 +24,16 @@ function WebCounter() {
     this.lastvisit = null;
 
     this.social = ['plus.url.google', 'plus.google', 'twitter', 'facebook', 'linkedin', 'tumblr', 'flickr', 'instagram'];
-    this.search = ['google', 'bing', 'yahoo'];
+    this.search = ['google', 'bing', 'yahoo', 'duckduckgo'];
     this.ip = [];
     this.url = [];
 
     this.allowXHR = true;
-    this.allowIP = true;
+    this.allowIP = false;
 
     this.onValid = null;
 
     this._onValid = function(req) {
-
         var self = this;
         var agent = req.headers['user-agent'] || '';
 
@@ -72,6 +70,7 @@ WebCounter.prototype = {
         var self = this;
         var stats = utils.copy(self.stats);
         stats.last = self.lastvisit;
+        stats.pages = stats.hits > 0 && stats.count > 0 ? (stats.hits / stats.count).floor(2) : 0;
         return stats;
     }
 
@@ -113,22 +112,15 @@ WebCounter.prototype.clean = function() {
     var length = 0;
 
     if (stats.day !== day || stats.month !== month || stats.year !== year) {
-
         if (stats.day !== 0 || stats.month !== 0 || stats.year !== 0) {
-
             self.append();
-
             var visitors = stats.visitors;
             var keys = Object.keys(stats);
-
             length = keys.length;
-
             for (var i = 0; i < length; i++)
                 stats[keys[i]] = 0;
-
             stats.visitors = visitors;
         }
-
         stats.day = day;
         stats.month = month;
         stats.year = year;
@@ -292,12 +284,11 @@ WebCounter.prototype.counter = function(req, res) {
  * @return {Module]
  */
 WebCounter.prototype.save = function() {
-
     var self = this;
     var filename = framework.path.databases(FILE_CACHE);
-
-    fs.writeFile(filename, JSON.stringify(self.stats), utils.noop);
-
+    var stats = Utils.copy(self.stats);
+    stats.pages = stats.hits > 0 && stats.count > 0 ? (stats.hits / stats.count).floor(2) : 0;
+    fs.writeFile(filename, JSON.stringify(stats), utils.noop);
     return self;
 
 };
@@ -531,43 +522,15 @@ var delegate_request = function(controller, name) {
     webcounter.counter(controller.req, controller.res);
 };
 
-module.exports.id = 'webcounter';
-module.exports.version = 'v1.00';
+module.exports.name = 'webcounter';
+module.exports.version = 'v1.01';
 module.exports.instance = webcounter;
 
-module.exports.install = function(framework, options) {
-
-    options = Utils.extend({ ip: true, xhr: true, url: '/webcounter/' }, options);
-
-    webcounter.allowIP = options.ip;
-    webcounter.allowXHR = options.xhr;
-
-    // Create routes
-    framework.route(options.url, view_webcounter);
-    framework.route(options.url, json_webcounter_geoip, ['xhr']);
-    framework.route(options.url, json_webcounter_stats, ['xhr', 'post']);
-
-    webcounter.onValid = function(req) {
-        return Utils.path(req.uri.pathname) !== options.url;
-    };
-
-    // Events
-    framework.on('controller', delegate_request);
-
-    // Helpers
-    framework.helpers.online = function() {
-        return webcounter.online;
-    };
-
-    framework.helpers.visitors = function() {
-        return webcounter.stats.visitors;
-    };
-};
+framework.on('controller', delegate_request);
 
 module.exports.uninstall = function(framework, options) {
 
     options = utils.extend({ reinstall: false }, options);
-
     webcounter.stop();
 
     // clean framework links
@@ -603,71 +566,14 @@ module.exports.increment = function(type) {
     return this;
 };
 
-/**
- * Base view with stats
- * @return {HTML}
- */
-function view_webcounter() {
-    var self = this;
+module.exports.monthly = function(callback) {
+    return webcounter.monthly(callback);
+};
 
-    var model = webcounter.today;
-    var now = new Date();
+module.exports.yearly = function(callback) {
+    return webcounter.yearly(callback);
+};
 
-    model.year = now.getFullYear();
-    model.pages = model.hits > 0 && model.count > 0 ? (model.hits / model.count).floor(2) : 0;
-
-    if (model.last !== null)
-        model.last = Math.floor((now.getTime() - model.last.getTime()) / 60000);
-
-    webcounter.monthly(function(data) {
-        model.monthly = data;
-        self.view('@webcounter/webcounter', model);
-    });
-}
-
-/**
- * GEO IP / Get the State and city from IP address
- * @return {JSON}
- */
-function json_webcounter_geoip() {
-
-    var self = this;
-
-    if (!self.query.ip) {
-        self.json({ r: false });
-        return self;
-    }
-
-    Utils.request('http://www.telize.com/geoip/' + self.query.ip, ['get'], function(err, data) {
-
-        if (err) {
-            self.json({ r: false });
-            return;
-        }
-
-        self.json(JSON.parse(data));
-
-    });
-}
-
-/**
- * Current webpage stats
- * @return {JSON}
- */
-function json_webcounter_stats() {
-
-    var self = this;
-    var stats = webcounter.today;
-    var now = new Date();
-
-    stats.online = webcounter.online;
-    stats.ip = webcounter.ip;
-    stats.pages = stats.hits > 0 && stats.count > 0 ? (stats.hits / stats.count).floor(2) : 0;
-    stats.year = stats.year;
-
-    if (stats.last !== null)
-        stats.last = Math.floor((now.getTime() - stats.last.getTime()) / 60000);
-
-    self.json(stats);
-
-}
+module.exports.daily = function(callback) {
+    return webcounter.daily(callback);
+};

@@ -1,5 +1,7 @@
 # Installation
 
+Package contains HTML CSS JS for rendering statistics while classic module is a clean module (without routes, HTML, CSS, etc.) for custom rendering.
+
 ```js
 var options = {};
 
@@ -9,7 +11,8 @@ var options = {};
 // A default URL address of statistics
 // options.url = '/webcounter/';
 
-INSTALL('module', 'https://modules.totaljs.com/webcounter/v1.00/webcounter.js', options);
+// INSTALL('module', 'https://modules.totaljs.com/webcounter/v1.01/webcounter.js', options);
+INSTALL('pacakge', 'https://modules.totaljs.com/webcounter/v1.01/webcounter.package', options);
 // UNINSTALL('module', 'webcounter');
 ```
 

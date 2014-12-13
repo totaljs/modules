@@ -1,6 +1,6 @@
 /**
  * @module WebCounter
- * @version v1.00
+ * @version v1.01
  * @author Peter Širka
  */
 
@@ -14,6 +14,7 @@ var fs = require('fs');
 var events = require('events');
 
 function WebCounter() {
+
     this.stats = { day: 0, month: 0, year: 0, hits: 0, unique: 0, count: 0, search: 0, direct: 0, social: 0, unknown: 0, advert: 0, mobile: 0, desktop: 0, visitors: 0 };
     this.online = 0;
     this.arr = [0, 0];
@@ -29,7 +30,7 @@ function WebCounter() {
     this.url = [];
 
     this.allowXHR = true;
-    this.allowIP = false;
+    this.allowIP = true;
 
     this.onValid = null;
 
@@ -530,8 +531,8 @@ var delegate_request = function(controller, name) {
     webcounter.counter(controller.req, controller.res);
 };
 
-module.exports.name = 'webcounter';
-module.exports.version = 'v1.00';
+module.exports.id = 'webcounter';
+module.exports.version = 'v1.01';
 module.exports.instance = webcounter;
 
 module.exports.install = function(framework, options) {
@@ -540,9 +541,6 @@ module.exports.install = function(framework, options) {
 
     webcounter.allowIP = options.ip;
     webcounter.allowXHR = options.xhr;
-
-    // Install dependencies
-    INSTALL('view', 'webcounter', 'http://modules.totaljs.com/webcounter/{0}/webcounter.html'.format(module.exports.version));
 
     // Create routes
     framework.route(options.url, view_webcounter);
@@ -577,9 +575,6 @@ module.exports.uninstall = function(framework, options) {
 
     delete framework.helpers.online;
     delete framework.helpers.visitors;
-
-    // clear views
-    UNINSTALL('view', 'webcounter');
 
     // clear files
     // framework.rm.database(FILE_CACHE);
@@ -626,7 +621,7 @@ function view_webcounter() {
 
     webcounter.monthly(function(data) {
         model.monthly = data;
-        self.view('webcounter', model);
+        self.view('@webcounter/webcounter', model);
     });
 }
 
