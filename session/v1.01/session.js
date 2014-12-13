@@ -1,13 +1,13 @@
 /**
  * @module Session
- * @version v1.00
+ * @version v1.01
  * @author Peter Širka
  */
 
 var events = require('events');
 var SUGAR = 'XY1';
 var USERAGENT = 11;
-var VERSION = 'v1.00';
+var VERSION = 'v1.01';
 
 var stats_read = 0;
 var stats_write = 0;
@@ -75,7 +75,7 @@ Session.prototype._read = function(req, res, next) {
 };
 
 Session.prototype._signature = function(id, req) {
-    return id + '|' + req.ip.replace(/\./g, '') + '|' + req.headers['user-agent'].substring(0, USERAGENT).replace(/\s|\./g, '');
+    return id + '|' + req.ip.replace(/\./g, '') + '|' + (req.headers['user-agent'] || '').substring(0, USERAGENT).replace(/\s|\./g, '');
 };
 
 Session.prototype._create = function(res, req, next) {

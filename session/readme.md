@@ -12,7 +12,7 @@ var options = {};
 // Timeout
 // options.timeout = '5 minutes';
 
-INSTALL('module', 'https://modules.totaljs.com/session/v1.00/session.js', options);
+INSTALL('module', 'https://modules.totaljs.com/session/v1.01/session.js', options);
 // UNINSTALL('module', 'session');
 ```
 
