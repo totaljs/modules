@@ -1,6 +1,6 @@
 /**
  * @module WebCounter
- * @version v1.01
+ * @version v1.02
  * @author Peter Širka
  */
 
@@ -504,7 +504,7 @@ WebCounter.prototype.refreshURL = function(referer, req) {
 };
 
 function sum(a, b) {
-    Object.keys(b).each(function(o) {
+    Object.keys(b).forEach(function(o) {
 
         if (o === 'day' || o === 'year' || o === 'month')
             return;
