@@ -12,7 +12,7 @@ var options = {};
 // options.url = '/webcounter/';
 
 // INSTALL('module', 'https://modules.totaljs.com/webcounter/v1.01/webcounter.js', options);
-INSTALL('pacakge', 'https://modules.totaljs.com/webcounter/v1.01/webcounter.package', options);
+INSTALL('package', 'https://modules.totaljs.com/webcounter/v1.01/webcounter.package', options);
 // UNINSTALL('module', 'webcounter');
 ```
 
