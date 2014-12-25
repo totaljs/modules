@@ -1,5 +1,7 @@
 - total.js +v1.7.0
 
+-![TOTALSTACK logo](http://www.totaljs.com/img/totalstack.png)
+
 # Installation
 
 ```js
