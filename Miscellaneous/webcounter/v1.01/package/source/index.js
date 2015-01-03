@@ -70,7 +70,7 @@ WebCounter.prototype = {
 
     get today() {
         var self = this;
-        var stats = utils.copy(self.stats);
+        var stats = Utils.copy(self.stats);
         stats.last = self.lastvisit;
         return stats;
     }
@@ -296,7 +296,7 @@ WebCounter.prototype.save = function() {
     var self = this;
     var filename = framework.path.databases(FILE_CACHE);
 
-    fs.writeFile(filename, JSON.stringify(self.stats), utils.noop);
+    fs.writeFile(filename, JSON.stringify(self.stats), Utils.noop);
 
     return self;
 
@@ -318,7 +318,7 @@ WebCounter.prototype.load = function() {
 
         try
         {
-            self.stats = utils.copy(JSON.parse(data.toString('utf8')));
+            self.stats = Utils.copy(JSON.parse(data.toString('utf8')));
         } catch (ex) {}
 
     });
@@ -333,7 +333,7 @@ WebCounter.prototype.load = function() {
 WebCounter.prototype.append = function() {
     var self = this;
     var filename = framework.path.databases(FILE_STATS);
-    fs.appendFile(filename, JSON.stringify(self.stats) + '\n', utils.noop);
+    fs.appendFile(filename, JSON.stringify(self.stats) + '\n', Utils.noop);
     return self;
 };
 
@@ -537,7 +537,7 @@ module.exports.instance = webcounter;
 
 module.exports.install = function(framework, options) {
 
-    options = Utils.extend({ ip: true, xhr: true, url: '/webcounter/' }, options);
+    options = Utils.copy(options, { ip: true, xhr: true, url: '/webcounter/' });
 
     webcounter.allowIP = options.ip;
     webcounter.allowXHR = options.xhr;
@@ -566,8 +566,7 @@ module.exports.install = function(framework, options) {
 
 module.exports.uninstall = function(framework, options) {
 
-    options = utils.extend({ reinstall: false }, options);
-
+    options = Utils.copy(options, { reinstall: false });
     webcounter.stop();
 
     // clean framework links
@@ -585,7 +584,7 @@ module.exports.uninstall = function(framework, options) {
 };
 
 module.exports.usage = function() {
-    var stats = utils.extend({}, webcounter.stats);
+    var stats = Utils.extend({}, webcounter.stats);
     stats.online = webcounter.online;
     return stats;
 };
