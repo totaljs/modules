@@ -1,10 +1,10 @@
 // MIT License
 // Copyright Peter Širka <petersirka@gmail.com>
-// Version 1.00
+// Version 1.01
 
 exports.name = 'angular.js';
-exports.version = '1.00';
-exports.options = { 'angular-version': '1.2.18', 'angular-i18n-version': '1.2.15' };
+exports.version = '1.01';
+exports.options = { 'angular-version': '1.3.8', 'angular-i18n-version': '1.2.15' };
 
 var fs = require('fs');
 var EXTENSION_JS = '.js';
