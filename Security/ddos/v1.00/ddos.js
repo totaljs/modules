@@ -10,6 +10,7 @@ var ban = {};
 var ban_length = 0;
 var interval = 0;
 var intervalService;
+var whitelist = ['127.0.0.1'];
 
 exports.name = 'ddos';
 exports.version = 'v1.01';
@@ -25,7 +26,10 @@ exports.install = function(framework, options) {
 			next();
 			return;
 		}
-
+        	if (whitelistIp.indexOf(req.ip) > -1) {
+        		next();
+            		return;
+        	}
 		if (ban_length > 0 && ban[req.ip]) {
 			res.success = true;
 			framework.stats.response.destroy++;
