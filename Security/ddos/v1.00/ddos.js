@@ -26,7 +26,7 @@ exports.install = function(framework, options) {
 			next();
 			return;
 		}
-        	if (whitelistIp.indexOf(req.ip) > -1) {
+        	if (whitelist.indexOf(req.ip) > -1) {
         		next();
             		return;
         	}
