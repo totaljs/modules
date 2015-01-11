@@ -1,6 +1,6 @@
 # Installation
 
-Package contains HTML CSS JS for rendering statistics while classic module is a clean module (without routes, HTML, CSS, etc.) for custom rendering.
+The package contains HTML CSS JS for rendering statistics while the classic module is the clean module (without routes, HTML, CSS, etc.) for custom rendering.
 
 ```js
 var options = {};
