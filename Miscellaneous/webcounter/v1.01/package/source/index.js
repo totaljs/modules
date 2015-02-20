@@ -537,7 +537,7 @@ module.exports.instance = webcounter;
 
 module.exports.install = function(framework, options) {
 
-    options = Utils.copy(options, { ip: true, xhr: true, url: '/webcounter/' });
+    options = Utils.copy(options, { ip: true, xhr: true, url: CONFIG('webcounter.url') || '/webcounter/' });
 
     webcounter.allowIP = options.ip;
     webcounter.allowXHR = options.xhr;
