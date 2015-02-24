@@ -1,11 +1,11 @@
 # Installation
 
-With this module you can control a whole application. The module offers real-time console.
+With this module __you can control a whole application__. The module contains real-time console.
 
 ```js
 var options = {};
 
-// Credential is optional:
+// A credential is optional:
 // options.user = 'login name';
 // options.password = 'login password';
 
