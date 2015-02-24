@@ -11,7 +11,7 @@ var options = {};
 
 // options.url = '/$console/';
 
-INSTALL('package', 'https://modules.totaljs.com/v1.01/console.package', options);
+INSTALL('package', 'https://modules.totaljs.com/console/v1.01/console.package', options);
 ```
 
 __or download__ `console.package` from GitHub and add it into the `/your-application/packages/`.
