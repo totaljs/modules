@@ -2,7 +2,7 @@
 
 - copy **social.js** to __/your-totaljs-website/modules/__
 - For testing use: [NGROK - proxy tunnel](https://ngrok.com/)
-- [EXAMPLE](https://github.com/petersirka/total.js-modules/tree/master/social/example)
+example)
 
 ## Functions and Events
 
