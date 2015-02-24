@@ -5,7 +5,7 @@
 exports.id = 'social';
 exports.version = '1.00';
 
-var stats = { facebook: 0, google: 0,linkedin: 0 };
+var stats = { facebook: 0, google: 0,linkedin: 0, yahoo: 0 };
 
 exports.usage = function() {
     return stats;
@@ -51,16 +51,12 @@ function google_profile(key, secret, code, url, callback) {
             return callback(JSON.parse(data), null);
 
         data = JSON.parse(data);
-
         U.request('https://www.googleapis.com/plus/v1/people/me', ['get'], '', function(err, data, status) {
-
             if (err)
                 return callback(err, null);
-
             var user = JSON.parse(data);
             stats.google++;
             callback(null, user);
-
         }, null, { 'Authorization': 'Bearer ' + data.access_token });
     });
 }
@@ -79,16 +75,36 @@ function linkedin_profile(key, secret, code, url, callback) {
             return callback(JSON.parse(data), null);
 
         data = JSON.parse(data);
-
         U.request('https://api.linkedin.com/v1/people/~:(id,first-name,last-name,headline,member-url-resources,picture-url,location,public-profile-url,email-address)?format=json', ['get'], '', function(err, data, status) {
-
             if (err)
                 return callback(err, null);
-
             var user = JSON.parse(data);
             stats.linkedin++;
             callback(null, user);
+        }, null, { 'Authorization': 'Bearer ' + data.access_token });
+    });
+}
 
+function yahoo_redirect(key, url) {
+    return 'https://api.login.yahoo.com/oauth2/request_auth?client_id={0}&redirect_uri={1}&response_type=code&language=en-us'.format(key, encodeURIComponent(url));
+}
+
+function yahoo_profile(key, secret, code, url, callback) {
+    U.request('https://api.login.yahoo.com/oauth2/get_token', ['post'], { code: code, client_id: key, client_secret: secret, redirect_uri: url, grant_type: 'authorization_code' }, function(err, data, status, headers) {
+
+        if (err)
+            return callback(err, null);
+
+        if (data.indexOf('"error"') !== -1)
+            return callback(JSON.parse(data), null);
+
+        data = JSON.parse(data);
+        U.request('https://social.yahooapis.com/v1/user/' + data.xoauth_yahoo_guid + '/profile?format=json', ['get'], '', function(err, data, status) {
+            if (err)
+                return callback(err, null);
+            var user = JSON.parse(data);
+            stats.yahoo++;
+            callback(null, user);
         }, null, { 'Authorization': 'Bearer ' + data.access_token });
     });
 }
@@ -99,3 +115,5 @@ exports.google_redirect = google_redirect;
 exports.google_profile = google_profile;
 exports.linkedin_redirect = linkedin_redirect;
 exports.linkedin_profile = linkedin_profile;
+exports.yahoo_redirect = yahoo_redirect;
+exports.yahoo_profile = yahoo_profile;

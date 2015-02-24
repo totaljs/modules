@@ -1,4 +1,4 @@
-# Login with Facebook, Google, LinkedIn
+# Login with Facebook, Google, LinkedIn, Yahoo
 
 - copy **social.js** to __/your-totaljs-website/modules/__
 - For testing use: [NGROK - proxy tunnel](https://ngrok.com/)
@@ -20,4 +20,8 @@ social.google_profile(key, secret, code, callbackURL, callback(err, user));
 // code === controller.query.code
 social.linkedin_redirect(key, callbackURL);
 social.linkedin_profile(key, secret, code, callbackURL, callback(err, user));
+
+// code === controller.query.code
+social.yahoo_redirect(key, callbackURL);
+social.yahoo_profile(key, secret, code, callbackURL, callback(err, user));
 ```
