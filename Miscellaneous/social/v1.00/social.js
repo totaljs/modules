@@ -133,6 +133,30 @@ function github_profile(key, secret, code, url, callback) {
     });
 }
 
+function dropbox_redirect(key, url) {
+    return 'https://www.dropbox.com/1/oauth2/authorize?scope=user%3Aemail&redirect_uri={0}&response_type=code&client_id={1}'.format(encodeURIComponent(url), key);
+}
+
+function dropbox_profile(key, secret, code, url, callback) {
+    U.request('https://api.dropbox.com/1/oauth2/token', ['post'], { code: code, client_id: key, client_secret: secret, redirect_uri: url, grant_type: 'authorization_code' }, function(err, data, status, headers) {
+
+        if (err)
+            return callback(err, null);
+
+        if (data.indexOf('"error"') !== -1)
+            return callback(JSON.parse(data), null);
+
+        data = JSON.parse(data);
+        U.request('https://api.dropbox.com/1/account/info', ['get'], '', function(err, data, status) {
+            if (err)
+                return callback(err, null);
+            var user = JSON.parse(data);
+            stats.google++;
+            callback(null, user);
+        }, null, { 'Authorization': 'Bearer ' + data.access_token });
+    });
+}
+
 exports.facebook_redirect = facebook_redirect;
 exports.facebook_profile = facebook_profile;
 exports.google_redirect = google_redirect;
@@ -143,3 +167,5 @@ exports.yahoo_redirect = yahoo_redirect;
 exports.yahoo_profile = yahoo_profile;
 exports.github_redirect = github_redirect;
 exports.github_profile = github_profile;
+exports.dropbox_redirect = dropbox_redirect;
+exports.dropbox_profile = dropbox_profile;
