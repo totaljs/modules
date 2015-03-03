@@ -1,4 +1,4 @@
-# Login with Facebook, Google, LinkedIn, Yahoo, GitHub, DropBox
+# Login with Facebook, Google, LinkedIn, Yahoo, GitHub, DropBox, Live
 
 - copy **oauth2.js** to __/your-totaljs-website/modules/__
 - For testing use: [NGROK - proxy tunnel](https://ngrok.com/)
@@ -16,6 +16,10 @@ exports.install = function() {
     F.route('/login/linkedin/callback/', oauth_login_callback, ['unauthorize']);
     F.route('/login/google/', oauth_login, ['unauthorize']);
     F.route('/login/google/callback/', oauth_login_callback, ['unauthorize']);
+    F.route('/login/yahoo/', oauth_login, ['unauthorize']);
+    F.route('/login/yahoo/callback/', oauth_login_callback, ['unauthorize']);
+    F.route('/login/live/', oauth_login, ['unauthorize']);
+    F.route('/login/live/callback/', oauth_login_callback, ['unauthorize']);
 }
 
 // Controller action
@@ -53,6 +57,15 @@ function oauth_login_callback() {
 }
 ```
 
+## Register you application
+
+- Facebook - <https://developers.facebook.com/apps/>
+- Google - <https://console.developers.google.com>
+- Yahoo - <https://developer.yahoo.com>
+- LinkedIn - <https://www.linkedin.com/secure/developer>
+- DropBox - <https://www.dropbox.com/developers/apps>
+- GitHub - <https://github.com/settings/applications>
+- Live - <https://account.live.com/developers/applications/>
 
 ## CALLBACK
 
@@ -201,4 +214,56 @@ function oauth_login_callback() {
   updated_time: '2014-09-15T16:24:13+0000',
   verified: true,
   picture: 'https://graph.facebook.com/000/picture' }
+```
+
+### Yahoo
+
+```javascript
+{ profile: 
+   { guid: 'XXXX',
+     ageCategory: 'A',
+     created: '2015-03-03T08:21:27Z',
+     image: 
+      { height: 192,
+        imageUrl: 'https://s.yimg.com/dh/ap/social/profile/profile_b192.png',
+        size: '192x192',
+        width: 192 },
+     intl: 'us',
+     jurisdiction: 'us',
+     lang: 'en-US',
+     memberSince: '2015-03-03T07:30:44Z',
+     migrationSource: 1,
+     nickname: 'Peter',
+     notStored: true,
+     nux: '0',
+     profileMode: 'PUBLIC',
+     profileStatus: 'ACTIVE',
+     profileUrl: 'http://profile.yahoo.com/5S5G4LKFZJECMAI2IHVD5UTUII',
+     isConnected: false,
+     profileHidden: false,
+     bdRestricted: true,
+     profilePermission: 'PRIVATE',
+     uri: 'https://social.yahooapis.com/v1/user/5S5G4LKFZJECMAI2IHVD5UTUII/profile',
+     cache: true } }
+```
+
+###Live
+
+```javascript
+{ id: 'XXX',
+  name: 'Peter Širka',
+  first_name: 'Peter',
+  last_name: 'Širka',
+  link: 'https://profile.live.com/',
+  birth_day: 6,
+  birth_month: 11,
+  birth_year: 1984,
+  gender: null,
+  emails: 
+   { preferred: 'a@a.com',
+     account: 'a@a.com',
+     personal: 'a@a.com',
+     business: null },
+  locale: 'sk_SK',
+  updated_time: '2015-03-03T08:38:47+0000' }
 ```

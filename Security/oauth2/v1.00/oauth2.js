@@ -109,7 +109,27 @@ function yahoo_profile(key, secret, code, url, callback) {
             stats.yahoo++;
             callback(null, user);
         }, null, { 'Authorization': 'Bearer ' + data.access_token });
-    });
+    }, null, { 'Authorization': 'Basic ' + new Buffer(key + ':' + secret).toString('base64'), 'Content-Type': 'application/x-www-form-urlencoded' });
+}
+
+function twitter_profile(key, secret, code, url, callback) {
+    U.request('https://api.login.yahoo.com/oauth2/get_token', ['post'], { code: code, client_id: key, client_secret: secret, redirect_uri: url, grant_type: 'authorization_code' }, function(err, data, status, headers) {
+
+        if (err)
+            return callback(err, null);
+
+        if (data.indexOf('"error"') !== -1)
+            return callback(JSON.parse(data), null);
+
+        data = JSON.parse(data);
+        U.request('https://social.yahooapis.com/v1/user/' + data.xoauth_yahoo_guid + '/profile?format=json', ['get'], '', function(err, data, status) {
+            if (err)
+                return callback(err, null);
+            var user = JSON.parse(data);
+            stats.yahoo++;
+            callback(null, user);
+        }, null, { 'Authorization': 'Bearer ' + data.access_token });
+    }, null, { 'Authorization': 'Basic ' + new Buffer(key + ':' + secret).toString('base64'), 'Content-Type': 'application/x-www-form-urlencoded' });
 }
 
 function github_redirect(key, url) {
@@ -161,6 +181,30 @@ function dropbox_profile(key, secret, code, url, callback) {
     });
 }
 
+function live_redirect(key, url) {
+    return 'https://login.live.com/oauth20_authorize.srf?client_id={1}&scope=wl.basic%2Cwl.signin%2Cwl.birthday%2Cwl.emails&response_type=code&redirect_uri={0}'.format(encodeURIComponent(url), encodeURIComponent(key));
+}
+
+function live_profile(key, secret, code, url, callback) {
+    U.request('https://login.live.com/oauth20_token.srf', ['post'], { code: code, client_id: key, client_secret: secret, redirect_uri: url, grant_type: 'authorization_code' }, function(err, data, status, headers) {
+
+        if (err)
+            return callback(err, null);
+
+        if (data.indexOf('"error"') !== -1)
+            return callback(JSON.parse(data), null);
+
+        data = JSON.parse(data);
+        U.request('https://apis.live.net/v5.0/me/', ['get'], '', function(err, data, status) {
+            if (err)
+                return callback(err, null);
+            var user = JSON.parse(data);
+            stats.dropbox++;
+            callback(null, user);
+        }, null, { 'Authorization': 'Bearer ' + data.access_token });
+    });
+}
+
 exports.redirect = function(type, key, url, controller) {
     switch (type) {
         case 'facebook':
@@ -180,6 +224,9 @@ exports.redirect = function(type, key, url, controller) {
             break;
         case 'dropbox':
             controller.redirect(dropbox_redirect(key, url));
+            break;
+        case 'live':
+            controller.redirect(live_redirect(key, url));
             break;
     }
 };
@@ -204,6 +251,9 @@ exports.callback = function(type, key, secret, url, controller, callback) {
         case 'dropbox':
             dropbox_profile(key, secret, controller.query.code, url, callback);
             break;
+        case 'live':
+            live_profile(key, secret, controller.query.code, url, callback);
+            break;
     }
 };
 
@@ -219,3 +269,5 @@ exports.github_redirect = github_redirect;
 exports.github_profile = github_profile;
 exports.dropbox_redirect = dropbox_redirect;
 exports.dropbox_profile = dropbox_profile;
+exports.live_profile = live_profile;
+exports.live_redirect = live_redirect;
