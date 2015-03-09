@@ -32,16 +32,8 @@
         function exec(cmd) {
             var obj = {};
 
-            if (cmd && cmd.length > 0) {
-                cmd = cmd.trim();
-                if (cmd.substring(0, 7) !== 'console') {
-                    if (cmd.substring(cmd.length - 1) === ';')
-                        cmd = cmd.substring(0, cmd.length - 1);
-                    obj.exec = 'console.log(' + cmd + ');';
-                }
-                else
-                    obj.exec = cmd;
-            }
+            if (cmd && cmd.length > 0)
+                obj.exec = cmd.trim();
 
             obj.ticks = ticks;
             $.ajax({ url: window.location.pathname, type: 'POST', data: JSON.stringify(obj), contentType: 'application/json', dataType: 'json', async: false, success: function(data) {
