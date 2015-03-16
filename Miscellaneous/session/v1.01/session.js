@@ -131,8 +131,7 @@ module.exports.install = function(framework, options) {
     var self = this;
 
     SUGAR = (framework.config.name + framework.config.version + SUGAR).replace(/\s/g, '');
-
-    session.options = Utils.extend({ cookie: '__ssid', secret: 'N84', timeout: '5 minutes' }, options);
+    session.options = Utils.extend({ cookie: '__ssid', secret: 'N84', timeout: '5 minutes' }, options, true);
 
     framework.middleware('session', function(req, res, next) {
 
