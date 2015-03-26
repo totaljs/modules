@@ -1,20 +1,23 @@
 # Stylus module
 
-- install npm stylus
+- install `$ npm install stylus`
 - copy **stylus.js** to __/your-totaljs-website/modules/__
 
 All files with .CSS and .STYL extension will compiled via stylus. In release mode will compiled files cached in temporary directory.
 
-## Views
+## Views
 
 Example:
 
+```javascript
 @{stylus('default.styl')}
+```
 
 or
 
+```javascript
 @{css('default.css')}
-
+```
 
 ## IMPORTANT
 
