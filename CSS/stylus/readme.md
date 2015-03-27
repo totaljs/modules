@@ -19,6 +19,18 @@ or
 @{css('default.css')}
 ```
 
+or in views
+
+```javascript
+<style>
+    h1
+        color: blue
+        &:hover
+            color: red
+</style>
+```
+
+
 ## IMPORTANT
 
 This module does not support compiling of dynamic CSS - supports only compiling of files.
