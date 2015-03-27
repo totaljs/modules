@@ -11,6 +11,23 @@ exports.install = function(framework) {
         var url = F._routeStatic(name, F.config['static-url-css']);
         return (tag || true) ? '<link type="text/css" rel="stylesheet" href="' + url + '" />' : url;
     };
+    
+    F.onCompileStyle = function (filename, content) {
+        // if already compiled
+        if (filename !== ''){
+            if( filename.indexOf( '.' + CONFIG('directory-temp')  ) !== -1 ) {
+                return content;
+            }
+        }
+
+        try {
+            var css = stylus(content).set('compress', RELEASE).render();
+            return css;
+        } catch (err) {
+            F.error(err);
+            return content;
+        }
+    };
 };
 
 function stylus_compiler(req, res, isValidation) {
