@@ -1,12 +1,14 @@
 # Installation
 
-__ClientError module__ logs all client-side errors and it writes errors into the console or file.
+__ClientError module__ logs all client-side errors, then it writes into the console or log file on the server-side.
 
 ```js
 var options = {};
 
 // options.logger = true;
 // options.console = false;
+
+// The framework adds .log extension automatically
 // options.filename = 'logger';
 
 INSTALL('module', 'https://modules.totaljs.com/clienterror/v1.00/clienterror.js', options);
