@@ -1,6 +1,6 @@
 # Installation
 
-__ClientError module__ captures all client-side errors, then it writes into the console or log file on the server-side.
+__ClientError module__ captures all client-side errors, then it writes into the console or log file on the server-side. The module appends a small JS script into the `@{head}` tag.
 
 ```js
 var options = {};
