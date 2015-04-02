@@ -20,9 +20,43 @@ function json_error() {
     var self = this;
     self.plain('');
 
+    var ua = self.req.headers['user-agent'] || '';
+    var browser = '';
+
+    var r = ua.match(/Chrome\/\d+/);
+    if (r)
+        browser = r.toString();
+    else {
+
+        r = ua.match(/Firefox\/[0-9.]+/);
+        if (r)
+            browser = r.toString();
+        else {
+            r = ua.match(/Safari\/\d+/);
+            if (r)
+                browser = r.toString();
+            else {
+                r = ua.match(/MSIE.\d+/);
+                if (r)
+                    browser = r.toString();
+                else {
+                    r = ua.match(/Opera\/[0-9.]+/);
+                    if (r)
+                        browser = r.toString();
+                    else {
+                        browser = ua;
+                    }
+                }
+            }
+        }
+    }
+
+    if ((/mobile/i).test(ua))
+        browser += ' (mobile)';
+
     if (exports.options.logger)
-        self.logger(exports.options.filename, self.body.url, self.body.error);
+        self.logger(exports.options.filename, self.body.url, self.body.error, browser);
 
     if (exports.options.console)
-        console.log('CLIENTERROR:', self.body.url, self.body.error);
+        console.log('CLIENTERROR:', self.body.url, self.body.error, browser);
 }
