@@ -75,14 +75,14 @@ exports.install = function(framework, options) {
 
         if (length > 1) {
             for (var i = 0; i < length; i++)
-                self.ngCommon.call(self, arguments[i]);
+                framework.helpers.call(self, arguments[i]);
             return '';
         }
 
         if (name instanceof Array) {
             length = name.length;
             for (var i = 0; i < length; i++)
-                self.ngCommon.call(self, name[i]);
+                framework.helpers.ngCommon.call(self, name[i]);
             return '';
         }
 
