@@ -4,7 +4,7 @@
 
 exports.name = 'angular.js';
 exports.version = '1.01';
-exports.options = { 'angular-version': '1.3.8', 'angular-i18n-version': '1.2.15' };
+exports.options = { 'angular-version': '1.3.15', 'angular-i18n-version': '1.3.15' };
 
 var fs = require('fs');
 var EXTENSION_JS = '.js';
@@ -129,7 +129,7 @@ exports.install = function(framework, options) {
         if (name.lastIndexOf(EXTENSION_JS) === -1)
             extension = EXTENSION_JS;
 
-        output += $script_create(isLocal ? '/i18n/angular-locale_' + name + extension : '//cdnjs.cloudflare.com/ajax/libs/angular-i18n/' + exports.options['angular-i18n-version'] + '/angular-locale_' + name + extension);
+        output += $script_create(isLocal ? '/i18n/angular-locale_' + name + extension : '//cdnjs.cloudflare.com/ajax/libs/angular.js/' + exports.options['angular-i18n-version'] + '/i18n/angular-locale_' + name + extension);
         self.repository[REPOSITORY_ANGULAR_LOCALE] = output;
 
         return '';
