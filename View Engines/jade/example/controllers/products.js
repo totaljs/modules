@@ -1,4 +1,4 @@
-exports.install = function(framework) {
+exports.install = function() {
 	framework.route('/products/', view_products);
 	framework.route('/products/each/', view_products_each);
 };

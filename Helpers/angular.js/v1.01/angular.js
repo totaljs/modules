@@ -14,7 +14,10 @@ var REPOSITORY_ANGULAR_COMMON = '$angular-common';
 var REPOSITORY_ANGULAR_CONTROLLER = '$angular-controller';
 var REPOSITORY_ANGULAR_OTHER = '$angular-other';
 
-exports.install = function(framework, options) {
+exports.install = function() {
+
+    // Backward compatibility
+    var options = F.version >= 1900 ? arguments[0] : arguments[1];
 
     Utils.extend(exports.options, options, true);
 

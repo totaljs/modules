@@ -38,7 +38,6 @@ function Session() {
 }
 
 Session.prototype = new events.EventEmitter;
-
 Session.prototype._read = function(req, res, next) {
 
     var self = this;
@@ -126,8 +125,10 @@ module.exports.usage = function() {
     };
 };
 
-module.exports.install = function(framework, options) {
+module.exports.install = function() {
 
+    // Backward compatibility
+    var options = F.version >= 1900 ? arguments[0] : arguments[1];
     var self = this;
 
     SUGAR = (framework.config.name + framework.config.version + SUGAR).replace(/\s/g, '');
@@ -147,12 +148,11 @@ module.exports.install = function(framework, options) {
             });
         }
 
-        session._read(req, res, next);
-
+       session._read(req, res, next);
     });
 };
 
-module.exports.uninstall = function(framework, options) {
+module.exports.uninstall = function() {
     framework.removeListener('request', delegate_request);
     framework.uninstall('middleware', 'session');
     session = null;

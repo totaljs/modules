@@ -529,7 +529,10 @@ module.exports.instance = webcounter;
 
 framework.on('controller', delegate_request);
 
-module.exports.uninstall = function(framework, options) {
+module.exports.uninstall = function() {
+
+    // Backward compatibility
+    var options = framework.version >= 1900 ? arguments[0] : arguments[1];
 
     options = utils.extend({ reinstall: false }, options);
     webcounter.stop();

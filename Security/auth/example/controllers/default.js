@@ -1,9 +1,7 @@
-exports.install = function(framework) {
-
+exports.install = function() {
     framework.route('/', view_homepage);
     framework.route('/', view_profile, ['authorize']);
     framework.route('/usage/', view_usage);
-
     framework.route('/login/', json_login, ['xhr', 'post']);
     framework.route('/logoff/', json_logoff, ['authorize']);
 };

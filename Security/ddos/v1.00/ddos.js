@@ -1,8 +1,5 @@
-/**
- * @module DDOS
- * @version v1.0
- * @author Peter Širka
- */
+// MIT License
+// Copyright Peter Širka <petersirka@gmail.com>
 
 var counter = 0;
 var ip = {};
@@ -16,8 +13,10 @@ exports.name = 'ddos';
 exports.version = 'v1.01';
 exports.options = null;
 
-exports.install = function(framework, options) {
+exports.install = function() {
 
+    // Backward compatibility
+    var options = framework.version >= 1900 ? arguments[0] : arguments[1];
 	exports.options = Utils.extend({ maximum: 1000, minutes: 5 }, options);
 
 	framework.middleware('ddos', function(req, res, next, options, controller) {
@@ -108,7 +107,7 @@ exports.install = function(framework, options) {
 	}, 1000);
 };
 
-exports.uninstall = function(framework, options) {
+exports.uninstall = function() {
 	framework.uninstall('middleware', 'ddos');
 	clearInterval(intervalService);
 };

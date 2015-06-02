@@ -277,7 +277,10 @@ function authorization(req, res, flags, callback) {
     callback(false);
 }
 
-module.exports.install = function(framework, options) {
+module.exports.install = function() {
+
+    // Backward compatibility
+    var options = framework.version >= 1900 ? arguments[0] : arguments[1];
 
     SUGAR = (framework.config.name + framework.config.version + SUGAR).replace(/\s/g, '');
 
@@ -290,7 +293,7 @@ module.exports.install = function(framework, options) {
     this.emit('auth', users);
 };
 
-module.exports.uninstall = function(framework, options) {
+module.exports.uninstall = function() {
     if (framework.onAuthorization === authorization)
         framework.onAuthorization = null;
     framework.removeListener('service', service);

@@ -1,6 +1,5 @@
 // MIT License
 // Copyright Peter Širka <petersirka@gmail.com>
-// Version 1.00
 
 var Qs = require('querystring');
 

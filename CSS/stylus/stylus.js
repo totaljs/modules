@@ -1,7 +1,10 @@
+// MIT License
+// Copyright Peter Širka <petersirka@gmail.com>
+
 var stylus = require('stylus');
 var fs = require('fs');
 
-exports.install = function(framework) {
+exports.install = function() {
     F.file('STYL', stylus_compiler);
 
     if (CONFIG('static-accepts').indexOf('.styl') === -1) F.accept('.styl','text/css');
@@ -11,7 +14,7 @@ exports.install = function(framework) {
         var url = F._routeStatic(name, F.config['static-url-css']);
         return (tag || true) ? '<link type="text/css" rel="stylesheet" href="' + url + '" />' : url;
     };
-    
+
     F.onCompileStyle = function (filename, content) {
         // if already compiled
         if (filename !== ''){
@@ -35,7 +38,6 @@ function stylus_compiler(req, res, isValidation) {
     if (isValidation) return req.url.indexOf('.css') !== -1 || req.url.indexOf('.styl') !== -1;
 
     var self = this;
-
     var filename = self.path.temp(req.url.replace(/\//g, '-').substring(1));
 
     if (F.isProcessed(filename)) {

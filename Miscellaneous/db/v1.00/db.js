@@ -743,7 +743,7 @@ var db = new _db();
 
 exports.db = db;
 
-exports.install = function (framework) {
+exports.install = function () {
     db.init(framework);
 };
 

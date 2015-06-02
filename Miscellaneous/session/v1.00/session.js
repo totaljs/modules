@@ -126,12 +126,13 @@ module.exports.usage = function() {
     };
 };
 
-module.exports.install = function(framework, options) {
+module.exports.install = function() {
 
+    // Backward compatibility
+    var options = F.version >= 1900 ? arguments[0] : arguments[1];
     var self = this;
 
     SUGAR = (framework.config.name + framework.config.version + SUGAR).replace(/\s/g, '');
-
     session.options = Utils.extend({ cookie: '__ssid', secret: 'N84', timeout: '5 minutes' }, options);
 
     framework.middleware('session', function(req, res, next) {
@@ -149,11 +150,10 @@ module.exports.install = function(framework, options) {
         }
 
         session._read(req, res, next);
-
     });
 };
 
-module.exports.uninstall = function(framework, options) {
+module.exports.uninstall = function() {
     framework.removeListener('request', delegate_request);
     framework.uninstall('middleware', 'session');
     session = null;

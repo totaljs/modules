@@ -1,8 +1,5 @@
-/**
- * @module protection
- * @version v1.0
- * @author Peter Širka
- */
+// MIT License
+// Copyright Peter Širka <petersirka@gmail.com>
 
 var db = {};
 
@@ -10,11 +7,11 @@ exports.name = 'protection';
 exports.version = 'v1.01';
 exports.options = { max: 5, timeout: 3 };
 
-exports.install = function(framework, options) {
+exports.install = function() {
 	framework.on('service', service);
 };
 
-exports.uninstall = function(framework, options) {
+exports.uninstall = function() {
 	framework.removeListener('service', service);
 };
 

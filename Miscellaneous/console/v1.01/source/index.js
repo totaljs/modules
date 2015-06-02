@@ -1,3 +1,6 @@
+// MIT License
+// Copyright Peter Širka <petersirka@gmail.com>
+
 exports.id = 'console';
 exports.version = '1.01';
 
@@ -8,7 +11,10 @@ var options = { history: 50, url: '/$console/', user: '', password: '' };
 var history = [];
 var ticks = 0;
 
-exports.install = function(framework, opt) {
+exports.install = function() {
+
+    // Backward compatibility
+    var otp = F.version >= 1900 ? arguments[0] : arguments[1];
 
     U.copy(opt, options);
 

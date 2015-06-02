@@ -134,7 +134,9 @@ var translation = new Translation();
 exports.name = 'translation';
 exports.version = VERSION;
 
-exports.install = function(framework, options) {
+exports.install = function() {
+    // Backward compatibility
+    var options = framework.version >= 1900 ? arguments[0] : arguments[1];
     translation.options = Utils.extend({language: 'en', collection: 'default'}, options);
     framework.helpers.translate = translation;
     translation.load();
