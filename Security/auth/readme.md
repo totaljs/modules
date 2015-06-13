@@ -101,13 +101,13 @@ auth.on('expire', function(id, user) {});
 ### /controllers/default.js
 
 ```javascript
-exports.install = function(framework) {
+exports.install = function() {
 	// ...
 	// ...
 	// ...
-	framework.route('/xhr/login/', json_login, ['unauthorize']);
-	framework.route('/xhr/logoff/', json_logoff, ['authorize']);
-	framework.route('/', view_authorize, ['authorize']);
+	F.route('/xhr/login/', json_login, ['unauthorize']);
+	F.route('/xhr/logoff/', json_logoff, ['authorize']);
+	F.route('/', view_authorize, ['authorize']);
 };
 
 function json_login() {
@@ -159,7 +159,7 @@ function view_authorize() {
 ### /definitions/authorization.js
 
 ```javascript
-framework.on('install', function(type, name) {
+F.on('install', function(type, name) {
 
 	if (type !== 'module' && name !== 'auth')
 		return;
@@ -183,7 +183,7 @@ framework.on('install', function(type, name) {
 __IMPORTANT__ in practice:
 
 ```javascript
-framework.on('install', function(type, name) {
+F.on('install', function(type, name) {
 
 	if (type !== 'module' && name !== 'auth')
 		return;
@@ -197,7 +197,7 @@ framework.on('install', function(type, name) {
 			return user.id === id;
 		};
 
-		framework.database('users').one(filter, function(user) {
+		F.database('users').one(filter, function(user) {
 
 			if (user === null) {
 				callback(null);
@@ -216,7 +216,7 @@ framework.on('install', function(type, name) {
 > Use a definition.
 
 ```javascript
-framework.on('install', function(type, name) {
+F.on('install', function(type, name) {
 
 	if (type !== 'module' && name !== 'auth')
 		return;
@@ -237,7 +237,7 @@ framework.on('install', function(type, name) {
 });
 
 // Documentation: http://docs.totaljs.com/Framework/#framework.on('controller')
-framework.on('controller', function(self, name) {
+F.on('controller', function(self, name) {
 
 	var user = self.user;
 	if (user === null)
@@ -264,9 +264,9 @@ framework.on('controller', function(self, name) {
 > Some Controller:
 
 ```javascript
-exports.install = function(framework) {
-	framework.route('/admin/', view_admin, ['!admin', '!moderator']);
-	framework.route('/admin/manage/', view_admin, ['!admin']);
+exports.install = function() {
+	F.route('/admin/', view_admin, ['!admin', '!moderator']);
+	F.route('/admin/manage/', view_admin, ['!admin']);
 };
 
 // ....
