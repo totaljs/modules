@@ -2,7 +2,7 @@
 
 - inspired from <https://github.com/jaredhanson/connect-flash>
 - cookie per session + session timeout 5 minutes
-- copy flash.js to /your-totaljs-website/modules/
+- copy __flash.js__ to /your-totaljs-website/modules/
 
 ### Usage
 
@@ -10,6 +10,8 @@
 exports.install = function() {
     F.route('/', json_index, ['#flash']);
     F.route('/flash/', redirect_flash, ['#flash']);
+    // or use global middleware
+    // F.use('flash');
 };
 
 function json_index() {
