@@ -11,7 +11,7 @@ var definition = (function() {
 	};
 
 	Controller.prototype.filestorage = function(name) {
-		return this.framework.filestorage(name);
+		return framework.filestorage(name);
 	};
 });
 
