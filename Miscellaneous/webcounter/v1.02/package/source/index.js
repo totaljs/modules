@@ -535,8 +535,10 @@ module.exports.id = 'webcounter';
 module.exports.version = 'v1.01';
 module.exports.instance = webcounter;
 
-module.exports.install = function(options) {
+module.exports.install = function() {
 
+    // Backward compatibility
+    var options = framework.version >= 1900 ? arguments[0] : arguments[1];
     options = Utils.copy(options, { ip: true, xhr: true, url: '/webcounter/' });
 
     webcounter.allowIP = options.ip;
@@ -564,8 +566,10 @@ module.exports.install = function(options) {
     };
 };
 
-module.exports.uninstall = function(options) {
+module.exports.uninstall = function() {
 
+    // Backward compatibility
+    var options = framework.version >= 1900 ? arguments[0] : arguments[1];
     options = Utils.copy(options, { reinstall: false });
     webcounter.stop();
 
