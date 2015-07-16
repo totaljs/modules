@@ -11,8 +11,8 @@ var options = {};
 // A default URL address of statistics
 // options.url = '/webcounter/';
 
-// INSTALL('module', 'https://modules.totaljs.com/webcounter/v1.01/webcounter.js', options);
-INSTALL('package', 'https://modules.totaljs.com/webcounter/v1.01/webcounter.package', options);
+// INSTALL('module', 'https://modules.totaljs.com/webcounter/v1.03/webcounter.js', options);
+INSTALL('package', 'https://modules.totaljs.com/webcounter/v1.03/webcounter.package', options);
 // UNINSTALL('module', 'webcounter');
 ```
 

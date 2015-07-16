@@ -1,0 +1,377 @@
+@{layout('')}
+@{meta('WebCounter')}
+
+<!DOCTYPE html>
+<html>
+<head>
+	@{meta}
+    <meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=10" />
+	<meta name="format-detection" content="telephone=no"/>
+	<meta name="viewport" content="width=1200, user-scalable=no" />
+	<meta name="robots" content="all,follow" />
+    @{head}
+	<link href="http://fonts.googleapis.com/css?family=Archivo+Narrow:400,700" rel="stylesheet" type="text/css" />
+	<style type="text/css">
+		/*auto*/
+		body { background-color: black; margin: 0; padding: 0; font: normal 12px Arial; color: gray; }
+		.bg { background: #151515; background: linear-gradient(90deg, #181818, #050505); padding: 60px 0 0 0; height: 480px; }
+		.container { width: 900px; margin: 0 auto; }
+		.content { margin: 0 auto; width: 800px; background-color: silver; border-radius: 4px; }
+		.content-padding { padding: 40px; }
+		.online-container { float: left; }
+		.online { font: bold 80px Arial; letter-spacing: -1px; color: white; position: absolute; margin: 132px 0 0 130px; width: 90px; text-align: center; }
+		.fl { float: left; }
+		.fr { float: right !important; }
+		.cl { clear: both; }
+		.today { float: right; width: 450px; border-left: 1px solid #404040; padding-left: 50px; }
+		.today dl { margin: 0; padding: 3px 0; height: 20px; border-radius: 4px; background-color: #1C1C1C; margin-bottom: 1px; }
+		.today dt { margin: 3px 0 0 10px; padding: 0; float: left; width: 150px; }
+		.today dd { margin: 3px 0 0 10px; padding: 0 20px 0 0; float: right; width: 250px; font-weight: bold; color: silver; text-align: right; font-size: 14px; }
+		.today strong { color: silver; }
+		.even { background-color: #222222 !important; }
+		#states { margin: 20px 0; padding: 0; list-style-type: none; }
+		#states li { padding: 5px 10px; font-size: 14px; border-radius: 4px; height: 18px; }
+		#states li:before { width: 40px; content: 'online'; background-color: #31C600; color: white; border-radius: 4px; font-size: 10px; padding: 1px 5px; margin:1px 10px 0 0; float: left; text-align: center; }
+		#states li:nth-child(odd) { background-color: #1C1C1C; }
+		#states li:nth-child(even) { background-color: #222222; }
+		#states li span:first-child { width: 324px !important; }
+		#states li span { float: left; width: 480px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+		h1 { margin: 0 0 30px 0; color: white; text-align: center; font-family: 'Archivo Narrow', Arial; font-weight: 700; font-size: 24px; }
+		h2 { margin: 0 0 20px 0; color: silver; font-family: 'Archivo Narrow', Arial; font-weight: 700; font-size: 20px; }
+		.caption { margin: 0 30px 30px 30px; color: yellow; font-family: 'Archivo Narrow', Arial; font-weight: 700; font-size: 30px; border-top:1px dashed #303030; padding: 20px 0 0 0; }
+		#map { height: 100%; }
+		.last { text-align: center; font-size: 14px; font-style: italic; margin: 10px 0 0 0; }
+		.last b { color: silver; }
+	</style>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/0.2.0/Chart.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+</head>
+<body>
+	<div class="bg">
+		<div class="container">
+			<div class="online-container">
+				<h1>Online visitors</h1>
+				<div class="online">
+					@{helper('online')}
+				</div>
+				<div><canvas id="canvas-today" width="350" height="350"></canvas></div>
+				<div class="last">...</div>
+			</div>
+			<div class="today">
+				<h2>Today statistics</h2>
+				<dl class="even">
+					<dt>Hits</dt>
+				 	<dd data-id="hits">@{model.hits}</dd>
+				</dl>
+				<dl>
+					<dt>Count of visitors</dt>
+				 	<dd data-id="count">@{model.count}</dd>
+				</dl>
+				<dl class="even">
+					<dt>Unique visitors</dt>
+				 	<dd data-id="unique">@{model.unique}</dd>
+				</dl>
+				<dl class="even">
+					<dt>Pages visit per user</dt>
+				 	<dd data-id="pages">@{model.pages}</dd>
+				</dl>
+				<br />
+				<br />
+				<div><strong>Acquisition</strong></div>
+				<br />
+				<dl class="even doughnut">
+					<dt>Organic search</dt>
+				 	<dd data-id="search">@{model.search}</dd>
+				</dl>
+				<dl class="doughnut">
+					<dt>Social networks</dt>
+				 	<dd data-id="social">@{model.social}</dd>
+				</dl>
+				<dl class="even doughnut">
+					<dt>Direct</dt>
+				 	<dd data-id="direct">@{model.direct}</dd>
+				</dl>
+				<dl class="doughnut">
+					<dt>Other</dt>
+				 	<dd data-id="unknown">@{model.unknown}</dd>
+				</dl>
+				<dl class="doughnut">
+					<dt>Advert</dt>
+				 	<dd data-id="advert">@{model.advert}</dd>
+				</dl>
+				<br />
+				<br />
+				<div><strong>Devices</strong></div>
+				<br />
+				<div class="fl">
+					<dl class="even pie">
+						<dt>Mobile</dt>
+					 	<dd data-id="mobile" style="width:198px">@{model.mobile}</dd>
+					</dl>
+					<dl class="pie">
+						<dt>Desktop</dt>
+					 	<dd data-id="desktop" style="width:198px">@{model.desktop}</dd>
+					</dl>
+				</div>
+				<canvas id="canvas-today-mobile" width="54" height="54" class="fr"></canvas>
+				<div class="cl"></div>
+			</div>
+		</div>
+	</div>
+	<br />
+	<div>
+		<div class="container" style="width:890px">
+			<ul id="states"></ul>
+		</div>
+	</div>
+	<br />
+	<div class="container" style="width:940px">
+		<div class="caption">@{model.year} statistics</div>
+		<h2 style="margin-left:32px">Count <span style="color:white">vs</span> <span style="color:#97BBCD">Unique</span></h2>
+		<canvas id="canvas-monthly-count" width="940" height="300"></canvas>
+		<br />
+		<br />
+		<br />
+		<h2 style="margin-left:32px">Hits</h2>
+		<canvas id="canvas-monthly-hits" width="940" height="200"></canvas>
+		<br />
+		<br />
+		<br />
+		<h2 style="margin-left:32px;color:#64D2E9">Mobile <span style="color:white">vs</span> <span style="color:#F5861E">Desktop</span></h2>
+		<canvas id="canvas-monthly-devices" width="940" height="200"></canvas>
+		<br />
+		<br />
+		<br />
+		<h2 style="margin-left:32px;color:#5BE900">Organic search <span style="color:white">vs</span> <span style="color:#4095CD">Social networks</span> <span style="color:white">vs</span> <span style="color:#E61C00">Direct</span> <span style="color:white">vs</span> <span style="color:#FFEE00">Advert</span> <span style="color:white">vs</span> <span style="color:#585858">Other</span></h2>
+		<canvas id="canvas-monthly-traffic" width="940" height="200"></canvas>
+	</div>
+	<br />
+	<br />
+	<br />
+
+	@{json(model, 'current')}
+
+	<script type="text/javascript">
+
+		var ip = [];
+		var cache = {};
+		var title = document.title;
+
+		var chart = {
+			months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+			online: null,
+			devices: null,
+			count_unique: null,
+			hits: null,
+			mobile_desktop: null,
+			traffic: null
+		};
+
+        function period() {
+        	$.ajax(window.location.pathname, { dataType: 'json', method: 'POST', success: function(stats) {
+
+            	ip = stats.ip;
+
+            	$('dd[data-id]').each(function() {
+            		var el = $(this);
+            		el.html(stats[el.attr('data-id')]);
+            	});
+
+            	$('.online').html(stats.online);
+            	refresh_today(stats);
+
+            	document.title = '(' + stats.online + ') ' + title;
+
+            	var length = ip.length;
+            	for (var i = 0; i < length; i++) {
+            		var current = cache[ip[i].ip] || '';
+            		if (current.substring(0, 1) !== '!')
+            			geoIP(ip[i].ip);
+            	}
+
+            	refresh();
+
+        	}});
+        }
+
+        function refresh() {
+			var el = $('#states').empty();
+			ip.forEach(function(ip, index) {
+				var current = cache[ip.ip] || '...';
+				el.append('<li><span>' + (current.substring(0, 1) === '!' ? current.substring(1) : '...') + '</span><span>' + (ip.url || '') + '</span></li>');
+			});
+        }
+
+		function geoIP(ip) {
+
+			if (cache[ip])
+				return;
+
+			cache[ip] = '...';
+
+	        $.ajax(window.location.pathname + '?ip=' + encodeURIComponent(ip), { success: function(data) {
+	        	if (data.r)
+	        		return;
+	        	cache[ip] = '!' + data.country + ((data.city || '').length > 0 ? ' (city: ' + data.city + ')' : '');
+	        }, dataType: 'json' });
+	    }
+
+		function refresh_today(current, isFirst) {
+
+			var data = [{ value: current.search, color: '#61E727' }, { value: current.social, color: '#479AD0' }, { value: current.direct, color: '#E32018' }, { value: current.unknown, color: '#585858' }, { value: current.advert, color: '#FFEE00' }];
+
+			if (current.last !== null)
+				$('.last').html('Last visit <b>' + current.last + ' ' + (current.last === 0 || current.last > 1 ? 'minutes' : 'minute') + '</b> ago');
+
+			$('.doughnut').each(function(index) {
+				$(this).css({ 'border-left': '5px solid ' + data[index].color });
+			});
+
+			chart.online.Doughnut(data, { animation: isFirst ? true : false, segmentShowStroke: false });
+
+			data = [{ value: current.mobile, color: '#64D2E9' }, { value: current.desktop, color: '#F5861E' }];
+
+			$('.pie').each(function(index) {
+				$(this).css({ 'border-left': '5px solid ' + data[index].color });
+			});
+
+			chart.devices.Pie(data, { animation: isFirst ? true : false, segmentShowStroke: false });
+
+			if ((current.monthly || null) === null)
+				return;
+
+			var now = new Date();
+			var year =now.getFullYear();
+			var obj = current.monthly;
+
+			data = {
+				labels: chart.months,
+				datasets: [
+					{
+						fillColor : 'rgba(220,220,220,0.5)',
+						strokeColor : 'rgba(220,220,220,1)',
+						pointColor : 'rgba(220,220,220,1)',
+						pointStrokeColor : '#fff',
+						data : [getMonth(obj, year, 1, 'count'),getMonth(obj, year, 2, 'count'),getMonth(obj, year, 3, 'count'),getMonth(obj, year, 4, 'count'),getMonth(obj, year, 5, 'count'),getMonth(obj, year, 6, 'count'),getMonth(obj, year, 7, 'count'),getMonth(obj, year, 8, 'count'),getMonth(obj, year, 9, 'count'),getMonth(obj, year, 10, 'count'),getMonth(obj, year, 11, 'count'), getMonth(obj, year, 12, 'count')]
+					},
+					{
+						fillColor : 'rgba(151,187,205,0.5)',
+						strokeColor : 'rgba(151,187,205,1)',
+						pointColor : 'rgba(151,187,205,1)',
+						pointStrokeColor : '#fff',
+						data : [getMonth(obj, year, 1, 'unique'),getMonth(obj, year, 2, 'unique'),getMonth(obj, year, 3, 'unique'),getMonth(obj, year, 4, 'unique'),getMonth(obj, year, 5, 'unique'),getMonth(obj, year, 6, 'unique'),getMonth(obj, year, 7, 'unique'),getMonth(obj, year, 8, 'unique'),getMonth(obj, year, 9, 'unique'),getMonth(obj, year, 10, 'unique'),getMonth(obj, year, 11, 'unique'), getMonth(obj, year, 12, 'unique')]
+					}
+				]
+			};
+
+			chart.count_unique.Line(data, { animation: isFirst ? true : false, scaleGridLineColor: '#303030' });
+
+			data = {
+				labels: chart.months,
+				datasets: [
+					{
+						fillColor : 'rgba(220,220,220,0.5)',
+						strokeColor : 'rgba(220,220,220,1)',
+						pointColor : 'rgba(220,220,220,1)',
+						pointStrokeColor : '#fff',
+						data : [getMonth(obj, year, 1, 'hits'),getMonth(obj, year, 2, 'hits'),getMonth(obj, year, 3, 'hits'),getMonth(obj, year, 4, 'hits'),getMonth(obj, year, 5, 'hits'),getMonth(obj, year, 6, 'hits'),getMonth(obj, year, 7, 'hits'),getMonth(obj, year, 8, 'hits'),getMonth(obj, year, 9, 'hits'),getMonth(obj, year, 10, 'hits'),getMonth(obj, year, 11, 'hits'), getMonth(obj, year, 12, 'hits')]
+					}
+				]
+			};
+
+			chart.hits.Bar(data, { animation: isFirst ? true : false, scaleGridLineColor: '#303030' });
+
+			data = {
+				labels: chart.months,
+				datasets: [
+					{
+						fillColor : 'rgba(100,210,233,0.5)',
+						strokeColor : 'rgba(220,220,220,1)',
+						pointColor : 'rgba(220,220,220,1)',
+						pointStrokeColor : '#fff',
+						data : [getMonth(obj, year, 1, 'mobile'),getMonth(obj, year, 2, 'mobile'),getMonth(obj, year, 3, 'mobile'),getMonth(obj, year, 4, 'mobile'),getMonth(obj, year, 5, 'mobile'),getMonth(obj, year, 6, 'mobile'),getMonth(obj, year, 7, 'mobile'),getMonth(obj, year, 8, 'mobile'),getMonth(obj, year, 9, 'mobile'),getMonth(obj, year, 10, 'mobile'),getMonth(obj, year, 11, 'mobile'), getMonth(obj, year, 12, 'mobile')]
+					},
+					{
+						fillColor : 'rgba(245,134,30,0.5)',
+						strokeColor : 'rgba(220,220,220,1)',
+						pointColor : 'rgba(220,220,220,1)',
+						pointStrokeColor : '#fff',
+						data : [getMonth(obj, year, 1, 'desktop'),getMonth(obj, year, 2, 'desktop'),getMonth(obj, year, 3, 'desktop'),getMonth(obj, year, 4, 'desktop'),getMonth(obj, year, 5, 'desktop'),getMonth(obj, year, 6, 'desktop'),getMonth(obj, year, 7, 'desktop'),getMonth(obj, year, 8, 'desktop'),getMonth(obj, year, 9, 'desktop'),getMonth(obj, year, 10, 'desktop'),getMonth(obj, year, 11, 'desktop'), getMonth(obj, year, 12, 'desktop')]
+					}
+				]
+			};
+
+			chart.mobile_desktop.Bar(data, { animation: isFirst ? true : false, scaleGridLineColor: '#303030' });
+
+			data = {
+				labels: chart.months,
+				datasets: [
+					{
+						fillColor : 'rgba(90,233,0,0.5)',
+						strokeColor : 'rgba(220,220,220,1)',
+						pointColor : 'rgba(220,220,220,1)',
+						pointStrokeColor : '#fff',
+						data : [getMonth(obj, year, 1, 'search'),getMonth(obj, year, 2, 'search'),getMonth(obj, year, 3, 'search'),getMonth(obj, year, 4, 'search'),getMonth(obj, year, 5, 'search'),getMonth(obj, year, 6, 'search'),getMonth(obj, year, 7, 'search'),getMonth(obj, year, 8, 'search'),getMonth(obj, year, 9, 'search'),getMonth(obj, year, 10, 'search'),getMonth(obj, year, 11, 'search'), getMonth(obj, year, 12, 'search')]
+					},
+					{
+						fillColor : 'rgba(66,153,210,0.5)',
+						strokeColor : 'rgba(220,220,220,1)',
+						pointColor : 'rgba(220,220,220,1)',
+						pointStrokeColor : '#fff',
+						data : [getMonth(obj, year, 1, 'social'),getMonth(obj, year, 2, 'social'),getMonth(obj, year, 3, 'social'),getMonth(obj, year, 4, 'social'),getMonth(obj, year, 5, 'social'),getMonth(obj, year, 6, 'social'),getMonth(obj, year, 7, 'social'),getMonth(obj, year, 8, 'social'),getMonth(obj, year, 9, 'social'),getMonth(obj, year, 10, 'social'),getMonth(obj, year, 11, 'social'), getMonth(obj, year, 12, 'social')]
+					},
+					{
+						fillColor : 'rgba(230,28,0,0.5)',
+						strokeColor : 'rgba(220,220,220,1)',
+						pointColor : 'rgba(220,220,220,1)',
+						pointStrokeColor : '#fff',
+						data : [getMonth(obj, year, 1, 'direct'),getMonth(obj, year, 2, 'direct'),getMonth(obj, year, 3, 'direct'),getMonth(obj, year, 4, 'direct'),getMonth(obj, year, 5, 'direct'),getMonth(obj, year, 6, 'direct'),getMonth(obj, year, 7, 'direct'),getMonth(obj, year, 8, 'direct'),getMonth(obj, year, 9, 'direct'),getMonth(obj, year, 10, 'direct'),getMonth(obj, year, 11, 'direct'), getMonth(obj, year, 12, 'direct')]
+					},
+					{
+						fillColor : 'rgba(255,238,0,0.5)',
+						strokeColor : 'rgba(220,220,220,1)',
+						pointColor : 'rgba(220,220,220,1)',
+						pointStrokeColor : '#fff',
+						data : [getMonth(obj, year, 1, 'advert'),getMonth(obj, year, 2, 'advert'),getMonth(obj, year, 3, 'advert'),getMonth(obj, year, 4, 'advert'),getMonth(obj, year, 5, 'advert'),getMonth(obj, year, 6, 'advert'),getMonth(obj, year, 7, 'advert'),getMonth(obj, year, 8, 'advert'),getMonth(obj, year, 9, 'advert'),getMonth(obj, year, 10, 'advert'),getMonth(obj, year, 11, 'advert'), getMonth(obj, year, 12, 'advert')]
+					},
+					{
+						fillColor : 'rgba(88,88,88,0.5)',
+						strokeColor : 'rgba(220,220,220,1)',
+						pointColor : 'rgba(220,220,220,1)',
+						pointStrokeColor : '#fff',
+						data : [getMonth(obj, year, 1, 'unknown'),getMonth(obj, year, 2, 'unknown'),getMonth(obj, year, 3, 'unknown'),getMonth(obj, year, 4, 'unknown'),getMonth(obj, year, 5, 'unknown'),getMonth(obj, year, 6, 'unknown'),getMonth(obj, year, 7, 'unknown'),getMonth(obj, year, 8, 'unknown'),getMonth(obj, year, 9, 'unknown'),getMonth(obj, year, 10, 'unknown'),getMonth(obj, year, 11, 'unknown'), getMonth(obj, year, 12, 'unknown')]
+					}
+				]
+			};
+
+			chart.traffic.Bar(data, { animation: isFirst ? true : false, scaleGridLineColor: '#303030' });
+
+		}
+
+		function getMonth(obj, year, month, name) {
+			var val = obj[month + '-' + year];
+			if (typeof(val) === 'undefined')
+				return 0;
+			return val[name] || 0;
+		}
+
+		function ready() {
+
+			chart.online = new Chart(document.getElementById('canvas-today').getContext('2d'));
+			chart.devices = new Chart(document.getElementById('canvas-today-mobile').getContext('2d'));
+
+			chart.count_unique = new Chart(document.getElementById('canvas-monthly-count').getContext('2d'));
+			chart.mobile_desktop = new Chart(document.getElementById('canvas-monthly-devices').getContext('2d'));
+			chart.hits = new Chart(document.getElementById('canvas-monthly-hits').getContext('2d'));
+			chart.traffic = new Chart(document.getElementById('canvas-monthly-traffic').getContext('2d'));
+
+			refresh_today(JSON.parse($('#current').html()), true);
+			setInterval(period, 4000);
+		}
+
+		ready();
+	</script>
+
+</body>
+</html>
