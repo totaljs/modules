@@ -4,7 +4,7 @@
 var Qs = require('querystring');
 
 exports.id = 'oauth2';
-exports.version = '1.00';
+exports.version = '1.10';
 
 var stats = { facebook: 0, google: 0,linkedin: 0, yahoo: 0, dropbox: 0, github: 0 };
 
@@ -30,11 +30,8 @@ function facebook_profile(key, secret, code, url, callback) {
 			if (err)
 				return callback(err, null);
 
-			var user = JSON.parse(data);
-			user.link = user.link.replace('app_scoped_user_id/', '');
-			user.picture = user.link.replace('www.', 'graph.') + 'picture';
 			stats.facebook++;
-			callback(null, user);
+			callback(null, JSON.parse(data));
 		});
 	});
 }
