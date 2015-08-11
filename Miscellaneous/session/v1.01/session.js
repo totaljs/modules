@@ -153,7 +153,6 @@ module.exports.install = function() {
 };
 
 module.exports.uninstall = function() {
-    framework.removeListener('request', delegate_request);
     framework.uninstall('middleware', 'session');
     session = null;
 };
