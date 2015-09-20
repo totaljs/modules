@@ -236,7 +236,6 @@ function yandex_profile(key, secret, code, url, callback) {
 		U.request('https://login.yandex.ru/info', ['get'], '', function(err, data, status) {
 			if (err)
 				return callback(err, null);
-			console.log(data);
 			var user = JSON.parse(data);
 			stats.yandex++;
 			callback(null, user);
@@ -262,7 +261,6 @@ function vk_profile(key, secret, code, url, callback) {
 		U.request('https://api.vk.com/method/users.get', ['get'], 'uid=' + data.user_id + '&access_token=' + data.access_token + '&fields=nickname,screen_name,photo_big,sex,country,email', function(err, data, status) {
 			if (err)
 				return callback(err, null);
-			console.log(data);
 			var user = JSON.parse(data);
 			stats.vk++;
 			callback(null, user);
