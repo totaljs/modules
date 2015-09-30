@@ -78,7 +78,7 @@ exports.install = function() {
 
 		if (length > 1) {
 			for (var i = 0; i < length; i++)
-				framework.helpers.call(self, arguments[i]);
+				framework.helpers.ngCommon.call(self, arguments[i]);
 			return '';
 		}
 
