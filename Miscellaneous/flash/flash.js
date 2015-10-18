@@ -1,14 +1,15 @@
 var COOKIE = '__flash';
 var flash = {};
 
-exports.version = '1.00';
+exports.version = '2.00';
 exports.id = 'flash';
 
 exports.usage = function() {
 	return flash;
 };
 
-F.middleware('flash', function(req, res, resume) {
+F.middleware('flash', function(req, res, resume, options, controller) {
+
 	var id = req.cookie(COOKIE);
 
 	if (!id) {
@@ -19,20 +20,38 @@ F.middleware('flash', function(req, res, resume) {
 	if (!flash[id])
 		flash[id] = { params: {} };
 
-	flash[id].expire = Date.now() + ((1000 * 60) * 5); // 5 minutes
+	var expire = 5;
+
+	if (options && options.expire)
+		expire = options.expire || 5;
+
+	flash[id].duration = expire;
+	flash[id].expire = Date.now() + ((1000 * 60) * expire); // 5 minutes
 	req.$flash = id;
 	resume();
 });
 
 require('http').IncomingMessage.prototype.flash = function(name, value) {
-	var params = flash[this.$flash].params;
-	if (name === undefined && value === undefined)
+
+	var item = flash[this.$flash];
+	var params = item.params;
+	var now = Date.now();
+
+	if (name === undefined && value === undefined) {
+		if (item.expire < now)
+			return new Array(0);
 		return params;
-	if (value === undefined)
+	}
+
+	if (value === undefined) {
+		if (item.expire < now)
+			return undefined;
 		return params[name];
+	}
+
+	item.expire = now + ((1000 * 60) * item.duration);
 
 	if (value instanceof Array) {
-
 		if (!params[name]) {
 			params[name] = value;
 			return params;
@@ -46,6 +65,7 @@ require('http').IncomingMessage.prototype.flash = function(name, value) {
 		params[name].push(value);
 	else
 		params[name] = [value];
+
 	return params;
 };
 
@@ -62,8 +82,6 @@ F.helpers.flash = function(name) {
 
 // Cleaner
 F.on('service', function(counter) {
-	if (counter % 5 !== 0)
-		return;
 	var now = Date.now();
 	for (var m in flash) {
 		if (flash[m].expire < now)
