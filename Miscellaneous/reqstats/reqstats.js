@@ -12,7 +12,9 @@ exports.install = function() {
 			return;
 
 		Fs.readFile(filename, function(err, data) {
+
 			var stats;
+			var key = new Date().format('yyyy-MM');
 
 			if (err) {
 				stats = {};
@@ -22,23 +24,28 @@ exports.install = function() {
 					stats = {};
 			}
 
-			diff(F.stats.request, cache, stats);
+			stats[key] = diff(F.stats.request, cache, stats, key);
 			Fs.writeFile(filename, JSON.stringify(stats), NOOP);
 		});
 	});
 };
 
-function diff(current, cache, file) {
+function diff(current, cache, file, key) {
 	var keys = Object.keys(current);
+	var store = file[key];
+
+	if (!store)
+		store ={};
+
 	for (var i = 0, length = keys.length; i < length; i++) {
 		var key = keys[i];
 		var diff = current[key] - cache[key];
 		cache[key] = current[key];
 		if (diff < 0)
 			continue;
-		if (!file[key])
-			file[key] = 0;
-		file[key] += diff;
+		if (!store[key])
+			store[key] = 0;
+		store[key] += diff;
 	}
-	return file;
+	return store;
 }
