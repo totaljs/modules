@@ -14,7 +14,7 @@ var ticks = 0;
 exports.install = function() {
 
     // Backward compatibility
-    var otp = F.version >= 1900 ? arguments[0] : arguments[1];
+    var opt = F.version >= 1900 ? arguments[0] : arguments[1];
 
     U.copy(opt, options);
 

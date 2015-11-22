@@ -31,3 +31,9 @@ function redirect_flash() {
 ```html
 @{flash('info')} <b>returns array</b>
 ```
+
+## Expiration
+
+```javascript
+MODULE('flash').expire = 5; // 5 minutes for expiration
+```
