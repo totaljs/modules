@@ -19,7 +19,7 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-exports.version = '1.00';
+exports.version = '1.01';
 exports.id = 'TwoFactorAuthentication';
 
 var crypto = require('crypto');
@@ -71,7 +71,7 @@ TwoFactorAuthentication.prototype.getCode = function(secret, tolerance) {
 
 	var hmac = crypto.createHmac('sha1', secretkey);
 
-	var tolerance = Math.floor(Date.now() / 1000 / tolerance);
+	var tolerance = Math.floor((Date.now() / 1000) / tolerance);
 
 	// Convert tolerance to hex
 	var toleranceBytes = new Array(8);
@@ -167,8 +167,8 @@ TwoFactorAuthentication.prototype.verify = function(secret, code, tolerance) {
 	if (!tolerance)
 		tolerance = 1;
 
-	for (i = -(tolerance); i <= tolerance; i++) {
-		var chkCode = this.getCode(secert, (tolerance * 30));
+	for (i = (tolerance*-1); i <= tolerance; i++) {
+		var chkCode = this.getCode(secret, (i * 30));
 		if (chkCode === code) return true;
 	}
 
