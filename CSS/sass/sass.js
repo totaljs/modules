@@ -6,20 +6,18 @@ var fs = require('fs');
 
 exports.install = function() {
 
-	F.file('SCSS', scss_compiler);
+	F.file('*.scss', scss_compiler);
 
-	var accept = F.config['static-accepts'];
-
-	if (accept.indexOf('.scss') === -1)
-		accept.push('.scss');
+	F.config['static-accepts']['.scss'] = true;
 
 	F.onCompileCSS = function (filename, content) {
-		return sass.renderSync({ data: content, outputStyle: 'compressed' });
+		var r = sass.renderSync({ data: content, outputStyle: 'compressed' });
+        	return r.css.toString();
 	};
 
 	F.helpers.scss = function(name, tag) {
 		var self = this;
-		var url = self.F._routeStatic(name, self.config['static-url-css']);
+		var url = F._routeStatic(name, self.config['static-url-style']);
 		return (tag || true) ? '<link type="text/css" rel="stylesheet" href="' + url + '" />' : url;
 	};
 };
@@ -49,10 +47,10 @@ function scss_compiler(req, res, isValidation) {
 			return;
 		}
 
-		var css = sass.renderSync({ data: data.toString(), outputStyle: 'compressed' });
+		var r = sass.renderSync({ data: data.toString(), outputStyle: 'compressed' });
 
 		// write compiled content into the temporary file
-		fs.writeFileSync(filename, css);
+		fs.writeFileSync(filename, r.css);
 
 		// this function affect framework.isProcessed() function
 		self.responseFile(req, res, filename);
