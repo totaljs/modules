@@ -7,10 +7,12 @@ All files with .CSS and .SCSS extension will compiled via SASS. In release mode 
 
 ## Views
 
-Example:
+__Example:__
 
-@{scss('default.scss')}
+`@{scss('default.scss')}` or `@{css('default.css')}`
 
-or
+---
 
-@{css('default.css')}
+## Contributors
+
+- [deadman2000](https://github.com/deadman2000)
