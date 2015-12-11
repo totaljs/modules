@@ -45,8 +45,8 @@ function json_monitor() {
 		var m = MODULE('reqstats');
 		if (!m || !m.stats)
 			return next();
-		m.stats(function(err, stats) {
-			stats.reqstats = stats;
+		m.stats(function(err, response) {
+			stats.reqstats = response;
 			next();
 		});
 	});
