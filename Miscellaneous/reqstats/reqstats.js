@@ -30,6 +30,17 @@ exports.install = function() {
 	});
 };
 
+exports.stats = function(callback) {
+	Fs.readFile(filename, function(err, data) {
+		var stats;
+		if (data)
+			stats = data.toString('utf8').parseJSON();
+		if (!stats)
+			stats = {};
+		callback(null, stats);
+	});
+};
+
 function diff(current, cache, file, key) {
 	var keys = Object.keys(current);
 	var store = file[key];
