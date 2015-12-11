@@ -641,7 +641,7 @@ function json_webcounter_geoip() {
         return self;
     }
 
-    Utils.request('http://www.telize.com/geoip/' + self.query.ip, ['get'], function(err, data) {
+    Utils.request('http://freegeoip.net/json/' + self.query.ip, ['get'], function(err, data) {
 
         if (err) {
             self.json({ r: false });
