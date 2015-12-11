@@ -18,7 +18,7 @@ function json_monitor() {
 	stats.versionNode = process.version;
 	stats.versionTotal = 'v' + F.version_header;
 	stats.versionMonitor = version;
-	stats.uptime = uptime: Math.floor(process.uptime() / 60); // minutes
+	stats.uptime = Math.floor(process.uptime() / 60); // minutes
 	stats.mode = self.config.debug ? 'debug' : 'release';
 	stats.cwd = process.cwd();
 	stats.request = F.stats.request;
@@ -35,8 +35,8 @@ function json_monitor() {
 		stats.webcounter = {};
 		stats.webcounter.today = m.today();
 		stats.webcounter.online = m.online();
-		m.daily(function(stats) {
-			stats.webcounter.daily = stats;
+		m.instance.monthly(function(response) {
+			stats.webcounter.monthly = response;
 			next();
 		});
 	});
