@@ -13,6 +13,8 @@ function json_monitor() {
 	var stats = {};
 	var memory = process.memoryUsage();
 
+	stats.name = F.config.name;
+	stats.version = F.config.version;
 	stats.memoryTotal = (memory.heapTotal / 1024 / 1024).floor(2); // kB
 	stats.memoryUsage = (memory.heapUsed / 1024 / 1024).floor(2); // kB
 	stats.versionNode = process.version;
