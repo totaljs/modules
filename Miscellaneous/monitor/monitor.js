@@ -18,6 +18,10 @@ function json_monitor() {
 	stats.memoryTotal = (memory.heapTotal / 1024 / 1024).floor(2); // kB
 	stats.memoryUsage = (memory.heapUsed / 1024 / 1024).floor(2); // kB
 	stats.versionNode = process.version;
+	stats.platform = process.platform;
+	stats.ip = F.ip;
+	stats.port = F.port;
+	stats.pid = process.pid;
 	stats.versionTotal = 'v' + F.version_header;
 	stats.versionMonitor = version;
 	stats.uptime = Math.floor(process.uptime() / 60); // minutes
