@@ -125,7 +125,7 @@ WebCounter.prototype.clean = function() {
  * Custom counter
  * @return {Module]
  */
-WebCounter.prototype.increment = function(type) {
+WebCounter.prototype.increment = WebCounter.prototype.inc = function(type) {
 
 	var self = this;
 
