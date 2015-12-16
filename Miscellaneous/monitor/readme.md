@@ -30,7 +30,7 @@ __IMPORTANT:__ the file `dependencies` contains links to other modules `webcount
 ### 2.
 
 - download the module `monitor.js`
-- add it into modules in your application directory
+- add it into the modules in your application directory
 
 ```html
 /your-application-directory/moduels/monitor.js
@@ -56,3 +56,14 @@ INSTALL('module', 'https://modules.totaljs.com/latest/reqstats.js');
 INSTALL('module', 'https://modules.totaljs.com/latest/monitor.js');
 ```
 
+
+---
+
+### What's next?
+
+- open total.js monitor console <https://monitor.totaljs.com>
+- add your web application into the console (full hostname with protocol (http/https))
+
+### Questions?
+
+Contact me: <petersirka@gmail.com>
