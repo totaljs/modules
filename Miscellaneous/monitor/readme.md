@@ -2,13 +2,17 @@
 
 # Simple monitoring of total.js applications
 
-This module is for mobile application for watching behaviour of the application. If your web application contains this module, open website `https://monitor.totaljs.com` and register your app.
+This module can track behaviour of total.js application. If your web application contains this module, open website `https://monitor.totaljs.com` and register your app.
+
+- not limited the performance
+- simple installation
+- very helpful
 
 ## Installation
 
 ### 1.
 
-- download the file `dependenies`
+- download the file `dependencies`
 - add it into your application root
 
 ```html
@@ -18,7 +22,9 @@ This module is for mobile application for watching behaviour of the application.
 /your-application-directory/dependencies
 ```
 
-IMPORTANT: the file `dependencies` contains links to other modules `webcounter` (for tracking visitors) and `reqstats` (for tracking traffic).
+__IMPORTANT:__ the file `dependencies` contains links to other modules `webcounter` for tracking visitors and `reqstats` for tracking traffic.
+
+---
 
 ### 2.
 
@@ -29,7 +35,9 @@ IMPORTANT: the file `dependencies` contains links to other modules `webcounter` 
 /your-application-directory/moduels/monitor.js
 ```
 
-IMPORTANT: download other modules too [webcounter](https://github.com/totaljs/modules/tree/master/Miscellaneous/webcounter) (for tracking visitors) and [reqstats](https://github.com/totaljs/modules/tree/master/Miscellaneous/reqstats) (for tracking traffic).
+__IMPORTANT:__ download other modules too [webcounter](https://github.com/totaljs/modules/tree/master/Miscellaneous/webcounter) (for tracking visitors) and [reqstats](https://github.com/totaljs/modules/tree/master/Miscellaneous/reqstats) (for tracking traffic).
+
+---
 
 ### 3.
 
