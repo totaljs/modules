@@ -14,7 +14,7 @@ This module can track behaviour of total.js application. If your web application
 ### 1.
 
 - download the file `dependencies`
-- add it into your application root
+- add it into your application root like this:
 
 ```html
 /your-application-directory/config
@@ -23,7 +23,7 @@ This module can track behaviour of total.js application. If your web application
 /your-application-directory/dependencies
 ```
 
-__IMPORTANT:__ the file `dependencies` contains links to other modules `webcounter` for tracking visitors and `reqstats` for tracking traffic.
+__IMPORTANT:__ the file `dependencies` contains links to other modules: `webcounter` for tracking visitors and `reqstats` for tracking traffic.
 
 ---
 
@@ -36,7 +36,7 @@ __IMPORTANT:__ the file `dependencies` contains links to other modules `webcount
 /your-application-directory/moduels/monitor.js
 ```
 
-__IMPORTANT:__ download other modules too [webcounter](https://github.com/totaljs/modules/tree/master/Miscellaneous/webcounter) (for tracking visitors) and [reqstats](https://github.com/totaljs/modules/tree/master/Miscellaneous/reqstats) (for tracking traffic).
+__IMPORTANT:__ download other modules too: [webcounter](https://github.com/totaljs/modules/tree/master/Miscellaneous/webcounter) (for tracking visitors) and [reqstats](https://github.com/totaljs/modules/tree/master/Miscellaneous/reqstats) (for tracking traffic).
 
 ---
 
