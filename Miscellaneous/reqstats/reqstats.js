@@ -2,6 +2,8 @@ var Fs = require('fs');
 var cache;
 var filename;
 
+exports.version = 'v1.1.0';
+
 exports.install = function() {
 	cache = U.copy(F.stats.request);
 	filename = F.path.databases('reqstats.json');

@@ -1,4 +1,4 @@
-var version = 'v1.0.0';
+var version = 'v1.1.0';
 
 exports.install = function(options) {
 	var url = '/$monitor/';
@@ -38,10 +38,18 @@ function json_monitor() {
 		var m = MODULE('webcounter');
 		if (!m)
 			return next();
+
+		stats.versionWebcounter = m.version;
 		stats.webcounter = {};
 		stats.webcounter.today = m.today();
 		stats.webcounter.online = m.online();
+		stats.webcounter.monthly = F.cache.get('monitor.webcounter');
+
+		if (stats.webcounter.monthly)
+			return next();
+
 		m.instance.monthly(function(response) {
+			F.cache.set('monitor.webcounter', response, '5 minutes');
 			stats.webcounter.monthly = response;
 			next();
 		});
@@ -51,6 +59,7 @@ function json_monitor() {
 		var m = MODULE('reqstats');
 		if (!m || !m.stats)
 			return next();
+		stats.versionReqstats = m.version;
 		m.stats(function(err, response) {
 			stats.reqstats = response;
 			next();
