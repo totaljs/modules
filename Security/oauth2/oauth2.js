@@ -4,7 +4,7 @@
 var Qs = require('querystring');
 
 exports.id = 'oauth2';
-exports.version = '1.3';
+exports.version = 'v1.3.0';
 
 var stats = { facebook: 0, google: 0,linkedin: 0, yahoo: 0, dropbox: 0, github: 0, yandex: 0, instagram: 0, vk: 0, live: 0 };
 var OAUTH2_HEADER = { code: '', client_id: '', client_secret: '', redirect: '', grant_type: 'authorization_code' };
