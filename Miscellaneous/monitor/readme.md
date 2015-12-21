@@ -27,20 +27,20 @@ __IMPORTANT:__ the file `dependencies` contains links to other modules: `webcoun
 
 ---
 
-### 2.
+### 2. or (alternative)
 
 - download the module `monitor.js`
 - add it into the modules in your application directory
 
 ```html
-/your-application-directory/moduels/monitor.js
+/your-application-directory/modules/monitor.js
 ```
 
 __IMPORTANT:__ download other modules too: [webcounter](https://github.com/totaljs/modules/tree/master/Miscellaneous/webcounter) (for tracking visitors) and [reqstats](https://github.com/totaljs/modules/tree/master/Miscellaneous/reqstats) (for tracking traffic).
 
 ---
 
-### 3.
+### 3. or (alternative)
 
 - create some definition file e.g. `/definitions/modules.js`
 - put into the file below text
