@@ -1,18 +1,8 @@
 // Install module
-INSTALL('module', 'https://modules.totaljs.com/auth/v1.00/auth.js');
+INSTALL('module', 'https://modules.totaljs.com/latest/auth.js');
 
-framework.on('install', function(type, name) {
-
-    if (type !== 'module')
-        return;
-
-    if (name !== 'auth')
-        return;
-
-    var self = this;
-    var auth = MODULE('auth');
-
-    auth.onAuthorization = function(id, callback) {
+framework.on('module#auth', function(type, name) {
+    MODULE('auth').onAuthorize = function(id, callback) {
 
         // this is cached
         // read user information from database
@@ -24,7 +14,6 @@ framework.on('install', function(type, name) {
             return callback({ id: '1', alias: 'Peter Sirka' });
 
         callback(null);
-
         // if user not exist then
         // callback(null);
     };
