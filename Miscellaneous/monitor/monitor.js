@@ -1,4 +1,4 @@
-var version = 'v1.1.0';
+var version = 'v1.2.0';
 
 exports.install = function(options) {
 	var url = '/$monitor/';
@@ -31,6 +31,9 @@ function json_monitor() {
 	stats.response = F.stats.response;
 	stats.errors = F.errors.length;
 	stats.problems = F.problems.length;
+
+	if (F.stats.other.obsolete)
+		stats.obsolete = F.stats.other.obsolete;
 
 	var async = [];
 
