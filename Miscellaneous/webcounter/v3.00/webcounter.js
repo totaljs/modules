@@ -182,7 +182,7 @@ WebCounter.prototype.counter = function(req, res) {
 
 	if (!ping || isHits) {
 		stats.hits++;
-		self.refreshURL(referer, req);
+		self.refreshURL(referer, req, ping);
 	}
 
 	if (exists)
@@ -225,7 +225,7 @@ WebCounter.prototype.counter = function(req, res) {
 	res.cookie(COOKIE, ticks, now.add('5 days'));
 
 	if (self.allowIP)
-		self.ip.push({ ip: req.ip, url: ping || req.uri.href });
+		self.ip.push({ ip: req.ip, url: ping || req.uri.href, empty: referer ? false : true });
 
 	var online = self.online;
 
@@ -461,7 +461,7 @@ WebCounter.prototype.statistics = function(callback) {
  * @param {String} referer
  * @param {Request} req
  */
-WebCounter.prototype.refreshURL = function(referer, req) {
+WebCounter.prototype.refreshURL = function(referer, req, ping) {
 
 	var self = this;
 
@@ -476,12 +476,12 @@ WebCounter.prototype.refreshURL = function(referer, req) {
 	for (var i = 0, length = self.ip.length; i < length; i++) {
 		var item = self.ip[i];
 		if (item.ip === req.ip && (item.empty === empty || item.url === referer)) {
-			item.url = req.headers['x-ping'] || req.uri.href;
+			item.url = ping || req.uri.href;
 			return;
 		}
 	}
 
-	self.ip.push({ ip: req.ip, url: req.uri.href, empty: true });
+	self.ip.push({ ip: req.ip, url: ping || req.uri.href, empty: true });
 };
 
 function sum(a, b) {
