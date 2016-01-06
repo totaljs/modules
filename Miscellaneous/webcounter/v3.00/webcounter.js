@@ -463,21 +463,25 @@ WebCounter.prototype.statistics = function(callback) {
  */
 WebCounter.prototype.refreshURL = function(referer, req) {
 
-	if (!referer)
-		return;
-
 	var self = this;
 
 	if (!self.allowIP)
 		return;
 
+	var empty = false;
+
+	if (!referer)
+		empty = true;
+
 	for (var i = 0, length = self.ip.length; i < length; i++) {
 		var item = self.ip[i];
-		if (item.ip === req.ip && item.url === referer) {
+		if (item.ip === req.ip && (item.empty === empty || item.url === referer)) {
 			item.url = req.headers['x-ping'] || req.uri.href;
 			return;
 		}
 	}
+
+	self.ip.push({ ip: req.ip, url: req.uri.href, empty: true });
 };
 
 function sum(a, b) {
@@ -515,8 +519,14 @@ module.exports.name = 'webcounter';
 module.exports.version = 'v3.0.0';
 module.exports.instance = webcounter;
 
-module.exports.install = function() {
+module.exports.install = function(options) {
 	setTimeout(refresh_hostname, 10000);
+
+	if (options) {
+		webcounter.allowIP = options.ip === true;
+		webcounter.allowXHR = options.xhr === false ? false : true;
+	}
+
 	F.on('service', function(counter) {
 		if (counter % 120 === 0)
 			refresh_hostname();

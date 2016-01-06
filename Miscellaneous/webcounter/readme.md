@@ -5,15 +5,17 @@ The package contains HTML CSS JS for rendering statistics while the classic modu
 ```js
 var options = {};
 
-// Counting of XHR requests:
+// Counting of XHR requests (default: true):
 // options.xhr = true;
 
-// A default URL address of statistics
+// Tracks all online IP addresses (default: false)
+// options.ip = true;
+
+// A default URL address of statistics (only for package)
 // options.url = '/webcounter/';
 
-// INSTALL('module', 'https://modules.totaljs.com/webcounter/v1.02/webcounter.js', options);
-INSTALL('package', 'https://modules.totaljs.com/webcounter/v1.02/webcounter.package', options);
-// UNINSTALL('module', 'webcounter');
+// INSTALL('module', 'https://modules.totaljs.com/latest/webcounter.js', options);
+// INSTALL('package', 'https://modules.totaljs.com/latest/webcounter.package', options);
 ```
 
 ## Instance
