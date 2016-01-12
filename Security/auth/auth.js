@@ -83,9 +83,12 @@ Users.prototype.login = function(controller, id, user, expire) {
 	if (typeof(expire) !== 'number')
 		expire = null;
 
-	self.users[id] = { user: user, expire: utils.isDate(expire) ? expire : new Date().add('m', expire || self.options.expireSession).getTime() };
-	self.refresh();
-	self.emit('login', id, user);
+	if (user) {
+		self.users[id] = { user: user, expire: utils.isDate(expire) ? expire : new Date().add('m', expire || self.options.expireSession).getTime() };
+		self.refresh();
+		self.emit('login', id, user);
+	}
+
 	self._writeOK(id, controller.req, controller.res);
 
 	return self;
