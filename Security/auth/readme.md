@@ -159,14 +159,9 @@ function view_authorize() {
 ### /definitions/authorization.js
 
 ```javascript
-F.on('install', function(type, name) {
-
-	if (type !== 'module' && name !== 'auth')
-		return;
-
+F.on('module#auth', function(type, name) {
 	var auth = MODULE('auth');
-
-	auth.onAuthorization = function(id, callback, flags) {
+	auth.onAuthorize = function(id, callback, flags) {
 
         // - this function is cached
         // - here you must read user information from a database
@@ -176,22 +171,16 @@ F.on('install', function(type, name) {
         // if user not exist then
         // callback(null);
 	};
-
 });
 ```
 
 __IMPORTANT__ in practice:
 
 ```javascript
-F.on('install', function(type, name) {
-
-	if (type !== 'module' && name !== 'auth')
-		return;
-
+F.on('module#auth', function(type, name) {
 	var auth = MODULE('auth');
-
 	// "id" from auth.login()
-	auth.onAuthorization = function(id, callback, flags) {
+	auth.onAuthorize = function(id, callback, flags) {
 		
 		var filter = function(user) {
 			return user.id === id;
@@ -207,7 +196,6 @@ F.on('install', function(type, name) {
 			callback(user);
 		});
 	};
-
 });
 ```
 
@@ -216,14 +204,9 @@ F.on('install', function(type, name) {
 > Use a definition.
 
 ```javascript
-F.on('install', function(type, name) {
-
-	if (type !== 'module' && name !== 'auth')
-		return;
-
+F.on('module#auth', function(type, name) {
 	var auth = MODULE('auth');
-
-	auth.onAuthorization = function(id, callback, flags) {
+	auth.onAuthorize = function(id, callback, flags) {
 
         // - this function is cached
         // - here you must read user information from a database
@@ -233,7 +216,6 @@ F.on('install', function(type, name) {
         // if user not exist then
         // callback(null);
 	};
-
 });
 
 // Documentation: http://docs.totaljs.com/Framework/#framework.on('controller')
