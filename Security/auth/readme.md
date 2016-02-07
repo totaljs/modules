@@ -18,7 +18,7 @@ var options = {};
 // Auto-login
 // options.autoLogin = true;
 
-INSTALL('module', 'https://modules.totaljs.com/auth/v1.00/auth.js', options);
+INSTALL('module', 'https://modules.totaljs.com/latest/auth.js', options);
 // UNINSTALL('module', 'auth');
 ```
 
