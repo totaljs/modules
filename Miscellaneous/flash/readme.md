@@ -35,5 +35,7 @@ function redirect_flash() {
 ## Expiration
 
 ```javascript
-MODULE('flash').expire = 5; // 5 minutes for expiration
+MODULE('flash').expire = '5 minutes';
+// or
+// MODULE('flash').expire = '5 seconds';
 ```

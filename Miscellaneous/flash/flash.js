@@ -1,9 +1,9 @@
 var COOKIE = '__flash';
 var flash = {};
 
-exports.version = '2.00';
+exports.version = '3.0.0';
 exports.id = 'flash';
-exports.expire = 5;
+exports.expire = '5 minutes';
 
 exports.usage = function() {
 	return flash;
@@ -21,7 +21,11 @@ F.middleware('flash', function(req, res, resume, options, controller) {
 	if (!flash[id])
 		flash[id] = { params: {} };
 
-	flash[id].expire = Date.now() + ((1000 * 60) * exports.expire); // 5 minutes
+	var expire = exports.expire;
+	if (options && options.expire)
+		expire = options.expire;
+
+	flash[id].expire = new Date().add(expire).getTime();
 	req.$flash = id;
 	resume();
 });
@@ -29,7 +33,8 @@ F.middleware('flash', function(req, res, resume, options, controller) {
 require('http').IncomingMessage.prototype.flash = function(name, value) {
 
 	var item = flash[this.$flash];
-	var now = Date.now();
+	var dt = new Date();
+	var now = dt.getTime();
 
 	if (name === undefined && value === undefined) {
 		if (item.expire < now)
@@ -46,7 +51,7 @@ require('http').IncomingMessage.prototype.flash = function(name, value) {
 	if (item.expire < now)
 		item.params = {};
 
-	item.expire = now + ((1000 * 60) * exports.expire);
+	item.expire = dt.add(exports.expire).getTime();
 
 	if (value instanceof Array) {
 		if (!item.params[name]) {
