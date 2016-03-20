@@ -18,14 +18,13 @@ F.middleware('flash', function(req, res, resume, options, controller) {
 		res.cookie(COOKIE, id); // session cookie
 	}
 
-	if (!flash[id])
-		flash[id] = { params: {} };
-
 	var expire = exports.expire;
 	if (options && options.expire)
 		expire = options.expire;
 
-	flash[id].expire = new Date().add(expire).getTime();
+	if (!flash[id])
+		flash[id] = { params: {}, expire: new Date().add(expire).getTime() };
+
 	req.$flash = id;
 	resume();
 });
