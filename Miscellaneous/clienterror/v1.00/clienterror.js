@@ -2,20 +2,17 @@
 // Copyright Peter Širka <petersirka@gmail.com>
 
 var events = require('events');
-
 var stats_errors = 0;
 
 function ClientError () {}
-
 ClientError.prototype.__proto__ = new events.EventEmitter();
 
 var clienterror = new ClientError();
 
 module.exports.name = 'clienterror';
 module.exports.version = '2.00';
-module.exports.on = clienterror.on;
+module.exports.on = (name, callback) => clienterror.on(name, callback);
 module.exports.instance = clienterror;
-
 module.exports.usage = function() {
     return {
         errors: stats_errors
@@ -92,5 +89,4 @@ function json_error() {
         console.log('CLIENTERROR:', body.url, body.error, browser);
 
     clienterror.emit('clienterror', {url: body.url, error: body.error, browser: browser});
-
 }
