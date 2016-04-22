@@ -8,9 +8,10 @@ var stats_errors = 0;
 module.exports = new Events.EventEmitter();
 module.exports.name = 'clienterror';
 module.exports.usage = () => { errors: stats_errors };
+module.exports.options = options = { logger: true, console: false, filename: 'clienterror' }
 
-module.exports.install = function(options) {
-	clienterror.options = U.extend({ logger: true, console: false, filename: 'clienterror' }, options, true);
+module.exports.install = function(opts) {
+	options = U.extend(options, opts, true);
 	F.on('controller', onController);
 	F.route('/$clienterror/', process_error, ['post', 'json', 'referer']);
 };
@@ -40,10 +41,10 @@ function process_error() {
 	if ((/mobile/i).test(ua))
 		browser += ' (mobile)';
 
-	if (clienterror.options.logger)
-		self.logger(clienterror.options.filename, body.url, body.error, browser);
+	if (options.logger)
+		self.logger(options.filename, body.url, body.error, browser);
 
-	if (clienterror.options.console)
+	if (options.console)
 		console.log('CLIENTERROR:', body.url, body.error, browser);
 
 	module.exports.emit('clienterror', { url: body.url, error: body.error, browser: browser });
