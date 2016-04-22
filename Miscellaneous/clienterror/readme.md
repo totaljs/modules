@@ -14,11 +14,17 @@ INSTALL('module', 'https://modules.totaljs.com/clienterror/v1.00/clienterror.js'
 
 /*
 F.on('module#clienterror', function() {
-    MODULE('clienterror').on('error', function(err) {
+    MODULE('clienterror').on('clienterror', function(err) {
         // EVENT
     });
 });
 */
 ```
 
-__or download__ `clienterror.js` from GitHub and add it into the `/your-application/modules/`.
+__or download__ `clienterror.js` from GitHub and add it into the `/your-application/modules/` then you can set options.
+```js
+F.on('module#clienterror', function() {
+    MODULE('clienterror').options.console = true;
+    MODULE('clienterror').options.logger = false;
+});
+```
