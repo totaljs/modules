@@ -10,8 +10,15 @@ var options = {};
 
 // The framework adds .log extension automatically
 // options.filename = 'logger';
-
 INSTALL('module', 'https://modules.totaljs.com/clienterror/v1.00/clienterror.js', options);
+
+/*
+F.on('module#clienterror', function() {
+    MODULE('clienterror').on('error', function(err) {
+        // EVENT
+    });
+});
+*/
 ```
 
 __or download__ `clienterror.js` from GitHub and add it into the `/your-application/modules/`.
