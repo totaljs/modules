@@ -6,7 +6,7 @@ exports.version = '1.01';
 
 var console_log = console.log;
 var console_error = console.error;
-var console_warm = console.warm;
+var console_warn = console.warn;
 var options = { history: 50, url: '/$console/', user: '', password: '' };
 var history = [];
 var ticks = 0;
@@ -31,9 +31,9 @@ exports.install = function() {
         console_error.apply(console_error, arguments);
     };
 
-    console.warm = function() {
-        prepend('warm', arguments);
-        console_warm.apply(console_warm, arguments);
+    console.warn = function() {
+        prepend('warn', arguments);
+        console_warn.apply(console_warn, arguments);
     };
 
     F.on('controller', auth);
@@ -42,7 +42,7 @@ exports.install = function() {
 exports.uninstall = function() {
     console.log = console_log;
     console.error = console_error;
-    console.warm = console_warm;
+    console.warn = console_warn;
     F.removeListener('controller', auth);
     options = null;
 };
