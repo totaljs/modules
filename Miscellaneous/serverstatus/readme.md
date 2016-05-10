@@ -2,11 +2,11 @@
 
 ## What is it?
 
-Server Status is a monitoring module for Total.js framework. With this you can get real time traffic datas from your application. Developed by David Horvath (dacr at dacr dot hu).
+Server Status is a monitoring module for Total.js framework. With this you can get real time traffic datas from your application. Developed by David Horvath (dacr at dacr dot hu). License: MIT.
 
 ## Install
 
-Download **serverstatus.js** and copy it to **modules** folder in your application
+Download **serverstatus.js** and copy it to **modules** folder in your application.
 
 ## Configuration
 
@@ -15,11 +15,11 @@ You can configure some parameters in **config** file of your application (in roo
 | Attributes                | Values                   | Default values | Descriptions                                                              |
 | ------------------------- | ------------------------ |--------------- |-------------------------------------------------------------------------- |
 | serverStatusUrl           | /anything                | /server-status |                                                                           |
-| serverStatusCleanInterval | Integer                  | 1              | Cache cleanup interval in secundum (1 = request/sec, 30 = request/30sec). |
+| serverStatusCleanInterval | Integer                  | 1              | Cache cleanup interval in second (1 = request/sec, 30 = request/30sec). |
 | serverStatusAllowedIPs    | ["IP-ADDR1", "IP-ADDR2"] |                | Block access to unconfigured IPs. Simple array.                           |
 | serverStatusSecretKey     | random string            |                | You can limit the access with secret key.                                 |
 
-Example:
+**Example:**
 ```
 serverStatusUrl                 : /myStatus
 serverStatusCleanInterval       : 1
@@ -34,22 +34,22 @@ serverStatusSecretKey           : MY_SECRET_KEY
 ## Usage
 
 
-Get all data in JSON:
+**Get all data in JSON:**
 
 http://yourapp:8000/server-status
 
-Use secret key:
+**Use secret key:**
 
 http://yourapp:8000/server-status?key=MY_SECRET_KEY
 
-Get one item in plain:
+**Get one item in plaintext:**
 
 http://yourapp:8000/server-status?item=request
 
 http://yourapp:8000/server-status?key=MY_SECRET_KEY&item=PUT
 
 
-Sample output:
+**Sample output:**
 
 ```JSON
 {
