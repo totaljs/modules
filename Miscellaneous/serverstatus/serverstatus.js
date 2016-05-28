@@ -27,7 +27,7 @@
 
 
 exports.id = 'serverStatus';
-exports.version = '1.0';
+exports.version = '1.0.1';
 
 /******************************************************
  * Init datas
@@ -133,7 +133,7 @@ function requestBeginInc(req, res) {
 
 function requestEndInc(req, res) {
     now = new Date();
-    if (now.diff(serverStatusStats.requestEnd.timestamp, 'seconds') > serverStatusCheckRate) {
+    if (now.diff(serverStatusStats.requestEnd.timestamp, 'seconds') > serverStatusCleanInterval) {
         serverStatusStats.requestEnd.count = 1;
         serverStatusStats.requestEnd.timestamp = now;
     } else {
