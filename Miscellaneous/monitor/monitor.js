@@ -1,4 +1,4 @@
-var version = 'v1.2.0';
+var version = 'v1.3.0';
 
 exports.install = function(options) {
 	var url = '/$monitor/';
