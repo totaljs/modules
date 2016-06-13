@@ -29,8 +29,8 @@ function json_monitor() {
 	stats.cwd = process.cwd();
 	stats.request = F.stats.request;
 	stats.response = F.stats.response;
-	stats.errors = F.errors.length;
-	stats.problems = F.problems.length;
+	stats.errors = F.errors;
+	stats.problems = F.problems;
 
 	if (F.stats.other.obsolete)
 		stats.obsolete = F.stats.other.obsolete;
