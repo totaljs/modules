@@ -198,3 +198,7 @@ F.middleware('openplatform', function(req, res, next, options, controller) {
 		return false;
 	});
 });
+
+F.helpers.openplatform = function() {
+	return OPENPLATFORM.clientside();
+};
