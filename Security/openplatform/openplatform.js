@@ -37,6 +37,9 @@ OPENPLATFORM.clientside = function() {
 };
 
 OPENPLATFORM.session = function(cookie) {
+	// checks whether is the cookie a request object
+	if (cookie.cookie)
+		cookie = cookie.cookie(COOKIE);
 	return SESSION[cookie];
 };
 
