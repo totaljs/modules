@@ -83,6 +83,10 @@ OPENPLATFORM.authorize = function(req, res, callback) {
 };
 
 OPENPLATFORM.getApplications = function(openplatform, iduser, callback) {
+
+	if (typeof(openplatform) === 'object')
+		openplatform = openplatform.url;
+
 	HEADERS['x-openplatform-user'] = iduser;
 	U.request(openplatform + '/api/applications/', FLAGS_READ, function(err, response, code) {
 		if (err)
@@ -96,6 +100,10 @@ OPENPLATFORM.getApplications = function(openplatform, iduser, callback) {
 };
 
 OPENPLATFORM.getUsers = function(openplatform, iduser, callback) {
+
+	if (typeof(openplatform) === 'object')
+		openplatform = openplatform.url;
+
 	HEADERS['x-openplatform-user'] = iduser;
 	U.request(openplatform + '/api/users/', FLAGS_READ, function(err, response, code) {
 		if (err)
@@ -109,6 +117,10 @@ OPENPLATFORM.getUsers = function(openplatform, iduser, callback) {
 };
 
 OPENPLATFORM.getProfile = function(openplatform, iduser, callback) {
+
+	if (typeof(openplatform) === 'object')
+		openplatform = openplatform.url;
+
 	HEADERS['x-openplatform-user'] = iduser;
 	U.request(openplatform + '/api/info/', FLAGS_READ, function(err, response, code) {
 		if (err)
@@ -122,6 +134,10 @@ OPENPLATFORM.getProfile = function(openplatform, iduser, callback) {
 };
 
 OPENPLATFORM.getInfo = function(openplatform, callback) {
+
+	if (typeof(openplatform) === 'object')
+		openplatform = openplatform.url;
+
 	U.request(openplatform + '/api/openplatform/', FLAGS_READ, function(err, response, code) {
 		if (err)
 			return callback(err);
@@ -134,6 +150,10 @@ OPENPLATFORM.getInfo = function(openplatform, callback) {
 };
 
 OPENPLATFORM.notify = function(openplatform, iduser, body, callback, url, type) {
+
+	if (typeof(openplatform) === 'object')
+		openplatform = openplatform.url;
+
 	HEADERS['x-openplatform-user'] = iduser;
 
 	var model = {};
@@ -153,6 +173,10 @@ OPENPLATFORM.notify = function(openplatform, iduser, body, callback, url, type) 
 };
 
 OPENPLATFORM.serviceworker = function(openplatform, iduser, event, data, callback) {
+
+	if (typeof(openplatform) === 'object')
+		openplatform = openplatform.url;
+
 	HEADERS['x-openplatform-user'] = iduser;
 
 	var model = {};
