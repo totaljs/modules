@@ -249,3 +249,19 @@ F.middleware('openplatform', function(req, res, next, options, controller) {
 F.helpers.openplatform = function() {
 	return OPENPLATFORM.clientside();
 };
+
+F.eval(function() {
+	Controller.prototype.openplatform = function() {
+		var req = this.req;
+		var obj = {};
+		obj.id = req.headers['x-openplatform-id'];
+		obj.openplatform = req.headers['x-openplatform'];
+		obj.user = req.headers['x-openplatform-user'];
+		obj.secret = req.headers['x-openplatform-secret'];
+		obj.event = this.body.event;
+		obj.data = this.body.data;
+		obj.empty = obj.openplatform && obj.user ? false : true;
+		obj.serviceworker = obj.id && obj.event;
+		return obj;
+	};
+});
