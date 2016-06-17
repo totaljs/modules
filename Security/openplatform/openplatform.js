@@ -28,6 +28,31 @@ HEADERS['x-openplatform-id'] = F.config['openplatform.url'];
 if (F.config['openplatform.secret'])
 	HEADERS['x-openplatform-secret'] = F.config['openplatform.secret'];
 
+OPENPLATFORM.testmode = function() {
+	OPENPLATFORM.istestmode = true;
+};
+
+OPENPLATFORM.testuser = function() {
+	var item = {};
+	item.id = '1234567890';
+	item.alias = 'Peter Sirka';
+	item.firstname = 'Peter';
+	item.lastname = 'Sirka';
+	item.photo = '//openplatform.totaljs.com/photos/petersirka_gmail_com.jpg';
+	item.email = 'petersirka@gmail.com';
+	item.phone = '+421903163302';
+	item.online = true;
+	item.blocked = false;
+	item.group = 'Developers';
+	item.superadmin = true;
+	item.notifications = true;
+	item.dateupdated = new Date();
+	item.sounds = true;
+	item.language = 'en';
+	item.openplatform = { name: 'OpenPlatform', version: '1.0.0', url: 'http://openplatform.totaljs.com' };
+	return item;
+};
+
 OPENPLATFORM.kill = function() {
 	return 'OpenPlatform: <b>401: Unauthorized</b><script>var data={};data.openplatform=true;data.type=\'kill\';data.body=null;data.sender=true;setTimeout(function(){top.postMessage(JSON.stringify(data),\'*\');},1000);</script>';
 };
@@ -45,6 +70,9 @@ OPENPLATFORM.session = function(cookie) {
 
 OPENPLATFORM.authorize = function(req, res, callback) {
 
+	if (OPENPLATFORM.istestmode)
+		return callback(null, OPENPLATFORM.testuser());
+
 	var cookie = req.cookie(COOKIE);
 	var openplatform = req.query.openplatform;
 
@@ -59,7 +87,7 @@ OPENPLATFORM.authorize = function(req, res, callback) {
 	if (!openplatform) {
 		user = SESSION[cookie];
 		if (user)
-			return callback(user);
+			return callback(null, user);
 	}
 
 	if (!openplatform)
