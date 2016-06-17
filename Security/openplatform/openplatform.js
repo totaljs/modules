@@ -28,11 +28,7 @@ HEADERS['x-openplatform-id'] = F.config['openplatform.url'];
 if (F.config['openplatform.secret'])
 	HEADERS['x-openplatform-secret'] = F.config['openplatform.secret'];
 
-OPENPLATFORM.testmode = function() {
-	OPENPLATFORM.istestmode = true;
-};
-
-OPENPLATFORM.testuser = function() {
+OPENPLATFORM.testuser = function(roles, settings) {
 	var item = {};
 	item.id = '1234567890';
 	item.alias = 'Peter Sirka';
@@ -46,7 +42,9 @@ OPENPLATFORM.testuser = function() {
 	item.group = 'Developers';
 	item.superadmin = true;
 	item.notifications = true;
-	item.dateupdated = new Date();
+	item.dateupdated = F.datetime;
+	item.roles = roles || [];
+	item.settings = settings;
 	item.sounds = true;
 	item.language = 'en';
 	item.openplatform = { name: 'OpenPlatform', version: '1.0.0', url: 'http://openplatform.totaljs.com' };
@@ -69,9 +67,6 @@ OPENPLATFORM.session = function(cookie) {
 };
 
 OPENPLATFORM.authorize = function(req, res, callback) {
-
-	if (OPENPLATFORM.istestmode)
-		return callback(null, OPENPLATFORM.testuser());
 
 	var cookie = req.cookie(COOKIE);
 	var openplatform = req.query.openplatform;
