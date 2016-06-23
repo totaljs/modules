@@ -6,6 +6,7 @@ const FLAGS_POST = ['post', 'json', 'dnscache'];
 const EMPTYARRAY = [];
 const EMPTYOBJECT = {};
 const OPENPLATFORM = {};
+OPENPLATFORM.debug = F.config['openplatform.debug'] == true;
 
 global.OPENPLATFORM = OPENPLATFORM;
 
@@ -90,6 +91,9 @@ OPENPLATFORM.authorize = function(req, res, callback) {
 
 	U.request(openplatform, FLAGS_READ, function(err, response, code) {
 
+		if (OPENPLATFORM.debug)
+			console.log('OPENPLATFORM.authorize("{0}") -->'.format(openplatform), err, response);
+
 		if (err || code !== 200)
 			return callback(err || response.parseJSON());
 
@@ -112,6 +116,10 @@ OPENPLATFORM.getApplications = function(openplatform, iduser, callback) {
 
 	HEADERS['x-openplatform-user'] = iduser;
 	U.request(openplatform + '/api/applications/', FLAGS_READ, function(err, response, code) {
+
+		if (OPENPLATFORM.debug)
+			console.log('OPENPLATFORM.getApplications("{0}", "{1}") -->'.format(openplatform, iduser), err, response);
+
 		if (err)
 			return callback(err);
 		var data = response.parseJSON();
@@ -129,28 +137,15 @@ OPENPLATFORM.getUsers = function(openplatform, iduser, callback) {
 
 	HEADERS['x-openplatform-user'] = iduser;
 	U.request(openplatform + '/api/users/', FLAGS_READ, function(err, response, code) {
+
+		if (OPENPLATFORM.debug)
+			console.log('OPENPLATFORM.getUsers("{0}", "{1}") -->'.format(openplatform, iduser), err, response);
+
 		if (err)
 			return callback(err);
 		var data = response.parseJSON();
 		if (code !== 200)
 			return callback(data, EMPTYARRAY);
-		callback(null, data);
-	}, null, HEADERS);
-	return OPENPLATFORM;
-};
-
-OPENPLATFORM.getProfile = function(openplatform, iduser, callback) {
-
-	if (typeof(openplatform) === 'object')
-		openplatform = openplatform.url;
-
-	HEADERS['x-openplatform-user'] = iduser;
-	U.request(openplatform + '/api/info/', FLAGS_READ, function(err, response, code) {
-		if (err)
-			return callback(err);
-		var data = response.parseJSON();
-		if (code !== 200)
-			return callback(data, EMPTYOBJECT);
 		callback(null, data);
 	}, null, HEADERS);
 	return OPENPLATFORM;
@@ -162,6 +157,10 @@ OPENPLATFORM.getInfo = function(openplatform, callback) {
 		openplatform = openplatform.url;
 
 	U.request(openplatform + '/api/openplatform/', FLAGS_READ, function(err, response, code) {
+
+		if (OPENPLATFORM.debug)
+			console.log('OPENPLATFORM.getInfo("{0}") -->'.format(openplatform), code, err, response);
+
 		if (err)
 			return callback(err);
 		var data = response.parseJSON();
@@ -185,6 +184,10 @@ OPENPLATFORM.notify = function(openplatform, iduser, body, callback, url, type) 
 	model.type = type;
 
 	U.request(openplatform + '/api/notifications/', FLAGS_POST, model, function(err, response, code) {
+
+		if (OPENPLATFORM.debug)
+			console.log('OPENPLATFORM.notify("{0}", "{1}") -->'.format(openplatform, iduser), code, err, response);
+
 		if (err)
 			return callback(err);
 		var data = response.parseJSON();
@@ -207,6 +210,10 @@ OPENPLATFORM.serviceworker = function(openplatform, iduser, event, data, callbac
 	model.data = data;
 
 	U.request(openplatform + '/api/serviceworker/', FLAGS_POST, model, function(err, response, code) {
+
+		if (OPENPLATFORM.debug)
+			console.log('OPENPLATFORM.serviceworker("{0}", "{1}") -->'.format(openplatform, iduser), code, err, response);
+
 		if (err)
 			return callback(err);
 		var data = response.parseJSON();
