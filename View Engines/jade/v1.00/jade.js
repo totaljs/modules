@@ -8,7 +8,8 @@ var definition = (function() {
     Controller.prototype.view = function (name, model, headers, isPartial) {
 
         var self = this;
-
+        model = mode || {}
+        model.controller = this //adds controller related functionality
         if (isPartial === undefined && typeof(headers) === BOOLEAN) {
             isPartial = headers;
             headers = null;
@@ -29,7 +30,7 @@ var definition = (function() {
         if (skip)
             filename = name.substring(1);
 
-        var key = 'jade_' + name;
+        var key = 'jade_' + filename; //fixes if I have two template in different directory with same name.
         var fn = framework.cache.read(key);
 
         if (fn === null) {
