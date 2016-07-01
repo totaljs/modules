@@ -8,7 +8,7 @@ var definition = (function() {
     Controller.prototype.view = function (name, model, headers, isPartial) {
 
         var self = this;
-        model = mode || {}
+        model = model || {}
         model.controller = this //adds controller related functionality
         if (isPartial === undefined && typeof(headers) === BOOLEAN) {
             isPartial = headers;
