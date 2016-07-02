@@ -3,11 +3,12 @@
  * @author Peter Širka
  */
 
-var COOKIE = '__webcounter';
-var REG_ROBOT = /search|agent|bot|crawler/i;
-var FILE_CACHE = 'webcounter.cache';
-var FILE_STATS = 'webcounter.nosql';
-var TIMEOUT_VISITORS = 1200; // 20 MINUTES
+const COOKIE = '__webcounter';
+const REG_ROBOT = /search|agent|bot|crawler/i;
+const REG_HOSTNAME = /(http|https)\:\/\/(www\.)/gi;
+const FILE_CACHE = 'webcounter.cache';
+const FILE_STATS = 'webcounter.nosql';
+const TIMEOUT_VISITORS = 1200; // 20 MINUTES
 
 var Fs = require('fs');
 
@@ -19,7 +20,7 @@ function WebCounter() {
 	this.current = 0;
 	this.last = 0;
 	this.lastvisit = null;
-	this.social = ['plus.url.google', 'plus.google', 'twitter', 'facebook', 'linkedin', 'tumblr', 'flickr', 'instagram', 'vkontakte'];
+	this.social = ['plus.url.google', 'plus.google', 'twitter', 'facebook', 'linkedin', 'tumblr', 'flickr', 'instagram', 'vkontakte', 'snapchat', 'skype', 'whatsapp', 'wechat'];
 	this.search = ['google', 'bing', 'yahoo', 'duckduckgo', 'yandex'];
 	this.ip = [];
 	this.url = [];
@@ -32,15 +33,12 @@ function WebCounter() {
 		var agent = req.headers['user-agent'];
 		if (!agent || req.headers['x-moz'] === 'prefetch')
 			return false;
-
 		if (self.onValid && !self.onValid(req))
 			return false;
-
 		if (agent.match(REG_ROBOT)) {
 			self.stats.robots++;
 			return false;
 		}
-
 		return true;
 	};
 
@@ -63,7 +61,7 @@ WebCounter.prototype = {
 
 	get today() {
 		var self = this;
-		var stats = utils.copy(self.stats);
+		var stats = U.copy(self.stats);
 		stats.last = self.lastvisit;
 		stats.pages = stats.hits && stats.count ? (stats.hits / stats.count).floor(2) : 0;
 		return stats;
@@ -275,10 +273,10 @@ WebCounter.prototype.counter = function(req, res) {
  */
 WebCounter.prototype.save = function() {
 	var self = this;
-	var filename = framework.path.databases(FILE_CACHE);
-	var stats = Utils.copy(self.stats);
+	var filename = F.path.databases(FILE_CACHE);
+	var stats = U.copy(self.stats);
 	stats.pages = stats.hits && stats.count ? (stats.hits / stats.count).floor(2) : 0;
-	Fs.writeFile(filename, JSON.stringify(stats), utils.noop);
+	Fs.writeFile(filename, JSON.stringify(stats), NOOP);
 	return self;
 };
 
@@ -289,7 +287,7 @@ WebCounter.prototype.save = function() {
 WebCounter.prototype.load = function() {
 
 	var self = this;
-	var filename = framework.path.databases(FILE_CACHE);
+	var filename = F.path.databases(FILE_CACHE);
 
 	Fs.readFile(filename, function(err, data) {
 
@@ -298,7 +296,7 @@ WebCounter.prototype.load = function() {
 
 		try
 		{
-			self.stats = utils.copy(JSON.parse(data.toString('utf8')));
+			self.stats = U.copy(JSON.parse(data.toString('utf8')));
 		} catch (ex) {}
 
 	});
@@ -312,8 +310,8 @@ WebCounter.prototype.load = function() {
  */
 WebCounter.prototype.append = function() {
 	var self = this;
-	var filename = framework.path.databases(FILE_STATS);
-	Fs.appendFile(filename, JSON.stringify(self.stats) + '\n', utils.noop);
+	var filename = F.path.databases(FILE_STATS);
+	Fs.appendFile(filename, JSON.stringify(self.stats) + '\n', U.noop);
 	return self;
 };
 
@@ -432,25 +430,13 @@ WebCounter.prototype.yearly = function(callback) {
  * @return {Module]
  */
 WebCounter.prototype.statistics = function(callback) {
-
 	var self = this;
-	var filename = framework.path.databases(FILE_STATS);
+	var filename = F.path.databases(FILE_STATS);
 	var stream = Fs.createReadStream(filename);
-	var data = '';
-	var stats = {};
-
-	stream.on('error', function() {
-		callback([]);
-	});
-
-	stream.on('data', function(chunk) {
-		data += chunk.toString();
-	});
-
-	stream.on('end', function() {
-		callback(data.split('\n'));
-	});
-
+	var data = new Buffer(0);
+	stream.on('error', () => callback([]));
+	stream.on('data', (chunk) => data = Buffer.concat([data, chunk]));
+	stream.on('end', () => callback(data.toString('utf8').split('\n')));
 	stream.resume();
 	return self;
 };
@@ -494,9 +480,9 @@ function sum(a, b) {
 			return;
 		}
 
-		if (typeof(a[o]) === 'undefined')
+		if (a[o] === undefined)
 			a[o] = 0;
-		if (typeof(b[o]) !== 'undefined')
+		if (b[o] !== undefined)
 			a[o] += b[o];
 	});
 }
@@ -528,26 +514,32 @@ module.exports.install = function(options) {
 	}
 
 	F.on('service', function(counter) {
+		if (counter % 10 === 0)
+			webcounter.save();
 		if (counter % 120 === 0)
 			refresh_hostname();
 	});
 };
 
 function refresh_hostname() {
-	var url = F.config.url || F.config.hostname;
+	var url;
+	if (F.config.custom)
+		url = F.config.custom.url;
+	if (!url)
+		url = F.config.url || F.config.hostname;
 	if (!url)
 		return;
-	url = url.toString().replace(/(http|https)\:\/\/(www\.)/gi, '');
+	url = url.toString().replace(REG_HOSTNAME, '');
 	var index = url.indexOf('/');
 	if (index !== -1)
 		url = url.substring(0, index);
 	webcounter.hostname = url.toLowerCase();
 }
 
-framework.on('controller', delegate_request);
+F.on('controller', delegate_request);
 
 module.exports.usage = function() {
-	var stats = utils.extend({}, webcounter.stats);
+	var stats = U.extend({}, webcounter.stats);
 	stats.online = webcounter.online;
 	return stats;
 };
