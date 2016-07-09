@@ -1,11 +1,12 @@
 # Installation
 
-Directory listing.
+Directory listing. This module uses wildcard routing.
 
 ```js
 var options = {};
 
-// Default URL:
+// URL from which should be enabled directory listing:
+// Default value:
 options.url = '/';
 
 INSTALL('module', 'https://modules.totaljs.com/latest/directorylisting.js', options);
