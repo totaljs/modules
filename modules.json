@@ -81,7 +81,7 @@
 		"name": "Directory Listing",
 		"version": "1.0.0",
 		"total": "2.0.0",
-		"description": "This module enables directory listing for public directory.",
+		"description": "This module enables directory listing for public directory and it shows file sizes.",
 		"author": "Peter Širka",
 		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/directorylisting",
 		"datecreated": "2016-01-01T00:00:00.000Z",
