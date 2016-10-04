@@ -1,7 +1,11 @@
-# JsonWebToken implementation for total.js
+# JsonWebToken (JWT) implementation for Total.js
 
 - `npm install jsonwebtoken`
-- download and copy `jsonwebtoken.js` into the `/modules/` directory
+- download and copy `jsonwebtoken.js` into the `/modules/` directory __or:__
+
+```javascript
+INSTALL('module', 'https://modules.totaljs.com/latest/jsonwebtoken.js')
+```
 
 __Usage__:
 

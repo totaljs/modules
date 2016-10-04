@@ -1,7 +1,7 @@
 // MIT License
 // Copyright Peter Širka <petersirka@gmail.com>
 
-exports.version = 'v1.0';
+exports.version = 'v1.0.0';
 
 var jwt = require('jsonwebtoken');
 
