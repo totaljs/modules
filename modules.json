@@ -4,32 +4,87 @@
 		"name": "OAuth 2.0",
 		"version": "1.4.0",
 		"total": "2.0.0",
-		"description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sint, eaque.",
+		"description": "Very simple OAuth 2.0 implemenation of GitHub, Facebook, Google, DropBox, LinkedIn, Windows Live, Yahoo, Yandex and Instagram.",
 		"author": "Peter Širka",
 		"url": "https://github.com/totaljs/modules/tree/master/Security/oauth2",
-		"datecreated": "2015-09-25T09:42:03.550Z",
-		"dateupdated": "2016-09-12T20:39:00.000Z"
+		"datecreated": "2016-01-01T00:00:00.000Z",
+		"dateupdated": null
 	},
 	{
 		"category": "Security",
 		"name": "DDOS Protection",
-		"version": "2.0.0",
+		"version": "1.1.0",
 		"total": "2.0.0",
-		"description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sint, eaque.",
+		"description": "Simple DDOS protection, the module counts requests according to IP address.",
 		"author": "Peter Širka",
 		"url": "https://github.com/totaljs/modules/tree/master/Security/ddos",
-		"datecreated": "2015-09-25T09:42:03.550Z",
-		"dateupdated": "2016-09-12T20:39:00.000Z"
+		"datecreated": "2016-01-01T00:00:00.000Z",
+		"dateupdated": null
+	},
+	{
+		"category": "Security",
+		"name": "JsonWebToken (JWT)",
+		"version": "1.0.0",
+		"total": "2.0.0",
+		"description": "This JWT module rewrites internal encryption/decryption mechanism.",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/Security/jsonwebtoken",
+		"datecreated": "2016-01-01T00:00:00.000Z",
+		"dateupdated": null
+	},
+	{
+		"category": "Security",
+		"name": "Protection",
+		"version": "1.0.0",
+		"total": "2.0.0",
+		"description": "The module increments internal counter identified by a key and resets the the counter at a given timeout.",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/Security/protection",
+		"datecreated": "2016-01-01T00:00:00.000Z",
+		"dateupdated": null
+	},
+	{
+		"category": "Security",
+		"name": "Auth",
+		"version": "3.0.0",
+		"total": "2.0.0",
+		"description": "Adds a support for authorize and unauthorize route flag. Each logged user has an own session.",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/Security/auth",
+		"datecreated": "2016-01-01T00:00:00.000Z",
+		"dateupdated": null
 	},
 	{
 		"category": "Miscellaneous",
 		"name": "Client-Side Error",
 		"version": "1.0.0",
 		"total": "2.0.0",
-		"description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sint, eaque.",
+		"description": "Catch all client-side errors. All errors are shown on server-side console.",
 		"author": "Peter Širka",
 		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/clienterror",
-		"datecreated": "2015-09-25T09:42:03.550Z",
-		"dateupdated": "2016-09-12T20:39:00.000Z"
+		"datecreated": "2016-01-01T00:00:00.000Z",
+		"dateupdated": null
+	},
+	{
+		"category": "Miscellaneous",
+		"name": "Console",
+		"version": "2.0.0",
+		"total": "2.0.0",
+		"description": "With this package you can control a whole Total.js application from a web browser.",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/console",
+		"datecreated": "2016-01-01T00:00:00.000Z",
+		"dateupdated": null
+	},
+	{
+		"category": "Miscellaneous",
+		"name": "Directory Listing",
+		"version": "1.0.0",
+		"total": "2.0.0",
+		"description": "This module enables directory listing for public directory.",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/directorylisting",
+		"datecreated": "2016-01-01T00:00:00.000Z",
+		"dateupdated": null
 	}
 ]

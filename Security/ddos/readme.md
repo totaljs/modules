@@ -1,19 +1,19 @@
 # Installation
 
-```js
+- download and copy `ddos.js` into the `/modules/` directory __or create a definition with:__
+
+```javascript
 var options = {};
 
-// Maximum requests for user
+// Maximum requests for IP
 // options.maximum = 1000;
 
 // Ban timeout
 // options.minutes = 5;
 
-INSTALL('module', 'https://modules.totaljs.com/ddos/v1.00/ddos.js', options);
+INSTALL('module', 'https://modules.totaljs.com/latest/ddos.js', options);
 // UNINSTALL('module', 'ddos');
 ```
-
-or __download module__ from GitHub and copy into `/your-totaljs-website/modules/`.
 
 ## Instance
 

@@ -4,7 +4,7 @@
 - download and copy `jsonwebtoken.js` into the `/modules/` directory __or create a definition with:__
 
 ```javascript
-INSTALL('module', 'https://modules.totaljs.com/latest/jsonwebtoken.js')
+INSTALL('module', 'https://modules.totaljs.com/latest/jsonwebtoken.js');
 ```
 
 __Usage__:

@@ -2,7 +2,9 @@
 
 Directory listing. This module uses wildcard routing.
 
-```js
+- download and copy `directorylisting.js` into the `/modules/` directory __or create a definition with:__
+
+```javascript
 var options = {};
 
 // URL from which should be enabled directory listing:
@@ -11,5 +13,3 @@ options.url = '/';
 
 INSTALL('module', 'https://modules.totaljs.com/latest/directorylisting.js', options);
 ```
-
-__or download__ `directorylisting.js` from GitHub and add it into the `/your-application/modules/`.

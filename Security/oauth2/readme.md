@@ -1,8 +1,12 @@
 # Login with Facebook, Google, LinkedIn, Yahoo, GitHub, DropBox, Live, Instagram, Yandex, VKontakte
 
-- copy **oauth2.js** to __/your-totaljs-website/modules/__
 - For testing use: [NGROK - proxy tunnel](https://ngrok.com/)
 example)
+- download and copy `oauth2.js` into the `/modules/` directory __or create a definition with:__
+
+```javascript
+INSTALL('module', 'https://modules.totaljs.com/latest/oauth2.js');
+```
 
 ```javascript
 exports.install = function() {

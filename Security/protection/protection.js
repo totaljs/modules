@@ -4,15 +4,15 @@
 var db = {};
 
 exports.name = 'protection';
-exports.version = 'v1.01';
+exports.version = 'v1.0.0';
 exports.options = { max: 5, timeout: 3 };
 
 exports.install = function() {
-	framework.on('service', service);
+	F.on('service', service);
 };
 
 exports.uninstall = function() {
-	framework.removeListener('service', service);
+	F.removeListener('service', service);
 };
 
 exports.usage = function() {
@@ -21,7 +21,7 @@ exports.usage = function() {
 
 function service(interval) {
 
-	if (interval % exports.options.timeout !== 0)
+	if (interval % exports.options.timeout)
 		return;
 
 	var arr = Object.keys(db);
@@ -52,9 +52,6 @@ exports.can = function(name, max) {
 	return db[name] < max;
 };
 
-/**
- * Reset state
- */
 exports.reset = function(name) {
 
 	var self = this;

@@ -41,11 +41,7 @@ function process_error() {
 	if ((/mobile/i).test(ua))
 		browser += ' (mobile)';
 
-	if (options.logger)
-		self.logger(options.filename, body.url, body.error, browser);
-
-	if (options.console)
-		console.log('CLIENTERROR:', body.url, body.error, browser);
-
+	options.logger && self.logger(options.filename, body.url, body.error, browser);
+	options.console && console.log('CLIENTERROR:', body.url, body.error, browser);
 	module.exports.emit('clienterror', { url: body.url, error: body.error, browser: browser });
 }

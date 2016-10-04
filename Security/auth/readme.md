@@ -1,6 +1,8 @@
 # Installation
 
-```js
+- download and copy `auth.js` into the `/modules/` directory __or create a definition with:__
+
+```javascript
 var options = {};
 
 // Name of cookie
@@ -21,8 +23,6 @@ var options = {};
 INSTALL('module', 'https://modules.totaljs.com/latest/auth.js', options);
 // UNINSTALL('module', 'auth');
 ```
-
-or __download module__ from GitHub and copy into `/your-totaljs-website/modules/`.
 
 ## Properties and Functions and Events
 
@@ -45,7 +45,7 @@ auth.online; // get online users
 // ==========================================
 
 /*
-	Login an user
+	Login a user
 	@controller {Controller}
 	@id {Number or String}
 	@user {Object}
@@ -55,7 +55,7 @@ auth.online; // get online users
 auth.login(controller, id, user, expire);
 
 /*
-	Logoff an user
+	Logoff a user
 	@controller {Controller}
 	@id {Number or String} :: Id user
 	return {Module}
@@ -63,7 +63,7 @@ auth.login(controller, id, user, expire);
 auth.logoff(controller, id);
 
 /*
-	Change an user
+	Change a user
 	@id {Number or String}
 	@newUser {Object}
 	return {Users}
@@ -71,7 +71,7 @@ auth.logoff(controller, id);
 auth.change(id, newUser);
 
 /*
-	Update an user
+	Update a user
 	@id {Number or String}
 	@fn {Function} :: function(user) {}
 	return {Users}
@@ -79,7 +79,7 @@ auth.change(id, newUser);
 auth.update(id, fn);
 
 /*
-	Update an user
+	Update a user
 	@id {Number or String}
 	expire {Date}
 	return {Users}
@@ -90,7 +90,6 @@ auth.setExpire(id, expire);
 // ==========================================
 // EVENTS
 // ==========================================
-
 auth.on('login', function(id, user) {});
 auth.on('logoff', function(id, user) {});
 auth.on('change', function(id, user, old) {});
@@ -105,9 +104,9 @@ exports.install = function() {
 	// ...
 	// ...
 	// ...
+	F.route('/', view_authorize, ['authorize']);
 	F.route('/xhr/login/', json_login, ['unauthorize']);
 	F.route('/xhr/logoff/', json_logoff, ['authorize']);
-	F.route('/', view_authorize, ['authorize']);
 };
 
 function json_login() {
@@ -126,7 +125,7 @@ function json_login() {
 	// @user {Object}
 	auth.login(self, user.id, user);
 
-	self.json({ r: true });
+	self.json({ success: true });
 }
 
 function json_logoff() {
@@ -164,7 +163,7 @@ F.on('module#auth', function(type, name) {
 	auth.onAuthorize = function(id, callback, flags) {
 
         // - this function is cached
-        // - here you must read user information from a database
+        // - here you have to read user information from a database
         // - insert the user object into the callback (this object will be saved to session/cache)
         callback({ id: '1', alias: 'Peter Sirka' });
 
@@ -230,11 +229,11 @@ F.on('controller', function(self, name) {
 
 		var role = '!' + user.roles[i];
 		if (self.flags.indexOf(role) === -1) {
-
-			// cancel executing of controller
+			
+			// Cancels executing of the controller
 			self.cancel();
 
-			// redirect
+			// Performs redirect
 			self.redirect('/you-do-not-have-permission/')
 			return;
 		}
