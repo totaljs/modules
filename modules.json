@@ -1,0 +1,29 @@
+[
+	{
+		"group": "Security",
+		"name": "OAuth 2.0",
+		"version": "1.4.0",
+		"total": "2.0.0",
+		"description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sint, eaque.",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/Security/oauth2"
+	},
+	{
+		"group": "Security",
+		"name": "DDOS Protection",
+		"version": "2.0.0",
+		"total": "2.0.0",
+		"description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sint, eaque.",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/Security/ddos"
+	},
+	{
+		"group": "Miscellaneous",
+		"name": "Client-Side Error",
+		"version": "1.0.0",
+		"total": "2.0.0",
+		"description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sint, eaque.",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/clienterror"
+	}
+]
