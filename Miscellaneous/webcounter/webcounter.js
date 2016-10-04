@@ -1,7 +1,5 @@
-/**
- * @module WebCounter
- * @author Peter Širka
- */
+// MIT License
+// Copyright Peter Širka <petersirka@gmail.com>
 
 const COOKIE = '__webcounter';
 const REG_ROBOT = /search|agent|bot|crawler/i;
@@ -29,8 +27,8 @@ function WebCounter() {
 
 	this._onValid = function(req) {
 		var self = this;
-		var agent = req.headers['user-agent'];
 
+		var agent = req.headers['user-agent'];
 		if (!agent || req.headers['x-moz'] === 'prefetch' || (self.onValid && !self.onValid(req)))
 			return false;
 
@@ -68,18 +66,12 @@ WebCounter.prototype = {
 	}
 };
 
-/**
- * Clean up
- * @return {Module]
- */
 WebCounter.prototype.clean = function() {
 
 	var self = this;
 
 	self.interval++;
-
-	if (self.interval % 2 === 0)
-		self.save();
+	self.interval % 2 === 0 && self.save();
 
 	var now = new Date();
 	var stats = self.stats;
@@ -143,10 +135,6 @@ WebCounter.prototype.increment = WebCounter.prototype.inc = function(type) {
 	return self;
 };
 
-/**
- * Request counter
- * @return {Module]
- */
 WebCounter.prototype.counter = function(req, res) {
 
 	var self = this;
@@ -211,9 +199,7 @@ WebCounter.prototype.counter = function(req, res) {
 	arr[1]++;
 	self.lastvisit = new Date();
 	res.cookie(COOKIE, ticks, now.add('5 days'));
-
-	if (self.allowIP)
-		self.ip.push({ ip: req.ip, url: ping || req.uri.href, empty: referer ? false : true });
+	self.allowIP && self.ip.push({ ip: req.ip, url: ping || req.uri.href, empty: referer ? false : true });
 
 	var online = self.online;
 
@@ -253,10 +239,6 @@ WebCounter.prototype.counter = function(req, res) {
 	return true;
 };
 
-/**
- * Saves the current stats into the cache
- * @return {Module]
- */
 WebCounter.prototype.save = function() {
 	var self = this;
 	var filename = F.path.databases(FILE_CACHE);
@@ -266,10 +248,6 @@ WebCounter.prototype.save = function() {
 	return self;
 };
 
-/**
- * Loads stats from the cache
- * @return {Module]
- */
 WebCounter.prototype.load = function() {
 
 	var self = this;
@@ -290,10 +268,6 @@ WebCounter.prototype.load = function() {
 	return self;
 };
 
-/**
- * Creates a report from previous day
- * @return {Module]
- */
 WebCounter.prototype.append = function() {
 	var self = this;
 	var filename = F.path.databases(FILE_STATS);
@@ -301,11 +275,6 @@ WebCounter.prototype.append = function() {
 	return self;
 };
 
-/**
- * Dail stats
- * @param {Function(stats)} callback
- * @return {Module]
- */
 WebCounter.prototype.daily = function(callback) {
 	var self = this;
 	self.statistics(function(arr) {
@@ -328,11 +297,6 @@ WebCounter.prototype.daily = function(callback) {
 	return self;
 };
 
-/**
- * Monthly stats
- * @param {Function(stats)} callback
- * @return {Module]
- */
 WebCounter.prototype.monthly = function(callback) {
 
 	var self = this;
@@ -366,11 +330,6 @@ WebCounter.prototype.monthly = function(callback) {
 	return self;
 };
 
-/**
- * Yearly stats
- * @param {Function(stats)} callback
- * @return {Module]
- */
 WebCounter.prototype.yearly = function(callback) {
 	var self = this;
 
@@ -404,11 +363,6 @@ WebCounter.prototype.yearly = function(callback) {
 	return self;
 };
 
-/**
- * Read stats from the file
- * @param {Function(stats)} callback
- * @return {Module]
- */
 WebCounter.prototype.statistics = function(callback) {
 	var self = this;
 	var filename = F.path.databases(FILE_STATS);
@@ -421,16 +375,9 @@ WebCounter.prototype.statistics = function(callback) {
 	return self;
 };
 
-/**
- * Refresh visitors URL
- * @internal
- * @param {String} referer
- * @param {Request} req
- */
 WebCounter.prototype.refreshURL = function(referer, req, ping) {
 
 	var self = this;
-
 	if (!self.allowIP)
 		return;
 
@@ -474,9 +421,7 @@ function getReferrer(host) {
 	return host.substring(index, host.indexOf('/', index)).toLowerCase();
 }
 
-// Instance
 const webcounter = new WebCounter();
-
 const delegate_request = function(controller, name) {
 	webcounter.counter(controller.req, controller.res);
 };
@@ -494,8 +439,7 @@ module.exports.install = function(options) {
 	}
 
 	F.on('service', function(counter) {
-		if (counter % 120 === 0)
-			refresh_hostname();
+		counter % 120 === 0 && refresh_hostname();
 	});
 };
 

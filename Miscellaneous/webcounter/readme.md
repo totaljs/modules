@@ -1,9 +1,9 @@
 # Installation
 
-The package contains HTML CSS JS for rendering statistics while the classic module is the clean module (without routes, HTML, CSS, etc.) for custom rendering.
+- download and copy `session.js` into the `/modules/` directory __or create a definition with:__
 
 ```js
-var options = {};
+const options = {};
 
 // Counting of XHR requests (default: true):
 // options.xhr = true;
@@ -14,8 +14,7 @@ var options = {};
 // A default URL address of statistics (only for package)
 // options.url = '/webcounter/';
 
-// INSTALL('module', 'https://modules.totaljs.com/latest/webcounter.js', options);
-// INSTALL('package', 'https://modules.totaljs.com/latest/webcounter.package', options);
+INSTALL('module', 'https://modules.totaljs.com/latest/webcounter.js', options);
 ```
 
 ## Instance

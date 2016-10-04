@@ -119,5 +119,16 @@
 		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/session",
 		"datecreated": "2016-01-01T00:00:00.000Z",
 		"dateupdated": null
+	},
+	{
+		"category": "Miscellaneous",
+		"name": "WebCounter",
+		"version": "3.1.0",
+		"total": "2.0.0",
+		"description": "Monitor your visitor. The module supports: online visitors, daily, monthly and yearly stats.",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/webcounter",
+		"datecreated": "2016-01-01T00:00:00.000Z",
+		"dateupdated": null
 	}
 ]
