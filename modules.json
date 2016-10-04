@@ -6,7 +6,9 @@
 		"total": "2.0.0",
 		"description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sint, eaque.",
 		"author": "Peter Širka",
-		"url": "https://github.com/totaljs/modules/tree/master/Security/oauth2"
+		"url": "https://github.com/totaljs/modules/tree/master/Security/oauth2",
+		"datecreated": "2015-09-25T09:42:03.550Z",
+		"dateupdated": "2016-09-12T20:39:00.000Z"
 	},
 	{
 		"category": "Security",
@@ -15,7 +17,9 @@
 		"total": "2.0.0",
 		"description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sint, eaque.",
 		"author": "Peter Širka",
-		"url": "https://github.com/totaljs/modules/tree/master/Security/ddos"
+		"url": "https://github.com/totaljs/modules/tree/master/Security/ddos",
+		"datecreated": "2015-09-25T09:42:03.550Z",
+		"dateupdated": "2016-09-12T20:39:00.000Z"
 	},
 	{
 		"category": "Miscellaneous",
@@ -24,6 +28,8 @@
 		"total": "2.0.0",
 		"description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sint, eaque.",
 		"author": "Peter Širka",
-		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/clienterror"
+		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/clienterror",
+		"datecreated": "2015-09-25T09:42:03.550Z",
+		"dateupdated": "2016-09-12T20:39:00.000Z"
 	}
 ]
