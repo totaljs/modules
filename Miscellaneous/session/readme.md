@@ -1,6 +1,8 @@
 # Installation
 
-```js
+- download and copy `session.js` into the `/modules/` directory __or create a definition with:__
+
+```javascript
 var options = {};
 
 // Name of cookie
@@ -12,11 +14,9 @@ var options = {};
 // Timeout
 // options.timeout = '5 minutes';
 
-INSTALL('module', 'https://modules.totaljs.com/session/v1.01/session.js', options);
+INSTALL('module', 'https://modules.totaljs.com/latest/session.js', options);
 // UNINSTALL('module', 'session');
 ```
-
-or __download module__ from GitHub and copy into `/your-totaljs-website/modules/`.
 
 ## Usage in Controller
 
@@ -25,12 +25,14 @@ or __download module__ from GitHub and copy into `/your-totaljs-website/modules/
 - session is automatically saved after is response finished
 
 ```js
-exports.install = function(framework, options) {
+exports.install = function(options) {
+
     // IMPORTANT: #session is a middleware
-    // You can specify Session into all routes:
-    framework.route('/', some_action_in_controller, ['#session']);
+    // You can specify Session into all routes:    
+    F.route('/', some_action_in_controller, ['#session']);
+
     // or
-    framework.websocket('/', some_action_in_controller, ['#session']);
+    F.websocket('/', some_action_in_controller, ['#session']);
 
     // or for all routes use (this is global middleware for all requests):
     // framework.use('session');
@@ -40,7 +42,7 @@ exports.install = function(framework, options) {
 function some_action_in_controller() {
     var self = this;
 
-    if (typeof(self.session.counter) === 'undefined')
+    if (!self.session.counter)
         self.session.counter = 0;
 
     self.session.counter++;
@@ -54,14 +56,7 @@ function some_action_in_controller() {
 > Create some definition file, example: __session-redis.js__
 
 ```js
-
-framework.on('install', function(type, name) {
-
-    if (type !== 'module')
-        return;
-
-    if (name !== 'session')
-        return;
+F.on('module#session', function(type, name) {
 
     var session = MODULE('session').instance;
 

@@ -2,7 +2,7 @@
 
 # Simple monitoring of total.js applications
 
-This module can track behaviour of total.js application. If your web application contains this module, open website `https://monitor.totaljs.com` and register your app.
+This module can track behaviour of Total.js application. If your web application contains this module, open website `https://monitor.totaljs.com` and register your app.
 
 - console: [monitor.totaljs.com](https://monitor.totaljs.com)
 - not limited the performance

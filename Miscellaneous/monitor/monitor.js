@@ -69,7 +69,5 @@ function json_monitor() {
 		});
 	});
 
-	async.async(function() {
-		self.json(stats);
-	});
+	async.async(() => self.json(stats));
 }
