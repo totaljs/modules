@@ -7,15 +7,15 @@ exports.version = '2.0.0';
 const console_log = console.log;
 const console_error = console.error;
 const console_warn = console.warn;
-const options = { history: 50, url: '/$console/', user: '', password: '' };
 const history = [];
 const output = { history: history };
 
 var ticks = 0;
+var options = { history: 50, url: '/$console/', user: '', password: '' };
 
-exports.install = function(options) {
+exports.install = function(opts) {
 
-	U.copy(opt, options);
+	U.copy(opts, options);
 	F.route(options.url, view_console);
 	F.route(options.url, json_console, ['xhr', 'json']);
 
@@ -36,6 +36,8 @@ exports.install = function(options) {
 
 	F.on('controller', auth);
 };
+
+exports.install()
 
 exports.uninstall = function() {
 	console.log = console_log;
