@@ -138,7 +138,7 @@
 		"total": "2.0.0",
 		"description": "Easy content sharing of NoSQL embedded database. Bind your database with NoSQL embedded database explorer.",
 		"author": "Peter Širka",
-		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/nosqlexporer",
+		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/nosqlexplorer",
 		"datecreated": "2016-10-09T00:00:00.000Z",
 		"dateupdated": null
 	}
