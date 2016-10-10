@@ -22,7 +22,18 @@ nosqlexplorer-url          : /$nosqlexplorer/
 
 ## Usage
 
-- <https://www.yourdomain.com/$nosqlexplorer/?name=DATABASE_NAME>
+- Listing: <https://www.yourdomain.com/$nosqlexplorer/>
+- Database: <https://www.yourdomain.com/$nosqlexplorer/?name=DATABASE_NAME>
+
+__Get list of all databases manually__:
+
+```javascript
+MODULE('nosqlexplorer').databases(function(err, filenames) {
+    filenames.forEach(function(file) {
+        console.log(file.name, file.url, file.size);
+    });
+});
+```
 
 __NoSQL embedded database explorer:__
 
