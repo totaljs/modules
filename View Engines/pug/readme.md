@@ -1,7 +1,7 @@
-# JADE VIEW ENGINE
+# PUG VIEW ENGINE
 
 - install npm jade
-- copy **jade.js** to __/your-website/modules/__
+- copy **pug.js** to __/your-website/modules/__
 
 ```javascript
 function view_homepage() {
@@ -13,9 +13,9 @@ function view_homepage() {
 
 	self.view('homepage', { name: 'model' });
 
-	// ./views/homepage.jade
+	// ./views/homepage.pug
 
-	// jade === global variable
-	// jade.render();
+	// pug === global variable
+	// pug.render();
 }
 ```
