@@ -2,6 +2,7 @@
 // Copyright Peter Širka <petersirka@gmail.com>
 // Version 2.0.0
 
+const Fs = require('fs');
 global.jade = require('jade');
 
 var definition = (function() {
@@ -13,7 +14,7 @@ var definition = (function() {
 		model.controller = this; //adds controller related functionality
 		model.global = F.global;
 
-		if (isPartial === undefined && typeof(headers) === 'boolean') {
+		if (isPartial === undefined && typeof(headers) === BOOLEAN) {
 			isPartial = headers;
 			headers = null;
 		}
@@ -33,18 +34,16 @@ var definition = (function() {
 		if (skip)
 			filename = name.substring(1);
 
-		var key = 'jade_' + filename; // fixes if I have two template in different directory with the same name.
+		var key = 'jade_' + filename; // fixes if I have two template in different directory with same name.
 		var fn = F.cache.read2(key);
 
-		if (!fn) {
+		if (fn === null) {
 
 			var ext = '.jade';
 			var exists = false;
-			var path = F.path.views(filename + ext);
-			var fs = require('fs');
 
 			try {
-				var val = fs.statSync(path);
+				var val = Fs.statSync(filename);
 				exists = val ? val.isFile() : false;
 			} catch(e) {}
 
@@ -53,8 +52,9 @@ var definition = (function() {
 				return;
 			}
 
+			var path = F.path.views(filename + ext);
 			var options = U.extend({ filename: path }, exports.options);
-			fn = jade.compile(fs.readFileSync(path).toString('utf8'), options);
+			var fn = jade.compile(Fs.readFileSync(path).toString('utf8'), options);
 
 			if (!self.config.debug && fn !== null)
 				F.cache.add(key, fn, F.datetime.add('m', 4));

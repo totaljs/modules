@@ -1,6 +1,6 @@
 exports.install = function() {
-	framework.route('/products/', view_products);
-	framework.route('/products/each/', view_products_each);
+	F.route('/products/', view_products);
+	F.route('/products/each/', view_products_each);
 };
 
 function view_products() {
@@ -11,9 +11,8 @@ function view_products() {
 		tobi: { age: 1, email: 'tobi@is-amazing.com', isA: 'ferret' }
 	};
 
-	// load from /views/each.jade
-	self.currentView('');
-	self.view('each', { users: users });
+	// loads from /views/each.jade
+	self.view('~each', { users: users });
 }
 
 function view_products_each() {
@@ -24,6 +23,6 @@ function view_products_each() {
 		tobi: { age: 1, email: 'tobi@is-amazing.com', isA: 'ferret' }
 	};
 
-	// load from /views/products/each.jade
+	// loads from /views/products/each.jade
 	self.view('each', { users: users });
 }
