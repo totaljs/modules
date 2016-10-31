@@ -58,6 +58,8 @@ MODULE('webcounter').increment('contact-form'); // Increment contact form counte
 
 #### Read from statistics:
 
+Show today orders, you can apply this example for all counters. e.g. `MODULE('webcounter').today.YOUR_COUNTER`
+
 ```js
-console.log(MODULE('webcounter').today.orders); // Show today orders, you can apply this example for all counters. e.g. MODULE('webcounter').today.YOUR_COUNTER
+console.log(MODULE('webcounter').today.orders);
 ```
