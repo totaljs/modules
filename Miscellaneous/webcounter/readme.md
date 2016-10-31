@@ -47,10 +47,11 @@ var webcounter = MODULE('webcounter');
 #### Append into statistics:
 
 ```js
+// These are counters which are visible on totaljs.com
 MODULE('webcounter').increment('orders'); // Increment order counter
 MODULE('webcounter').increment('users'); // Increment user counter
 MODULE('webcounter').increment('fulltext'); // Increment fulltext search counter
-MODULE('webcounter').increment('custom'); // Increment custom counter (Visible on monitor.totaljs.com)
+MODULE('webcounter').increment('custom'); // Increment custom counter
 
 // Or create your custom counter, e.g.
 MODULE('webcounter').increment('contact-form'); // Increment contact form counter
@@ -62,4 +63,6 @@ Show today orders, you can apply this example for all counters. e.g. `MODULE('we
 
 ```js
 console.log(MODULE('webcounter').today.orders);
+// or
+console.log(MODULE('webcounter').today['contact-form'];
 ```
