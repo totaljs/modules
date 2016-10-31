@@ -47,7 +47,7 @@ var webcounter = MODULE('webcounter');
 #### Append into statistics:
 
 ```js
-// These are counters which are visible on totaljs.com
+// These are counters which are visible on monitor.totaljs.com
 MODULE('webcounter').increment('orders'); // Increment order counter
 MODULE('webcounter').increment('users'); // Increment user counter
 MODULE('webcounter').increment('fulltext'); // Increment fulltext search counter
