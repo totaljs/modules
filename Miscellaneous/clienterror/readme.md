@@ -9,16 +9,9 @@ var options = {};
 
 // options.logger = true;
 // options.console = false;
+// options.url = '/$clienterror/';
 
 // The framework adds `.log` extension automatically
 // options.filename = 'logger';
-INSTALL('module', 'https://modules.totaljs.com/clienterror/v1.00/clienterror.js', options);
-
-/*
-F.on('module#clienterror', function() {
-    MODULE('clienterror').on('clienterror', function(err) {
-        // EVENT
-    });
-});
-*/
+INSTALL('module', 'https://modules.totaljs.com/latest/clienterror.js', options);
 ```
