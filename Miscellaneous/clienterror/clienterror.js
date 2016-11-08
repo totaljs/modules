@@ -40,8 +40,8 @@ function process_error() {
 	if (REGEXP_MOBILE.test(ua))
 		browser += ' (mobile)';
 
-	options.logger && self.logger(options.filename, body.url, body.error, browser);
-	options.console && console.log('CLIENTERROR:', body.url, body.error, browser);
+	options.logger && self.logger(options.filename, body.url, body.error, browser, self.ip);
+	options.console && console.log('CLIENTERROR:', body.url, body.error, browser, self.ip);
 
 	body.browser = browser;
 	body.ip = self.ip;
