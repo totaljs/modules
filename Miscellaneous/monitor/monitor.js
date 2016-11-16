@@ -1,15 +1,19 @@
 var version = 'v1.3.0';
+var token = '';
 
 exports.install = function(options) {
 	var url = '/$monitor/';
-	if (options && options.url)
-		url = options.url;
+	options && options.url && (url = options.url);
+	options && options.token && (token = options.token);
+	
 	F.route(url, json_monitor);
 };
 
 function json_monitor() {
-
 	var self = this;
+	
+	if(token && token !== self.query.token) return self.throw404();
+
 	var stats = {};
 	var memory = process.memoryUsage();
 
