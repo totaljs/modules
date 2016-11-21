@@ -19,7 +19,7 @@ exports.install = function() {
 		// if already compiled
 		if (filename && filename.indexOf( '.' + CONFIG('directory-temp')  ) !== -1 ) {
 			return content;
-
+		}
 		try {
 			var css = stylus(content).set('compress', RELEASE).render();
 			return css;
