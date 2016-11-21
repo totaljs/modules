@@ -5,8 +5,8 @@ var stylus = require('stylus');
 var fs = require('fs');
 
 exports.install = function() {
-	F.file('STYL', stylus_compiler);
 
+	F.file(stylus_compiler);
 	F.accept('.styl','text/css');
 
 	F.helpers.stylus = function(name, tag) {
