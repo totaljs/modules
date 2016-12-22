@@ -64,5 +64,5 @@ Show today orders, you can apply this example for all counters. e.g. `MODULE('we
 ```js
 console.log(MODULE('webcounter').today.orders);
 // or
-console.log(MODULE('webcounter').today['contact-form'];
+console.log(MODULE('webcounter').today['contact-form']);
 ```
