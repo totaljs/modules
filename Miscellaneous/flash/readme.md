@@ -1,7 +1,7 @@
 # Flash messages
 
 - inspired from <https://github.com/jaredhanson/connect-flash>
-- cookie per session + session timeout 5 minutes
+- cookie per session + session timeout
 - copy __flash.js__ to /your-totaljs-website/modules/
 
 ### Usage
@@ -30,4 +30,12 @@ function redirect_flash() {
 
 ```html
 @{flash('info')} <b>returns array</b>
+```
+
+## Expiration
+
+```javascript
+MODULE('flash').expire = '5 minutes';
+// or
+// MODULE('flash').expire = '5 seconds';
 ```

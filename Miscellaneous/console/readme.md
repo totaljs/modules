@@ -1,8 +1,10 @@
 # Installation
 
-With this module __you can control a whole application__. The module contains real-time console.
+With this module __you can control a whole application__. The module contains real-time console with textbox for performing custom commands.
 
-```js
+- download and copy `console.package` into the `/packages/` directory __or create a definition with:__
+
+```javascript
 var options = {};
 
 // A credential is optional:
@@ -11,9 +13,7 @@ var options = {};
 
 // options.url = '/$console/';
 
-INSTALL('package', 'https://modules.totaljs.com/console/v1.01/console.package', options);
+INSTALL('package', 'https://modules.totaljs.com/latest/console.package', options);
 ```
-
-__or download__ `console.package` from GitHub and add it into the `/your-application/packages/`.
 
 ![Console](https://www.totaljs.com/exports/module-console.png)

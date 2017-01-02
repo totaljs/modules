@@ -1,0 +1,3 @@
+module					: https://modules.totaljs.com/latest/webcounter.js
+module					: https://modules.totaljs.com/latest/reqstats.js
+module					: https://modules.totaljs.com/latest/monitor.js --> {"url":"/$monitor/"}

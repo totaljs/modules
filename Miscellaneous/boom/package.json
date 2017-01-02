@@ -1,0 +1,24 @@
+{
+  "name": "total-boom",
+  "version": "0.0.1",
+  "description": "Using boom Total.js",
+  "main": "total-boom.js",
+  "dependencies": {
+    "boom": "~2.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/flashvnn/total-boom "
+  },
+  "keywords": [
+    "total",
+    "boom",
+    "error"
+  ],
+  "author": "Huynh Khac Thao <flashvnn@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/flashvnn/total-boom /issues"
+  },
+  "homepage": "https://github.com/flashvnn/total-boom "
+}

@@ -1,76 +1,82 @@
 // MIT License
 // Copyright Peter Širka <petersirka@gmail.com>
-// Version 1.01
+// Version 2.0.0
 
 global.jade = require('jade');
 
 var definition = (function() {
-    Controller.prototype.view = function (name, model, headers, isPartial) {
+	Controller.prototype.view = function (name, model, headers, isPartial) {
 
-        var self = this;
+		var self = this;
+		model = model || {}
 
-        if (isPartial === undefined && typeof(headers) === BOOLEAN) {
-            isPartial = headers;
-            headers = null;
-        }
+		model.controller = this; //adds controller related functionality
+		model.global = F.global;
 
-        if (self.res.success && !isPartial)
-            return self;
+		if (isPartial === undefined && typeof(headers) === 'boolean') {
+			isPartial = headers;
+			headers = null;
+		}
 
-        var skip = name[0] === '~';
-        var filename = name;
-        var isLayout = self.isLayout;
+		if (self.res.success && !isPartial)
+			return self;
 
-        self.isLayout = false;
+		var skip = name[0] === '~';
+		var filename = name;
+		var isLayout = self.isLayout;
 
-        if (!self.isLayout && !skip)
-            filename = self._currentView + name;
+		self.isLayout = false;
 
-        if (skip)
-            filename = name.substring(1);
+		if (!self.isLayout && !skip)
+			filename = self._currentView + name;
 
-        var key = 'jade_' + name;
-        var fn = framework.cache.read(key);
+		if (skip)
+			filename = name.substring(1);
 
-        if (fn === null) {
+		var key = 'jade_' + filename; // fixes if I have two template in different directory with the same name.
+		var fn = F.cache.read2(key);
 
-            var fs = require('fs');
-            var ext = '.jade';
+		if (!fn) {
 
-            var exists = fs.existsSync(framework.path.views(filename + ext));
+			var ext = '.jade';
+			var exists = false;
+			var path = F.path.views(filename + ext);
+			var fs = require('fs');
 
-            if (!exists) {
-                self.view500('View "' + name + '" not found.');
-                return;
-            }
+			try {
+				var val = fs.statSync(path);
+				exists = val ? val.isFile() : false;
+			} catch(e) {}
 
-            var path = framework.path.views(filename + ext);
-            var options = utils.extend({ filename: path }, exports.options);
-            var fn = jade.compile(fs.readFileSync(path).toString('utf8'), options);
+			if (!exists) {
+				self.view500('View "' + name + '" not found.');
+				return;
+			}
 
-            if (!self.config.debug && fn !== null)
-                framework.cache.add(key, fn, new Date().add('m', 4));
+			var options = U.extend({ filename: path }, exports.options);
+			fn = jade.compile(fs.readFileSync(path).toString('utf8'), options);
 
-            if (fn === null) {
-                self.view500('View "' + name + '" not found.');
-                return;
-            }
-        }
+			if (!self.config.debug && fn !== null)
+				F.cache.add(key, fn, F.datetime.add('m', 4));
 
-        if (isPartial)
-            return fn(model);
+			if (fn === null) {
+				self.view500('View "' + name + '" not found.');
+				return;
+			}
+		}
 
-        self.subscribe.success();
+		if (isPartial)
+			return fn(model);
 
-        if (self.isConnected) {
-            framework.responseContent(self.req, self.res, self.status, fn(model), 'text/html', true, headers);
-            framework.stats.response.view++;
-        }
+		self.subscribe.success();
 
-        return self;
-    };
+		if (self.isConnected) {
+			F.responseContent(self.req, self.res, self.status, fn(model), 'text/html', true, headers);
+			F.stats.response.view++;
+		}
+
+		return self;
+	};
 });
 
-setTimeout(function() {
-    framework.eval(definition);
-}, 100);
+setTimeout(() => F.eval(definition), 100);

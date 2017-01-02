@@ -1,0 +1,145 @@
+[
+	{
+		"category": "Security",
+		"name": "OAuth 2.0",
+		"version": "1.4.0",
+		"total": "2.0.0",
+		"description": "Very simple OAuth 2.0 implemenation of GitHub, Facebook, Google, DropBox, LinkedIn, Windows Live, Yahoo, Yandex and Instagram.",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/Security/oauth2",
+		"datecreated": "2016-01-01T00:00:00.000Z",
+		"dateupdated": null
+	},
+	{
+		"category": "Security",
+		"name": "DDOS Protection",
+		"version": "1.1.0",
+		"total": "2.0.0",
+		"description": "Simple DDOS protection, the module counts requests according to IP address.",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/Security/ddos",
+		"datecreated": "2016-01-01T00:00:00.000Z",
+		"dateupdated": null
+	},
+	{
+		"category": "Security",
+		"name": "JsonWebToken (JWT)",
+		"version": "1.0.0",
+		"total": "2.0.0",
+		"description": "This JWT module rewrites internal encryption/decryption mechanism.",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/Security/jsonwebtoken",
+		"datecreated": "2016-01-01T00:00:00.000Z",
+		"dateupdated": null
+	},
+	{
+		"category": "Security",
+		"name": "Protection",
+		"version": "1.0.0",
+		"total": "2.0.0",
+		"description": "The module increments internal counter identified by a key and resets the the counter at a given timeout.",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/Security/protection",
+		"datecreated": "2016-01-01T00:00:00.000Z",
+		"dateupdated": null
+	},
+	{
+		"category": "Security",
+		"name": "Auth",
+		"version": "3.0.0",
+		"total": "2.0.0",
+		"description": "Adds a support for authorize and unauthorize route flag. Each logged user has an own session.",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/Security/auth",
+		"datecreated": "2016-01-01T00:00:00.000Z",
+		"dateupdated": null
+	},
+	{
+		"category": "Miscellaneous",
+		"name": "Client-Side Error",
+		"version": "1.0.0",
+		"total": "2.0.0",
+		"description": "Catch all client-side errors. All errors are shown on server-side console.",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/clienterror",
+		"datecreated": "2016-01-01T00:00:00.000Z",
+		"dateupdated": null
+	},
+	{
+		"category": "Miscellaneous",
+		"name": "Console",
+		"version": "2.0.0",
+		"total": "2.0.0",
+		"description": "With this package you can control a whole Total.js application from a web browser.",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/console",
+		"datecreated": "2016-01-01T00:00:00.000Z",
+		"dateupdated": null
+	},
+	{
+		"category": "Miscellaneous",
+		"name": "Directory Listing",
+		"version": "1.0.0",
+		"total": "2.0.0",
+		"description": "This module enables directory listing for public directory and it shows file sizes.",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/directorylisting",
+		"datecreated": "2016-01-01T00:00:00.000Z",
+		"dateupdated": null
+	},
+	{
+		"category": "Miscellaneous",
+		"name": "Monitor",
+		"version": "1.3.0",
+		"total": "2.0.0",
+		"description": "This module can monitor your Total.js web application and you can use AppMonitor with it.",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/monitor",
+		"datecreated": "2016-01-01T00:00:00.000Z",
+		"dateupdated": null
+	},
+	{
+		"category": "Miscellaneous",
+		"name": "Request stats",
+		"version": "1.1.0",
+		"total": "2.0.0",
+		"description": "This module counts all requests (dynamic content + files) by months. Data are stored in JSON file.",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/reqstats",
+		"datecreated": "2016-01-01T00:00:00.000Z",
+		"dateupdated": null
+	},
+	{
+		"category": "Miscellaneous",
+		"name": "Session",
+		"version": "2.0.0",
+		"total": "2.0.0",
+		"description": "This module enables session for each visitor. Session identificator is stored in cookie.",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/session",
+		"datecreated": "2016-01-01T00:00:00.000Z",
+		"dateupdated": null
+	},
+	{
+		"category": "Miscellaneous",
+		"name": "WebCounter",
+		"version": "3.1.0",
+		"total": "2.0.0",
+		"description": "Monitor your visitor. The module supports: online visitors, daily, monthly and yearly stats.",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/webcounter",
+		"datecreated": "2016-01-01T00:00:00.000Z",
+		"dateupdated": null
+	},
+	{
+		"category": "Miscellaneous",
+		"name": "NoSQL explorer",
+		"version": "1.0.0",
+		"total": "2.0.0",
+		"description": "Easy content sharing of NoSQL embedded database. Bind your database with NoSQL embedded database explorer.",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/nosqlexplorer",
+		"datecreated": "2016-10-09T00:00:00.000Z",
+		"dateupdated": null
+	}
+]

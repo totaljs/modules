@@ -1,8 +1,12 @@
-# Login with Facebook, Google, LinkedIn, Yahoo, GitHub, DropBox, Live
+# Login with Facebook, Google, LinkedIn, Yahoo, GitHub, DropBox, Live, Instagram, Yandex, VKontakte
 
-- copy **oauth2.js** to __/your-totaljs-website/modules/__
 - For testing use: [NGROK - proxy tunnel](https://ngrok.com/)
 example)
+- download and copy `oauth2.js` into the `/modules/` directory __or create a definition with:__
+
+```javascript
+INSTALL('module', 'https://modules.totaljs.com/latest/oauth2.js');
+```
 
 ```javascript
 exports.install = function() {
@@ -20,6 +24,8 @@ exports.install = function() {
     F.route('/login/yahoo/callback/', oauth_login_callback, ['unauthorize']);
     F.route('/login/live/', oauth_login, ['unauthorize']);
     F.route('/login/live/callback/', oauth_login_callback, ['unauthorize']);
+    F.route('/login/instagram/', oauth_login, ['unauthorize']);
+    F.route('/login/instagram/callback/', oauth_login_callback, ['unauthorize']);
 }
 
 // Controller action
@@ -66,6 +72,9 @@ function oauth_login_callback() {
 - DropBox - <https://www.dropbox.com/developers/apps>
 - GitHub - <https://github.com/settings/applications>
 - Live - <https://account.live.com/developers/applications/>
+- Instagram - <https://instagram.com/developer/>
+- Yandex - <https://oauth.yandex.com>
+- VKontakte - <http://vk.com/apps?act=manage>
 
 ## CALLBACK
 
@@ -247,7 +256,7 @@ function oauth_login_callback() {
      cache: true } }
 ```
 
-###Live
+### Live
 
 ```javascript
 { id: 'XXX',
@@ -266,4 +275,48 @@ function oauth_login_callback() {
      business: null },
   locale: 'sk_SK',
   updated_time: '2015-03-03T08:38:47+0000' }
+```
+
+### Instagram
+
+The response from Instagram __doesn't contain email__!!!
+
+```javascript
+{ username: 'petersirka',
+  bio: '',
+  website: '',
+  profile_picture: 'https://instagramimages-a.akamaihd.net/profiles/anonymousUser.jpg',
+  full_name: 'Peter Širka',
+  id: '1635329562' }
+```
+
+### Yandex
+
+You must allow user account information in __Yandex.Passport API__ scope.
+
+```javascript
+{ first_name: 'Peter',
+  last_name: 'Širka',
+  display_name: 'petersirka',
+  emails: [ 'petersirka@.....' ],
+  default_email: 'petersirka@.....',
+  real_name: 'Peter Širka',
+  birthday: null,
+  default_avatar_id: '0/0-0',
+  login: 'petersirka',
+  sex: null,
+  id: '......' }
+```
+
+### VKontakte - VK.com
+
+VK doesn't send back email address and the scope contains requirement for the email address.
+
+```javascript
+{ uid: 00000,
+  first_name: 'Peter',
+  last_name: 'Širka',
+  nickname: '',
+  screen_name: '....',
+  photo_big: 'http://vk.com/images/camera_200.png' }
 ```

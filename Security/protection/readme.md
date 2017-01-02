@@ -1,8 +1,8 @@
 Simple protection for e.g. **Login forms**.
 
-# Installation
+- download and copy `ddos.js` into the `/modules/` directory __or create a definition with:__
 
-```js
+```javascript
 var options = {};
 
 // Timeout for an one attempt
@@ -11,11 +11,9 @@ var options = {};
 // Default maximum attempts
 // options.max = 5;
 
-INSTALL('module', 'https://modules.totaljs.com/protection/v1.00/protection.js', options);
+INSTALL('module', 'https://modules.totaljs.com/latest/protection.js', options);
 // UNINSTALL('module', 'protection');
 ```
-
-or __download module__ from GitHub and copy into `/your-totaljs-website/modules/`.
 
 ## Instance
 
@@ -27,17 +25,14 @@ var protection = MODULE('protection');
 
 ```js
 // protection.can(name, [max])
-
 if (!protection.can(controller.ip))
    return controller.throw400('Protection for login form.');
 
 // or
-
 if (!protection.can(controller.ip, 3))
    return controller.throw400('Protection for login form.');
 
 // or
-
 if (!protection.can(controller.body.email))
    return controller.throw400('Protection for login form.');
 
@@ -46,13 +41,12 @@ if (!protection.can(controller.body.email))
 ### Protection.reset([name])
 
 ```js
-
 if (!protection.can(controller.ip))
    return controller.throw400('Protection for login form.');
 
-// reset protection
+// resets protection
 protection.reset(controller.ip);
 
-// or reset all protection records
+// or resets all protection records
 protection.reset();
 ```
