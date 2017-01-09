@@ -2,36 +2,41 @@ const Fs = require('fs');
 var cache;
 var filename;
 
-exports.version = 'v1.1.0';
+exports.version = 'v2.0.0';
 
 exports.install = function() {
-
 	cache = U.copy(F.stats.request);
 	filename = F.path.databases('reqstats.json');
-
-	F.on('service', function(interval) {
-
-		if (interval % 5 !== 0)
-			return;
-
-		Fs.readFile(filename, function(err, data) {
-
-			var stats;
-			var key = new Date().format('yyyy-MM');
-
-			if (err) {
-				stats = {};
-			} else {
-				stats = data.toString('utf8').parseJSON();
-				if (!stats)
-					stats = {};
-			}
-
-			stats[key] = diff(F.stats.request, cache, stats, key);
-			Fs.writeFile(filename, JSON.stringify(stats), NOOP);
-		});
-	});
+	F.on('service', delegate_service);
 };
+
+exports.uninstal = function() {
+	F.removeListener(delegate_service);
+	delegate_service(5);
+};
+
+function delegate_service(interval) {
+
+	if (interval % 5 !== 0)
+		return;
+
+	Fs.readFile(filename, function(err, data) {
+
+		var stats;
+		var key = F.datetime.format('yyyy-MM');
+
+		if (err) {
+			stats = {};
+		} else {
+			stats = data.toString('utf8').parseJSON();
+			if (!stats)
+				stats = {};
+		}
+
+		stats[key] = diff(F.stats.request, cache, stats, key);
+		Fs.writeFile(filename, JSON.stringify(stats), NOOP);
+	});
+}
 
 exports.stats = function(callback) {
 	Fs.readFile(filename, function(err, data) {

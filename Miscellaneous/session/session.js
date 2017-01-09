@@ -12,23 +12,11 @@ var stats_read = 0;
 var stats_write = 0;
 
 function Session() {
-
 	this.options = null;
-
-	/**
-	 * Read value from session
-	 * @param {String} id
-	 * @param {Function(value)} fnCallback
-	 */
 	this.onRead = function(id, fnCallback) {
 		fnCallback(F.cache.read(id));
 	};
 
-	/**
-	 * Write value into the session
-	 * @param {String} id
-	 * @param {Object} value
-	 */
 	this.onWrite = function(id, value) {
 		var self = this;
 		F.cache.add(id, value, self.options.timeout);
@@ -102,34 +90,32 @@ Session.prototype._write = function(id, obj) {
 
 var session = new Session();
 
-module.exports.name = 'session';
-module.exports.version = VERSION;
-module.exports.instance = session;
+exports.name = 'session';
+exports.version = VERSION;
+exports.instance = session;
 
-module.exports.usage = function() {
+exports.usage = function() {
 	EMPTY_USAGE.read = stats_read;
 	EMPTY_USAGE.write = stats_write;
 	return EMPTY_USAGE;
 };
 
-module.exports.install = function(options) {
+exports.install = function(options) {
 
 	var self = this;
 	SUGAR = (F.config.name + F.config.version + SUGAR).replace(/\s/g, '');
 	session.options = Utils.extend({ cookie: '__ssid', secret: 'N84', timeout: '5 minutes' }, options, true);
 
 	F.middleware('session', function(req, res, next) {
-
 		if (res.statusCode)
 			res.once('finish', () => session._write(req._sessionId, req.session));
 		else
 			res.socket.on('close', () => session._write(req._sessionId, req.session));
-
 		session._read(req, res, next);
 	});
 };
 
-module.exports.uninstall = function() {
+exports.uninstall = function() {
 	F.uninstall('middleware', 'session');
 	session = null;
 };

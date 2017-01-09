@@ -1,11 +1,10 @@
 // MIT License
 // Copyright Peter Širka <petersirka@gmail.com>
-// Version 2.00
 
 var SUGAR = 'AtH101s84';
 const USERAGENT = 20;
 const Events = require('events');
-
+const USAGE = { online: 0 };
 
 function Users() {
 	this.options = { cookie: '__user', secret: 'a4e13bCbb9', expireSession: 10, expireCookie: 10, autoLogin: true };
@@ -17,7 +16,8 @@ Users.prototype = new Events.EventEmitter;
 Users.prototype.onAuthorize = null;
 
 Users.prototype.usage = function() {
-	return { online: this.online };
+	USAGE.online = this.online;
+	return USAGE;
 };
 
 Users.prototype.authorize = function(req, res, flags, callback) {
@@ -112,11 +112,11 @@ Users.prototype.change = function(id, newUser, expire) {
 	var self = this;
 	var old = self.users[id];
 
-	if (!old)
-		return self;
+	if (old) {
+		self.users[id].user = newUser;
+		self.emit('change', id, newUser, old);
+	}
 
-	self.users[id].user = newUser;
-	self.emit('change', id, newUser, old);
 	return self;
 };
 
@@ -143,11 +143,9 @@ Users.prototype.setExpires = function(id, expire) {
 
 	var self = this;
 	var old = self.users[id];
+	if (old)
+		self.users[id].expire = utils.isDate(expire) ? expire : F.datetime.add('m', expire || self.options.expireSession).getTime();
 
-	if (!old)
-		return self;
-
-	self.users[id].expire = utils.isDate(expire) ? expire : F.datetime.add('m', expire || self.options.expireSession).getTime();
 	return self;
 };
 

@@ -16,8 +16,7 @@ function directorylisting() {
 		var directories = [];
 		var files = [];
 
-		if (self.url !== '/')
-			directories.push('<a href=".." class="directory-back">..</a>');
+		self.url !== '/' && directories.push('<a href=".." class="directory-back">..</a>');
 
 		if (err)
 			return render(self, directories, files);
@@ -25,12 +24,10 @@ function directorylisting() {
 		items.wait(function(item, next) {
 			var filename = Path.join(dir, item);
 			Fs.stat(filename, function(err, info) {
-
 				if (info.isFile())
 					files.push('<a href="{1}" class="file">{0}<span>{2}</span></a>'.format(item, self.url + item, info.size.filesize()));
 				else
 					directories.push('<a href="{1}/" class="directory">{0}</a>'.format(item, self.url + item));
-
 				next();
 			});
 		}, () => render(self, directories, files));

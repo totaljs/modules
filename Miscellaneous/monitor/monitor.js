@@ -1,18 +1,17 @@
-var version = 'v1.3.0';
+var version = 'v2.0.0';
 var token = '';
 
 exports.install = function(options) {
 	var url = '/$monitor/';
 	options && options.url && (url = options.url);
 	options && options.token && (token = options.token);
-	
 	F.route(url, json_monitor);
 };
 
 function json_monitor() {
 	var self = this;
-	
-	if(token && token !== self.query.token) return self.throw404();
+	if (token && token !== self.query.token)
+		return self.throw404();
 
 	var stats = {};
 	var memory = process.memoryUsage();
@@ -71,6 +70,15 @@ function json_monitor() {
 			stats.reqstats = response;
 			next();
 		});
+	});
+
+	async.push(function(next) {
+		var m = MODULE('clientside');
+		if (m) {
+			stats.versionClienterror = m.version;
+			stats.clienterror = m.usage();
+		}
+		next();
 	});
 
 	async.async(() => self.json(stats));

@@ -6,17 +6,18 @@ const REGEXP_BROWSER = /Chrome\/\d+|Firefox\/[0-9.]|Safari\/\d+|MSIE.\d+|Opera\/
 const REGEXP_MOBILE = /mobile/i;
 const USAGE = { errors: [], counter: 0 };
 
-module.exports.name = 'clienterror';
-module.exports.usage = () => USAGE;
-module.exports.options = options = { logger: true, console: true, filename: 'clienterror', url: '/$clienterror/' };
+exports.name = 'clienterror';
+exports.usage = () => USAGE;
+exports.options = options = { logger: true, console: true, filename: 'clienterror', url: '/$clienterror/' };
+exports.version = 'v2.0.0';
 
-module.exports.install = function(opt) {
+exports.install = function(opt) {
 	options = U.extend(options, opt, true);
 	F.on('controller', onController);
 	F.route(options.url, process_error, ['post', 'json', 'referer']);
 };
 
-module.exports.uninstall = function() {
+exports.uninstall = function() {
 	F.removeListener('controller', onController);
 };
 

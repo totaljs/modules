@@ -24,30 +24,17 @@ function WebCounter() {
 	this.allowXHR = true;
 	this.allowIP = false;
 	this.onValid = null;
-
-	this._onValid = function(req) {
-		var self = this;
-
-		var agent = req.headers['user-agent'];
-		if (!agent || req.headers['x-moz'] === 'prefetch' || (self.onValid && !self.onValid(req)))
-			return false;
-
-		if (REG_ROBOT.test(agent)) {
-			self.stats.robots++;
-			return false;
-		}
-
-		return true;
-	};
+	this.$blacklist = null;
+	this.$blacklistlength = 0;
 
 	this.isAdvert = function(req) {
-		return (req.query['utm_medium'] || req.query['utm_source']) ? true : false;
+		return (req.query.utm_medium || req.query.utm_source) ? true : false;
 	};
 
 	setTimeout(this.load.bind(this), 2000);
 
 	// every 45 seconds
-	setInterval(this.clean.bind(this), 1000 * 45);
+	this.interval = setInterval(this.clean.bind(this), 45000);
 }
 
 WebCounter.prototype = {
@@ -64,6 +51,20 @@ WebCounter.prototype = {
 		stats.pages = stats.hits && stats.count ? (stats.hits / stats.count).floor(2) : 0;
 		return stats;
 	}
+};
+
+WebCounter.prototype.blacklist = function(path) {
+	if (!this.$blacklist)
+		this.$blacklist = [];
+	this.$blacklist.push(path);
+	this.$blacklistlength = this.$blacklist.length;
+	return this;
+};
+
+WebCounter.prototype.kill = function() {
+	this.save();
+	clearInterval(this.interval);
+	return this;
 };
 
 WebCounter.prototype.clean = function() {
@@ -119,26 +120,37 @@ WebCounter.prototype.clean = function() {
 	return self;
 };
 
-/**
- * Custom counter
- * @return {Module]
- */
 WebCounter.prototype.increment = WebCounter.prototype.inc = function(type) {
 
 	var self = this;
 
-	if (self.stats[type] === undefined)
-		self.stats[type] = 1;
-	else
+	if (self.stats[type])
 		self.stats[type]++;
+	else
+		self.stats[type] = 1;
 
 	return self;
+};
+
+WebCounter.prototype.$onValid = function(req) {
+	var self = this;
+
+	var agent = req.headers['user-agent'];
+	if (!agent || req.headers['x-moz'] === 'prefetch' || (self.onValid && !self.onValid(req)) || (self.$blacklist && isBlacklist(req.uri)))
+		return false;
+
+	if (REG_ROBOT.test(agent)) {
+		self.stats.robots++;
+		return false;
+	}
+
+	return true;
 };
 
 WebCounter.prototype.counter = function(req, res) {
 
 	var self = this;
-	if (!self._onValid(req) || req.method !== 'GET' || (req.xhr && !self.allowXHR) || (!req.headers['accept'] || !req.headers['accept-language']))
+	if (!self.$onValid(req) || req.method !== 'GET' || (req.xhr && !self.allowXHR) || (!req.headers['accept'] || !req.headers['accept-language']))
 		return false;
 
 	var arr = self.arr;
@@ -158,7 +170,7 @@ WebCounter.prototype.counter = function(req, res) {
 
 	if (!ping || isHits) {
 		stats.hits++;
-		self.refreshURL(referer, req, ping);
+		self.allowIP && self.refreshURL(referer, req, ping);
 	}
 
 	if (exists)
@@ -171,7 +183,7 @@ WebCounter.prototype.counter = function(req, res) {
 		// 20 minutes
 		if (sum < TIMEOUT_VISITORS) {
 			arr[1]++;
-			self.lastvisit = new Date();
+			self.lastvisit = now;
 			res.cookie(COOKIE, ticks, now.add('5 days'));
 			return true;
 		}
@@ -197,7 +209,7 @@ WebCounter.prototype.counter = function(req, res) {
 	}
 
 	arr[1]++;
-	self.lastvisit = new Date();
+	self.lastvisit = now;
 	res.cookie(COOKIE, ticks, now.add('5 days'));
 	self.allowIP && self.ip.push({ ip: req.ip, url: ping || req.uri.href, empty: referer ? false : true });
 
@@ -283,22 +295,21 @@ WebCounter.prototype.daily = function(callback) {
 			return callback(EMPTYARRAY);
 
 		var output = [];
+		var value;
 
 		for (var i = 0, length = arr.length; i < length; i++) {
-			if (!arr[i])
-				continue;
-			var value = arr[i].parseJSON();
-			value && output.push(value);
+			if (arr[i]) {
+				value = arr[i].parseJSON();
+				value && output.push(value);
+			}
 		}
 
 		callback(output);
 	});
-
 	return self;
 };
 
 WebCounter.prototype.monthly = function(callback) {
-
 	var self = this;
 	self.statistics(function(arr) {
 
@@ -326,13 +337,11 @@ WebCounter.prototype.monthly = function(callback) {
 
 		callback(stats);
 	});
-
 	return self;
 };
 
 WebCounter.prototype.yearly = function(callback) {
 	var self = this;
-
 	self.statistics(function(arr) {
 
 		if (!arr.length)
@@ -359,7 +368,6 @@ WebCounter.prototype.yearly = function(callback) {
 
 		callback(stats);
 	});
-
 	return self;
 };
 
@@ -376,11 +384,7 @@ WebCounter.prototype.statistics = function(callback) {
 };
 
 WebCounter.prototype.refreshURL = function(referer, req, ping) {
-
 	var self = this;
-	if (!self.allowIP)
-		return;
-
 	var empty = false;
 
 	if (!referer)
@@ -390,11 +394,12 @@ WebCounter.prototype.refreshURL = function(referer, req, ping) {
 		var item = self.ip[i];
 		if (item.ip === req.ip && (item.empty === empty || item.url === referer)) {
 			item.url = ping || req.uri.href;
-			return;
+			return self;
 		}
 	}
 
 	self.ip.push({ ip: req.ip, url: ping || req.uri.href, empty: true });
+	return self;
 };
 
 function sum(a, b) {
@@ -421,16 +426,13 @@ function getReferrer(host) {
 	return host.substring(index, host.indexOf('/', index)).toLowerCase();
 }
 
-const webcounter = new WebCounter();
-const delegate_request = function(controller, name) {
-	webcounter.counter(controller.req, controller.res);
-};
+var webcounter = new WebCounter();
 
-module.exports.name = 'webcounter';
-module.exports.version = 'v3.1.0';
-module.exports.instance = webcounter;
+exports.name = 'webcounter';
+exports.version = 'v4.0.0';
+exports.instance = webcounter;
 
-module.exports.install = function(options) {
+exports.install = function(options) {
 	setTimeout(refresh_hostname, 10000);
 
 	if (options) {
@@ -438,10 +440,31 @@ module.exports.install = function(options) {
 		webcounter.allowXHR = options.xhr === false ? false : true;
 	}
 
-	F.on('service', function(counter) {
-		counter % 120 === 0 && refresh_hostname();
-	});
+	F.on('service', delegate_service);
+	F.on('controller', delegate_request);
 };
+
+exports.uninstall = function(options) {
+	webcounter.kill();
+	webcounter = null;
+	F.removeListener('service', delegate_service);
+	F.removeListener('controller', delegate_request);
+};
+
+function delegate_service(counter) {
+	counter % 120 === 0 && refresh_hostname();
+}
+
+function delegate_request(controller, name) {
+	webcounter.counter(controller.req, controller.res);
+}
+
+function isBlacklist(req) {
+	for (var i = 0; i < webcounter.$blacklistlength; i++) {
+		if (req.pathname.indexOf(webcounter.$blacklist[i]) !== -1)
+			return true;
+	}
+}
 
 function refresh_hostname() {
 	var url;
@@ -458,35 +481,32 @@ function refresh_hostname() {
 	webcounter.hostname = url.toLowerCase();
 }
 
-F.on('controller', delegate_request);
-
-module.exports.usage = function() {
+exports.usage = function() {
 	var stats = U.extend({}, webcounter.stats);
 	stats.online = webcounter.online;
 	return stats;
 };
 
-module.exports.online = function() {
+exports.online = function() {
 	return webcounter.online;
 };
 
-module.exports.today = function() {
+exports.today = function() {
 	return webcounter.today;
 };
 
-module.exports.increment = module.exports.inc = function(type) {
-	webcounter.increment(type);
-	return this;
+exports.increment = exports.inc = function(type) {
+	return webcounter.increment(type);
 };
 
-module.exports.monthly = function(callback) {
+exports.monthly = function(callback) {
 	return webcounter.monthly(callback);
 };
 
-module.exports.yearly = function(callback) {
+exports.yearly = function(callback) {
 	return webcounter.yearly(callback);
 };
 
-module.exports.daily = function(callback) {
+exports.daily = function(callback) {
 	return webcounter.daily(callback);
 };

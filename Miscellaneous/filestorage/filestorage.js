@@ -2,19 +2,19 @@
 // Copyright Peter Širka <petersirka@gmail.com>
 
 var definition = (function() {
-	framework.filestorage = function(name) {
+	F.filestorage = function(name) {
 		var key = 'filestorage-' + name;
-		if (framework.databases[key])
-			return framework.databases[key];
-		framework.databases[key] = require('filestorage').create(framework.path.root('filestorage/' + name + '/'));
-		return framework.databases[key];
+		if (F.databases[key])
+			return F.databases[key];
+		F.databases[key] = require('filestorage').create(F.path.root('filestorage/' + name + '/'));
+		return F.databases[key];
 	};
 
 	Controller.prototype.filestorage = function(name) {
-		return framework.filestorage(name);
+		return F.filestorage(name);
 	};
 });
 
 setTimeout(function() {
-	framework.eval(definition);
+	F.eval(definition);
 }, 100);

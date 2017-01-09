@@ -1,7 +1,7 @@
 var COOKIE = '__flash';
 var flash = {};
 
-exports.version = '3.0.0';
+exports.version = 'v3.0.0';
 exports.id = 'flash';
 exports.expire = '5 minutes';
 
@@ -23,7 +23,7 @@ F.middleware('flash', function(req, res, resume, options, controller) {
 		expire = options.expire;
 
 	if (!flash[id])
-		flash[id] = { params: {}, expire: new Date().add(expire).getTime() };
+		flash[id] = { params: {}, expire: F.datetime.add(expire).getTime() };
 
 	req.$flash = id;
 	resume();
@@ -32,20 +32,14 @@ F.middleware('flash', function(req, res, resume, options, controller) {
 require('http').IncomingMessage.prototype.flash = function(name, value) {
 
 	var item = flash[this.$flash];
-	var dt = new Date();
+	var dt = F.datetime;
 	var now = dt.getTime();
 
-	if (name === undefined && value === undefined) {
-		if (item.expire < now)
-			return new Array(0);
-		return item.params;
-	}
+	if (name === undefined && value === undefined)
+		return item.expire < now ? [] : item.params;
 
-	if (value === undefined) {
-		if (item.expire < now)
-			return undefined;
-		return item.params[name];
-	}
+	if (value === undefined)
+		return item.expire < now ? undefined : item.params[name];
 
 	if (item.expire < now)
 		item.params = {};
@@ -53,12 +47,10 @@ require('http').IncomingMessage.prototype.flash = function(name, value) {
 	item.expire = dt.add(exports.expire).getTime();
 
 	if (value instanceof Array) {
-		if (!item.params[name]) {
+		if (item.params[name])
+			item.params[name].push.apply(item.params[name], value);
+		else
 			item.params[name] = value;
-			return item.params;
-		}
-
-		item.params[name].push.apply(item.params[name], value);
 		return item.params;
 	}
 
@@ -68,6 +60,14 @@ require('http').IncomingMessage.prototype.flash = function(name, value) {
 		item.params[name] = [value];
 
 	return item.params;
+};
+
+exports.install = function() {
+	F.on('service', delegate_service);
+};
+
+exports.uninstall = function() {
+	F.removeListener(delegate_service);
 };
 
 // Extend controller
@@ -82,10 +82,10 @@ F.helpers.flash = function(name) {
 };
 
 // Cleaner
-F.on('service', function(counter) {
-	var now = Date.now();
+function delegate_service(counter) {
+	var now = F.datetime.now();
 	for (var m in flash) {
 		if (flash[m].expire < now)
 			delete flash[m];
 	}
-});
+}

@@ -2,7 +2,7 @@
 // Copyright Peter Širka <petersirka@gmail.com>
 
 exports.id = 'console';
-exports.version = '2.0.0';
+exports.version = 'v3.0.0';
 
 const console_log = console.log;
 const console_error = console.error;
@@ -44,7 +44,6 @@ exports.uninstall = function() {
 	console.error = console_error;
 	console.warn = console_warn;
 	F.removeListener('controller', auth);
-	options = null;
 };
 
 function prepend(type, arg) {

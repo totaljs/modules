@@ -10,7 +10,7 @@ var service = 0;
 var whitelist = ['127.0.0.1'];
 
 exports.name = 'ddos';
-exports.version = 'v1.1.0';
+exports.version = 'v2.0.0';
 exports.options = null;
 
 exports.install = function(options) {
@@ -75,19 +75,15 @@ exports.install = function(options) {
 
 		keys = Object.keys(ip);
 		length = keys.length;
-
 		counter = length;
 
 		for (var i = 0; i < length; i++) {
-
 			var key = keys[i];
 			var count = ip[key]--;
-			if (count)
-				continue;
-
-			counter--;
-			delete ip[key];
-
+			if (count) {
+				counter--;
+				delete ip[key];
+			}
 		}
 
 		if (counter < 0)
