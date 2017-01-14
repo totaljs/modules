@@ -37,8 +37,6 @@ exports.install = function(opts) {
 	F.on('controller', auth);
 };
 
-exports.install()
-
 exports.uninstall = function() {
 	console.log = console_log;
 	console.error = console_error;

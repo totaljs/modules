@@ -10,7 +10,7 @@ exports.install = function() {
 	F.on('service', delegate_service);
 };
 
-exports.uninstal = function() {
+exports.uninstall = function() {
 	F.removeListener(delegate_service);
 	delegate_service(5);
 };
