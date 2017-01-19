@@ -6,7 +6,7 @@ var fs = require('fs');
 
 exports.install = function() {
 
-	F.file('*.scss', scss_compiler);
+	F.file('/*.*', scss_compiler, ['.scss']); // Monitor all folders for changes.
 
 	F.config['static-accepts']['.scss'] = true;
 
