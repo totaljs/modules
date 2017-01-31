@@ -2,7 +2,7 @@
 
 - download and copy `session.js` into the `/modules/` directory __or create a definition with:__
 
-```js
+```javascript
 const options = {};
 
 // Counting of XHR requests (default: true):
@@ -19,7 +19,7 @@ INSTALL('module', 'https://modules.totaljs.com/latest/webcounter.js', options);
 
 ## Instance
 
-```js
+```javascript
 var webcounter = MODULE('webcounter');
 ```
 
@@ -42,11 +42,19 @@ var webcounter = MODULE('webcounter');
 
 ## Additional features
 
+### Blacklist
+
+- URL which start with `/your/url/` will be skipped
+
+```javascript
+MODULE('webcounter').blacklist('/your/url/');
+```
+
 ### Custom counter
 
 #### Append into statistics:
 
-```js
+```javascript
 // These are counters which are visible on monitor.totaljs.com
 MODULE('webcounter').increment('orders'); // Increment order counter
 MODULE('webcounter').increment('users'); // Increment user counter
@@ -61,7 +69,7 @@ MODULE('webcounter').increment('contact-form'); // Increment contact form counte
 
 Show today orders, you can apply this example for all counters. e.g. `MODULE('webcounter').today.YOUR_COUNTER`
 
-```js
+```javascript
 console.log(MODULE('webcounter').today.orders);
 // or
 console.log(MODULE('webcounter').today['contact-form']);
