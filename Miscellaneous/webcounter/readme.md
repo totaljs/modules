@@ -14,7 +14,7 @@ const options = {};
 // A default URL address of statistics (only for package)
 // options.url = '/webcounter/';
 
-INSTALL('module', 'https://modules.totaljs.com/latest/webcounter.js', options);
+INSTALL('module', 'https://cdn.totaljs.com/webcounter.js', options);
 ```
 
 ## Instance
