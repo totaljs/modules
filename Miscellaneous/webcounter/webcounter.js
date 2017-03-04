@@ -8,6 +8,7 @@ const FILE_CACHE = 'webcounter.cache';
 const FILE_STATS = 'webcounter.nosql';
 const TIMEOUT_VISITORS = 1200; // 20 MINUTES
 const Fs = require('fs');
+const CONCAT = [];
 
 function WebCounter() {
 	this.stats = { pages: 0, day: 0, month: 0, year: 0, hits: 0, unique: 0, uniquemonth: 0, count: 0, search: 0, direct: 0, social: 0, unknown: 0, advert: 0, mobile: 0, desktop: 0, visitors: 0, robots: 0 };
@@ -54,8 +55,7 @@ WebCounter.prototype = {
 };
 
 WebCounter.prototype.blacklist = function(path) {
-	if (!this.$blacklist)
-		this.$blacklist = [];
+	!this.$blacklist && (this.$blacklist = []);
 	this.$blacklist.push(path);
 	this.$blacklistlength = this.$blacklist.length;
 	return this;
@@ -74,23 +74,21 @@ WebCounter.prototype.clean = function() {
 	self.interval++;
 	self.interval % 2 === 0 && self.save();
 
-	var now = new Date();
+	F.datetime = new Date();
 	var stats = self.stats;
 
-	self.current = now.getTime();
+	self.current = F.datetime.getTime();
 
-	var day = now.getDate();
-	var month = now.getMonth() + 1;
-	var year = now.getFullYear();
-	var length = 0;
+	var day = F.datetime.getDate();
+	var month = F.datetime.getMonth() + 1;
+	var year = F.datetime.getFullYear();
 
 	if (stats.day !== day || stats.month !== month || stats.year !== year) {
 		if (stats.day || stats.month || stats.year) {
 			self.append();
 			var visitors = stats.visitors;
 			var keys = Object.keys(stats);
-			length = keys.length;
-			for (var i = 0; i < length; i++)
+			for (var i = 0, length = keys.length; i < length; i++)
 				stats[keys[i]] = 0;
 			stats.visitors = visitors;
 		}
@@ -111,8 +109,7 @@ WebCounter.prototype.clean = function() {
 	if (tmp0 !== arr[0] || tmp1 !== arr[1]) {
 		var online = arr[0] + arr[1];
 		if (online != self.last) {
-			if (self.allowIP)
-				self.ip = self.ip.slice(tmp0);
+			self.allowIP && (self.ip = self.ip.slice(tmp0));
 			self.last = online;
 		}
 	}
@@ -153,10 +150,11 @@ WebCounter.prototype.counter = function(req, res) {
 	if (!self.$onValid(req) || req.method !== 'GET' || (req.xhr && !self.allowXHR) || (!req.headers['accept'] || !req.headers['accept-language']))
 		return false;
 
+	F.datetime = new Date();
+
 	var arr = self.arr;
 	var user = req.cookie(COOKIE).parseInt();
-	var now = new Date();
-	var ticks = now.getTime();
+	var ticks = F.datetime.getTime();
 	var sum = user ? (ticks - user) / 1000 : 1000;
 	var exists = sum < 91;
 	var stats = self.stats;
@@ -167,6 +165,7 @@ WebCounter.prototype.counter = function(req, res) {
 		sum = Math.abs(self.current - user) / 1000;
 
 	var isHits = user ? sum >= TIMEOUT_VISITORS : true;
+	req.webcounter = user ? user : 0;
 
 	if (!ping || isHits) {
 		stats.hits++;
@@ -183,18 +182,16 @@ WebCounter.prototype.counter = function(req, res) {
 		// 20 minutes
 		if (sum < TIMEOUT_VISITORS) {
 			arr[1]++;
-			self.lastvisit = now;
-			res.cookie(COOKIE, ticks, now.add('5 days'));
+			self.lastvisit = F.datetime;
+			res.cookie(COOKIE, ticks, F.datetime.add('5 days'));
 			return true;
 		}
 
 		var date = new Date(user);
-		if (date.getDate() !== now.getDate() || date.getMonth() !== now.getMonth() || date.getFullYear() !== now.getFullYear())
+		if (date.getDate() !== F.datetime.getDate() || date.getMonth() !== F.datetime.getMonth() || date.getFullYear() !== F.datetime.getFullYear())
 			isUnique = true;
 
-		if (date.diff('months') < 0)
-			stats.uniquemonth++;
-
+		date.diff('months') < 0 && (stats.uniquemonth++);
 	} else {
 		isUnique = true;
 		stats.uniquemonth++;
@@ -209,8 +206,8 @@ WebCounter.prototype.counter = function(req, res) {
 	}
 
 	arr[1]++;
-	self.lastvisit = now;
-	res.cookie(COOKIE, ticks, now.add('5 days'));
+	self.lastvisit = F.datetime;
+	res.cookie(COOKIE, ticks, F.datetime.add('5 days'));
 	self.allowIP && self.ip.push({ ip: req.ip, url: ping || req.uri.href, empty: referer ? false : true });
 
 	var online = self.online;
@@ -375,9 +372,13 @@ WebCounter.prototype.statistics = function(callback) {
 	var self = this;
 	var filename = F.path.databases(FILE_STATS);
 	var stream = Fs.createReadStream(filename);
-	var data = new Buffer(0);
+	var data = U.createBufferSize();
 	stream.on('error', () => callback(EMPTYARRAY));
-	stream.on('data', (chunk) => data = Buffer.concat([data, chunk]));
+	stream.on('data', function(chunk) {
+		CONCAT[0] = data;
+		CONCAT[1] = chunk;
+		data = Buffer.concat(CONCAT);
+	});
 	stream.on('end', () => callback(data.toString('utf8').split('\n')));
 	stream.resume();
 	return self;
@@ -385,10 +386,7 @@ WebCounter.prototype.statistics = function(callback) {
 
 WebCounter.prototype.refreshURL = function(referer, req, ping) {
 	var self = this;
-	var empty = false;
-
-	if (!referer)
-		empty = true;
+	var empty = referer ? false : true;
 
 	for (var i = 0, length = self.ip.length; i < length; i++) {
 		var item = self.ip[i];
@@ -429,7 +427,7 @@ function getReferrer(host) {
 var webcounter = new WebCounter();
 
 exports.name = 'webcounter';
-exports.version = 'v4.0.0';
+exports.version = 'v5.0.0';
 exports.instance = webcounter;
 
 exports.install = function(options) {
@@ -468,16 +466,13 @@ function isBlacklist(req) {
 
 function refresh_hostname() {
 	var url;
-	if (F.config.custom)
-		url = F.config.custom.url;
-	if (!url)
-		url = F.config.url || F.config.hostname;
+	F.config.custom && (url = F.config.custom.url);
+	!url && (url = F.config.url || F.config.hostname);
 	if (!url)
 		return;
 	url = url.toString().replace(REG_HOSTNAME, '');
 	var index = url.indexOf('/');
-	if (index !== -1)
-		url = url.substring(0, index);
+	index !== -1 && (url = url.substring(0, index));
 	webcounter.hostname = url.toLowerCase();
 }
 
