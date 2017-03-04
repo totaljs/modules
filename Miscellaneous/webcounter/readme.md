@@ -74,3 +74,9 @@ console.log(MODULE('webcounter').today.orders);
 // or
 console.log(MODULE('webcounter').today['contact-form']);
 ```
+
+#### Extend request instance
+
+```javascript
+req.webcounter; // datetime (last visited "date", first visit: "null")
+```

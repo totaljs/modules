@@ -165,7 +165,7 @@ WebCounter.prototype.counter = function(req, res) {
 		sum = Math.abs(self.current - user) / 1000;
 
 	var isHits = user ? sum >= TIMEOUT_VISITORS : true;
-	req.webcounter = user ? user : 0;
+	req.webcounter = user ? new Date(user) : null;
 
 	if (!ping || isHits) {
 		stats.hits++;
