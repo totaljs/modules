@@ -14,8 +14,8 @@ exports.version = 'v2.0.0';
 exports.options = null;
 
 exports.install = function(options) {
-	exports.options = Utils.extend({ maximum: 1000, minutes: 5 }, options);
-	F.middleware('ddos', function(req, res, next, options, controller) {
+	exports.options = U.extend({ maximum: 1000, minutes: 5 }, options);
+	F.middleware('ddos', function(req, res, next, options) {
 
 		if (req.isStaticFile || whitelist.indexOf(req.ip) > -1) {
 			next();

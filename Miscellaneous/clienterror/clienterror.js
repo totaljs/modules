@@ -8,8 +8,10 @@ const USAGE = { errors: [], counter: 0 };
 
 exports.name = 'clienterror';
 exports.usage = () => USAGE;
-exports.options = options = { logger: true, console: true, filename: 'clienterror', url: '/$clienterror/' };
+exports.options = { logger: true, console: true, filename: 'clienterror', url: '/$clienterror/' };
 exports.version = 'v2.0.0';
+
+var options = exports.options;
 
 exports.install = function(opt) {
 	options = U.extend(options, opt, true);

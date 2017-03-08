@@ -1,28 +1,28 @@
 // MIT License
 // Copyright Peter Širka <petersirka@gmail.com>
 
-var fs = require('fs');
+var Fs = require('fs');
 
 function Storage() {
 	this.repository = {};
 	this.repositoryTimeout = null;
-};
+}
 
 Storage.prototype.onLoad = function() {
 	var self = this;
-	fs.readFile(framework.path.databases('storage.json'), function(err, data) {
+	Fs.readFile(framework.path.databases('storage.json'), function(err, data) {
 		if (err)
 			return;
 		try
 		{
 			self.repository = JSON.parse(data);
-		} catch(err) {};
+		} catch(err) {}
 	});
 };
 
 Storage.prototype.onSave = function() {
 	var self = this;
-	fs.writeFile(framework.path.databases('storage.json'), JSON.stringify(self.repository), utils.noop);
+	Fs.writeFile(framework.path.databases('storage.json'), JSON.stringify(self.repository), NOOP);
 };
 
 Storage.prototype.set = function(name, value) {
@@ -70,12 +70,11 @@ Storage.prototype._save = function() {
 	}, 500);
 };
 
-framework.helpers.storage = function(name, def) {
-	return this.framework.module('storage').get(name, def) || '';
+F.helpers.storage = function(name, def) {
+	return F.module('storage').get(name, def) || '';
 };
 
 module.exports = new Storage();
-
 module.exports.install = function() {
 	this.refresh();
-}
+};

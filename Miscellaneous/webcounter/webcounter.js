@@ -442,7 +442,7 @@ exports.install = function(options) {
 	F.on('controller', delegate_request);
 };
 
-exports.uninstall = function(options) {
+exports.uninstall = function() {
 	webcounter.kill();
 	webcounter = null;
 	F.removeListener('service', delegate_service);
@@ -453,7 +453,7 @@ function delegate_service(counter) {
 	counter % 120 === 0 && refresh_hostname();
 }
 
-function delegate_request(controller, name) {
+function delegate_request(controller) {
 	webcounter.counter(controller.req, controller.res);
 }
 

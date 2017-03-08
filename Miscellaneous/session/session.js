@@ -102,9 +102,8 @@ exports.usage = function() {
 
 exports.install = function(options) {
 
-	var self = this;
 	SUGAR = (F.config.name + F.config.version + SUGAR).replace(/\s/g, '');
-	session.options = Utils.extend({ cookie: '__ssid', secret: 'N84', timeout: '5 minutes' }, options, true);
+	session.options = U.extend({ cookie: '__ssid', secret: 'N84', timeout: '5 minutes' }, options, true);
 
 	F.middleware('session', function(req, res, next) {
 		if (res.statusCode)

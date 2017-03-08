@@ -81,7 +81,7 @@ Users.prototype.login = function(controller, id, user, expire) {
 		expire = null;
 
 	if (user) {
-		self.users[id] = { user: user, expire: utils.isDate(expire) ? expire : F.datetime.add('m', expire || self.options.expireSession).getTime() };
+		self.users[id] = { user: user, expire: U.isDate(expire) ? expire : F.datetime.add('m', expire || self.options.expireSession).getTime() };
 		self.refresh();
 		self.emit('login', id, user);
 	}
@@ -105,7 +105,7 @@ Users.prototype.logoff = function(controller, id) {
 	return self;
 };
 
-Users.prototype.change = function(id, newUser, expire) {
+Users.prototype.change = function(id, newUser) {
 
 	id = id.toString();
 
@@ -144,7 +144,7 @@ Users.prototype.setExpires = function(id, expire) {
 	var self = this;
 	var old = self.users[id];
 	if (old)
-		self.users[id].expire = utils.isDate(expire) ? expire : F.datetime.add('m', expire || self.options.expireSession).getTime();
+		self.users[id].expire = U.isDate(expire) ? expire : F.datetime.add('m', expire || self.options.expireSession).getTime();
 
 	return self;
 };
@@ -218,7 +218,7 @@ module.exports.install = function(options) {
 	F.on('service', service);
 
 	if (options)
-		users.options = Utils.copy(options);
+		users.options = U.copy(options);
 
 	this.emit('auth', users);
 };
