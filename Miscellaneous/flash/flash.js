@@ -9,7 +9,7 @@ exports.usage = function() {
 	return flash;
 };
 
-F.middleware('flash', function(req, res, resume, options, controller) {
+F.middleware('flash', function(req, res, resume, options) {
 
 	var id = req.cookie(COOKIE);
 
@@ -22,9 +22,7 @@ F.middleware('flash', function(req, res, resume, options, controller) {
 	if (options && options.expire)
 		expire = options.expire;
 
-	if (!flash[id])
-		flash[id] = { params: {}, expire: F.datetime.add(expire).getTime() };
-
+	!flash[id] && (flash[id] = { params: {}, expire: F.datetime.add(expire).getTime() });
 	req.$flash = id;
 	resume();
 });
@@ -82,10 +80,8 @@ F.helpers.flash = function(name) {
 };
 
 // Cleaner
-function delegate_service(counter) {
-	var now = F.datetime.now();
-	for (var m in flash) {
-		if (flash[m].expire < now)
-			delete flash[m];
-	}
+function delegate_service() {
+	var now = Date.now();
+	for (var m in flash)
+		flash[m].expire < now && (delete flash[m]);
 }
