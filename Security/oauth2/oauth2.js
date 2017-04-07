@@ -9,7 +9,7 @@ const FLAG_POST = ['post'];
 const FLAG_GET = ['get'];
 
 exports.id = 'oauth2';
-exports.version = 'v1.4.0';
+exports.version = 'v1.5.0';
 
 exports.usage = function() {
 	return stats;
@@ -25,7 +25,15 @@ function facebook_profile(key, secret, code, url, callback) {
 			return callback(err);
 		if (data.indexOf('"error"') !== -1)
 			return callback(data);
-		U.request('https://graph.facebook.com/me?' + data + '&fields=email,first_name,last_name,gender,hometown,locale,name,id,timezone,picture', FLAG_GET, '', process('facebook', callback));
+
+		var url;
+
+		if (data.isJSON())
+			url = 'https://graph.facebook.com/me?&fields=email,first_name,last_name,gender,hometown,locale,name,id,timezone,picture&access_token=' + JSON.parse(data).access_token;
+		else
+			url = 'https://graph.facebook.com/me?' + data + '&fields=email,first_name,last_name,gender,hometown,locale,name,id,timezone,picture';
+
+		U.request(url, FLAG_GET, '', process('facebook', callback));
 	});
 }
 
