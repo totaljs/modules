@@ -6,13 +6,14 @@ const FLAGS_POST = ['post', 'json', 'dnscache'];
 const EMPTYARRAY = [];
 const EMPTYOBJECT = {};
 const OPENPLATFORM = {};
+
 OPENPLATFORM.debug = F.config['openplatform.debug'] == true;
 
 global.OPENPLATFORM = OPENPLATFORM;
 
 F.route('/openplatform/', function() {
 	var self = this;
-	OPENPLATFORM.authorize(self.req, self.res, function(err, response) {
+	OPENPLATFORM.authorize(self.req, self.res, function(err) {
 
 		if (err) {
 			F.logger('openplatform-errors', err);
@@ -91,8 +92,7 @@ OPENPLATFORM.authorize = function(req, res, callback) {
 
 	U.request(openplatform, FLAGS_READ, function(err, response, code) {
 
-		if (OPENPLATFORM.debug)
-			console.log('OPENPLATFORM.authorize("{0}") -->'.format(openplatform), err, response);
+		OPENPLATFORM.debug && console.log('OPENPLATFORM.authorize("{0}") -->'.format(openplatform), err, response);
 
 		if (err || code !== 200)
 			return callback(err || response.parseJSON());
@@ -117,15 +117,17 @@ OPENPLATFORM.getApplications = function(openplatform, iduser, callback) {
 	HEADERS['x-openplatform-user'] = iduser;
 	U.request(openplatform + '/api/applications/', FLAGS_READ, function(err, response, code) {
 
-		if (OPENPLATFORM.debug)
-			console.log('OPENPLATFORM.getApplications("{0}", "{1}") -->'.format(openplatform, iduser), err, response);
+		OPENPLATFORM.debug && console.log('OPENPLATFORM.getApplications("{0}", "{1}") -->'.format(openplatform, iduser), err, response);
 
 		if (err)
 			return callback(err);
+
 		var data = response.parseJSON();
-		if (code !== 200)
-			return callback(data, EMPTYARRAY);
-		callback(null, data);
+		if (code === 200)
+			callback(data, EMPTYARRAY);
+		else
+			callback(null, data);
+
 	}, null, HEADERS);
 	return OPENPLATFORM;
 };
@@ -138,15 +140,17 @@ OPENPLATFORM.getUsers = function(openplatform, iduser, callback) {
 	HEADERS['x-openplatform-user'] = iduser;
 	U.request(openplatform + '/api/users/', FLAGS_READ, function(err, response, code) {
 
-		if (OPENPLATFORM.debug)
-			console.log('OPENPLATFORM.getUsers("{0}", "{1}") -->'.format(openplatform, iduser), err, response);
+		OPENPLATFORM.debug && console.log('OPENPLATFORM.getUsers("{0}", "{1}") -->'.format(openplatform, iduser), err, response);
 
 		if (err)
 			return callback(err);
+
 		var data = response.parseJSON();
-		if (code !== 200)
-			return callback(data, EMPTYARRAY);
-		callback(null, data);
+		if (code === 200)
+			callback(null, data);
+		else
+			callback(data, EMPTYARRAY);
+
 	}, null, HEADERS);
 	return OPENPLATFORM;
 };
@@ -158,16 +162,19 @@ OPENPLATFORM.getInfo = function(openplatform, callback) {
 
 	U.request(openplatform + '/api/openplatform/', FLAGS_READ, function(err, response, code) {
 
-		if (OPENPLATFORM.debug)
-			console.log('OPENPLATFORM.getInfo("{0}") -->'.format(openplatform), code, err, response);
+		OPENPLATFORM.debug && console.log('OPENPLATFORM.getInfo("{0}") -->'.format(openplatform), code, err, response);
 
 		if (err)
 			return callback(err);
+
 		var data = response.parseJSON();
-		if (code !== 200)
-			return callback(data, EMPTYOBJECT);
-		callback(null, data);
+		if (code === 200)
+			callback(null, data);
+		else
+			callback(data, EMPTYOBJECT);
+
 	}, null, HEADERS);
+
 	return OPENPLATFORM;
 };
 
@@ -185,15 +192,17 @@ OPENPLATFORM.notify = function(openplatform, iduser, body, callback, url, type) 
 
 	U.request(openplatform + '/api/notifications/', FLAGS_POST, model, function(err, response, code) {
 
-		if (OPENPLATFORM.debug)
-			console.log('OPENPLATFORM.notify("{0}", "{1}") -->'.format(openplatform, iduser), code, err, response);
+		OPENPLATFORM.debug && console.log('OPENPLATFORM.notify("{0}", "{1}") -->'.format(openplatform, iduser), code, err, response);
 
 		if (err)
 			return callback(err);
+
 		var data = response.parseJSON();
-		if (code !== 200)
-			return callback(data, EMPTYOBJECT);
-		callback(null, data);
+		if (code === 200)
+			callback(null, data);
+		else
+			callback(data, EMPTYOBJECT);
+
 	}, null, HEADERS);
 	return OPENPLATFORM;
 };
@@ -211,16 +220,19 @@ OPENPLATFORM.serviceworker = function(openplatform, iduser, event, data, callbac
 
 	U.request(openplatform + '/api/serviceworker/', FLAGS_POST, model, function(err, response, code) {
 
-		if (OPENPLATFORM.debug)
-			console.log('OPENPLATFORM.serviceworker("{0}", "{1}") -->'.format(openplatform, iduser), code, err, response);
+		OPENPLATFORM.debug && console.log('OPENPLATFORM.serviceworker("{0}", "{1}") -->'.format(openplatform, iduser), code, err, response);
 
 		if (err)
 			return callback(err);
+
 		var data = response.parseJSON();
-		if (code !== 200)
-			return callback(data, EMPTYOBJECT);
-		callback(null, data);
+		if (code === 200)
+			callback(null, data);
+		else
+			callback(data, EMPTYOBJECT);
+
 	}, null, HEADERS);
+
 	return OPENPLATFORM;
 };
 
@@ -238,7 +250,7 @@ F.on('service', function(interval) {
 	});
 });
 
-F.middleware('openplatform', function(req, res, next, options, controller) {
+F.middleware('openplatform', function(req, res, next) {
 	OPENPLATFORM.authorize(req, res, function(user) {
 
 		if (user) {
@@ -248,8 +260,7 @@ F.middleware('openplatform', function(req, res, next, options, controller) {
 		}
 
 		res.content(401, OPENPLATFORM.kill(), 'text/html');
-		next = null;
-		return false;
+		next(false);
 	});
 });
 
@@ -257,18 +268,16 @@ F.helpers.openplatform = function() {
 	return OPENPLATFORM.clientside();
 };
 
-F.eval(function() {
-	Controller.prototype.openplatform = function() {
-		var req = this.req;
-		var obj = {};
-		obj.id = req.headers['x-openplatform-id'];
-		obj.openplatform = req.headers['x-openplatform'];
-		obj.user = req.headers['x-openplatform-user'];
-		obj.secret = req.headers['x-openplatform-secret'];
-		obj.event = this.body.event;
-		obj.data = this.body.data;
-		obj.empty = obj.openplatform && obj.user ? false : true;
-		obj.serviceworker = obj.id && obj.event;
-		return obj;
-	};
-});
+Controller.prototype.openplatform = function() {
+	var req = this.req;
+	var obj = {};
+	obj.id = req.headers['x-openplatform-id'];
+	obj.openplatform = req.headers['x-openplatform'];
+	obj.user = req.headers['x-openplatform-user'];
+	obj.secret = req.headers['x-openplatform-secret'];
+	obj.event = this.body.event;
+	obj.data = this.body.data;
+	obj.empty = obj.openplatform && obj.user ? false : true;
+	obj.serviceworker = obj.id && obj.event;
+	return obj;
+};
