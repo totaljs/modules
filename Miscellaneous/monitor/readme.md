@@ -9,7 +9,7 @@ This module can track behaviour of Total.js application. If your web application
 - simple installation
 - very helpful
 
-## Settings
+## Settings
 
 - `url` a relative URL address, default: `/$monitor/`
 - `token` a simple security token - default: `undefined`, this token has to be used as query string in URL address e.g. `/$monitor/?token=123456` otherwise framework responds via `404` status.
