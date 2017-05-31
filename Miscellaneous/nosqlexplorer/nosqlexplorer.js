@@ -3,7 +3,7 @@ const EXT = /\.nosql$/;
 var URL = '';
 
 exports.install = function(options) {
-	URL = F.config['nosqlexporer-url'];
+	URL = F.config['nosqlexplorer-url'];
 
 	if (options && options.url)
 		URL = options.url;
