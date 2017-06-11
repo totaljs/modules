@@ -9,7 +9,7 @@ This module can track behaviour of Total.js application. If your web application
 - simple installation
 - very helpful
 
-## Settings
+## Settings
 
 - `url` a relative URL address, default: `/$monitor/`
 - `token` a simple security token - default: `undefined`, this token has to be used as query string in URL address e.g. `/$monitor/?token=123456` otherwise framework responds via `404` status.
@@ -20,9 +20,9 @@ INSTALL('module', 'https://cdn.totaljs.com/monitor.js', { url: '/$monitor/', tok
 
 ---
 
-## Installation
+## Installation
 
-### 1.
+### 1.
 
 - download the file `dependencies`
 - add it into your application root like this:
@@ -38,7 +38,7 @@ __IMPORTANT:__ the file `dependencies` contains links to other modules: `webcoun
 
 ---
 
-### 2. or (alternative)
+### 2. or (alternative)
 
 - download the module `monitor.js`
 - add it into the modules in your application directory
@@ -51,7 +51,7 @@ __IMPORTANT:__ download other modules too: [webcounter](https://github.com/total
 
 ---
 
-### 3. or (alternative)
+### 3. or (alternative)
 
 - create some definition file e.g. `/definitions/modules.js`
 - put into the file below text
@@ -70,7 +70,7 @@ INSTALL('module', 'https://modules.totaljs.com/latest/monitor.js');
 
 ---
 
-### What's next?
+### What's next?
 
 - open total.js monitor console <https://monitor.totaljs.com>
 - add your web application into the console (full hostname with protocol (http/https))
