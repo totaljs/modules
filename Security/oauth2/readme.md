@@ -5,7 +5,7 @@ example)
 - download and copy `oauth2.js` into the `/modules/` directory __or create a definition with:__
 
 ```javascript
-INSTALL('module', 'https://modules.totaljs.com/latest/oauth2.js');
+INSTALL('module', 'https://cnd.totaljs.com/latest/oauth2.js');
 ```
 
 ```javascript
@@ -56,7 +56,7 @@ function oauth_login_callback() {
     // oauth2.github.secret =
     // ...
 
-    MODULE('oauth2').callback(type, CONFIG('oauth2.' + type + '.key'), CONFIG('oauth2.' + type + '.secret'), url, self, function(err, profile) {
+    MODULE('oauth2').callback(type, CONFIG('oauth2.' + type + '.key'), CONFIG('oauth2.' + type + '.secret'), url, self, function(err, profile, access_token) {
         console.log(profile);
         self.json(SUCCESS(true));
     });

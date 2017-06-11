@@ -9,7 +9,7 @@ const FLAG_POST = ['post'];
 const FLAG_GET = ['get'];
 
 exports.id = 'oauth2';
-exports.version = 'v1.5.0';
+exports.version = 'v1.6.0';
 
 exports.usage = function() {
 	return stats;
@@ -27,13 +27,15 @@ function facebook_profile(key, secret, code, url, callback) {
 			return callback(data);
 
 		var url;
+		var token = '';
 
-		if (data.isJSON())
-			url = 'https://graph.facebook.com/me?&fields=email,first_name,last_name,gender,hometown,locale,name,id,timezone,picture&access_token=' + JSON.parse(data).access_token;
-		else
+		if (data.isJSON()) {
+			token = JSON.parse(data).access_token;
+			url = 'https://graph.facebook.com/me?&fields=email,first_name,last_name,gender,hometown,locale,name,id,timezone,picture&access_token=' + token;
+		} else
 			url = 'https://graph.facebook.com/me?' + data + '&fields=email,first_name,last_name,gender,hometown,locale,name,id,timezone,picture';
 
-		U.request(url, FLAG_GET, '', process('facebook', callback));
+		U.request(url, FLAG_GET, '', process('facebook', callback, token));
 	});
 }
 
@@ -51,8 +53,9 @@ function google_profile(key, secret, code, url, callback) {
 	U.request('https://www.googleapis.com/oauth2/v3/token', FLAG_POST, OAUTH2_HEADER, function(err, data) {
 		if (!process_error(err, data, callback))
 			return;
-		OAUTH2_BEARER.Authorization = 'Bearer ' + data.parseJSON().access_token;
-		U.request('https://www.googleapis.com/plus/v1/people/me', FLAG_GET, '', process('google', callback), null, OAUTH2_BEARER);
+		var token = data.parseJSON().access_token;
+		OAUTH2_BEARER.Authorization = 'Bearer ' + token;
+		U.request('https://www.googleapis.com/plus/v1/people/me', FLAG_GET, '', process('google', callback, token), null, OAUTH2_BEARER);
 	});
 }
 
@@ -70,8 +73,9 @@ function linkedin_profile(key, secret, code, url, callback) {
 	U.request('https://www.linkedin.com/uas/oauth2/accessToken', FLAG_POST, OAUTH2_HEADER, function(err, data) {
 		if (!process_error(err, data, callback))
 			return;
-		OAUTH2_BEARER.Authorization = 'Bearer ' + data.parseJSON().access_token;
-		U.request('https://api.linkedin.com/v1/people/~:(id,first-name,last-name,headline,member-url-resources,picture-url,location,public-profile-url,email-address)?format=json', FLAG_GET, '', process('linkedin', callback), null, OAUTH2_BEARER);
+		var token = data.parseJSON().access_token;
+		OAUTH2_BEARER.Authorization = 'Bearer ' + token;
+		U.request('https://api.linkedin.com/v1/people/~:(id,first-name,last-name,headline,member-url-resources,picture-url,location,public-profile-url,email-address)?format=json', FLAG_GET, '', process('linkedin', callback, token), null, OAUTH2_BEARER);
 	});
 }
 
@@ -89,8 +93,9 @@ function yahoo_profile(key, secret, code, url, callback) {
 	U.request('https://api.login.yahoo.com/oauth2/get_token', FLAG_POST, OAUTH2_HEADER, function(err, data) {
 		if (!process_error(err, data, callback))
 			return;
-		OAUTH2_BEARER.Authorization = 'Bearer ' + data.parseJSON().access_token;
-		U.request('https://social.yahooapis.com/v1/user/' + data.xoauth_yahoo_guid + '/profile?format=json', FLAG_GET, '', process('yahoo', callback), null, OAUTH2_BEARER);
+		var token = data.parseJSON().access_token;
+		OAUTH2_BEARER.Authorization = 'Bearer ' + token;
+		U.request('https://social.yahooapis.com/v1/user/' + data.xoauth_yahoo_guid + '/profile?format=json', FLAG_GET, '', process('yahoo', callback, token), null, OAUTH2_BEARER);
 	}, null, { 'Authorization': 'Basic ' + new Buffer(key + ':' + secret).toString('base64'), 'Content-Type': 'application/x-www-form-urlencoded' });
 }
 
@@ -108,8 +113,9 @@ function github_profile(key, secret, code, url, callback) {
 	U.request('https://github.com/login/oauth/access_token', FLAG_POST, OAUTH2_HEADER, function(err, data) {
 		if (err)
 			return callback(err);
-		OAUTH2_BEARER.Authorization = 'Bearer ' + Qs.parse(data).access_token;
-		U.request('https://api.github.com/user', FLAG_GET, '', process('github', callback), null, OAUTH2_BEARER);
+		var token = Qs.parse(data).access_token;
+		OAUTH2_BEARER.Authorization = 'Bearer ' + token;
+		U.request('https://api.github.com/user', FLAG_GET, '', process('github', callback, token), null, OAUTH2_BEARER);
 	});
 }
 
@@ -127,8 +133,9 @@ function dropbox_profile(key, secret, code, url, callback) {
 	U.request('https://api.dropbox.com/1/oauth2/token', FLAG_POST, OAUTH2_HEADER, function(err, data) {
 		if (!process_error(err, data, callback))
 			return;
-		OAUTH2_BEARER.Authorization = 'Bearer ' + data.parseJSON().access_token;
-		U.request('https://api.dropbox.com/1/account/info', FLAG_GET, '', process('dropbox', callback), null, OAUTH2_BEARER);
+		var token = data.parseJSON().access_token;
+		OAUTH2_BEARER.Authorization = 'Bearer ' + token;
+		U.request('https://api.dropbox.com/1/account/info', FLAG_GET, '', process('dropbox', callback, token), null, OAUTH2_BEARER);
 	});
 }
 
@@ -146,8 +153,9 @@ function live_profile(key, secret, code, url, callback) {
 	U.request('https://login.live.com/oauth20_token.srf', FLAG_POST, OAUTH2_HEADER, function(err, data) {
 		if (!process_error(err, data, callback))
 			return;
-		OAUTH2_BEARER.Authorization = 'Bearer ' + data.parseJSON().access_token;
-		U.request('https://apis.live.net/v5.0/me/', FLAG_GET, '', process('live', callback), null, OAUTH2_BEARER);
+		var token = data.parseJSON().access_token;
+		OAUTH2_BEARER.Authorization = 'Bearer ' + token;
+		U.request('https://apis.live.net/v5.0/me/', FLAG_GET, '', process('live', callback, token), null, OAUTH2_BEARER);
 	});
 }
 
@@ -183,8 +191,9 @@ function yandex_profile(key, secret, code, url, callback) {
 	U.request('https://oauth.yandex.com/token', FLAG_POST, OAUTH2_HEADER, function(err, data) {
 		if (!process_error(err, data, callback))
 			return;
-		OAUTH2_BEARER.Authorization = 'Bearer ' + data.parseJSON().access_token;
-		U.request('https://login.yandex.ru/info', FLAG_GET, '', process('yandex', callback), null, OAUTH2_BEARER);
+		var token = data.parseJSON().access_token;
+		OAUTH2_BEARER.Authorization = 'Bearer ' + token;
+		U.request('https://login.yandex.ru/info', FLAG_GET, '', process('yandex', callback, token), null, OAUTH2_BEARER);
 	});
 }
 
@@ -203,7 +212,8 @@ function vk_profile(key, secret, code, url, callback) {
 		if (!process_error(err, data, callback))
 			return;
 		data = data.parseJSON();
-		U.request('https://api.vk.com/method/users.get', FLAG_GET, 'uid=' + data.user_id + '&access_token=' + data.access_token + '&fields=nickname,screen_name,photo_big,sex,country,email', process('vk', callback));
+		var token = data.access_token;
+		U.request('https://api.vk.com/method/users.get', FLAG_GET, 'uid=' + data.user_id + '&access_token=' + token + '&fields=nickname,screen_name,photo_big,sex,country,email', process('vk', callback, token));
 	});
 }
 
@@ -227,13 +237,13 @@ function process_error(err, data, callback) {
 	return true;
 }
 
-function process(name, callback) {
+function process(name, callback, token) {
 	return function(err, data) {
 
 		stats[name]++;
 
 		if (err) {
-			callback(err);
+			callback(err, undefined, token);
 			return;
 		}
 
@@ -254,7 +264,7 @@ function process(name, callback) {
 			user = null;
 		}
 
-		callback(err, user);
+		callback(err, user, token);
 	};
 }
 
