@@ -17,7 +17,7 @@ exports.install = function() {
 
 	F.helpers.scss = function(name, tag) {
 		var self = this;
-		var url = (F._routeStatic ? F._routeStatic : F.$routeStatic)(name, self.config['static-url-style']);
+		var url = F._routeStatic ? F._routeStatic(name, self.config['static-url-style']) : F.$routeStatic(name, self.config['static-url-style']);
 		return (tag || true) ? '<link type="text/css" rel="stylesheet" href="' + url + '" />' : url;
 	};
 };
