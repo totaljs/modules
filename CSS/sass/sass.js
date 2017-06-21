@@ -12,12 +12,12 @@ exports.install = function() {
 
 	F.onCompileCSS = function (filename, content) {
 		var r = sass.renderSync({ data: content, outputStyle: 'compressed' });
-        	return r.css.toString();
+		return r.css.toString();
 	};
 
 	F.helpers.scss = function(name, tag) {
 		var self = this;
-		var url = F._routeStatic(name, self.config['static-url-style']);
+		var url = (F._routeStatic ? F._routeStatic : F.$routeStatic)(name, self.config['static-url-style']);
 		return (tag || true) ? '<link type="text/css" rel="stylesheet" href="' + url + '" />' : url;
 	};
 };
