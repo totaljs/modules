@@ -2,22 +2,24 @@
 // Copyright Peter Širka <petersirka@gmail.com>
 
 exports.id = 'console';
-exports.version = 'v3.0.0';
+exports.version = 'v4.0.0';
 
+const history = [];
 const console_log = console.log;
 const console_error = console.error;
 const console_warn = console.warn;
-const history = [];
-const output = { history: history };
+const MSG_INIT = { TYPE: 'init', history: history };
+const MSG_BODY = { TYPE: 'add' };
 
-var ticks = 0;
 var options = { history: 50, url: '/$console/', user: '', password: '' };
+var websocket = null;
 
 exports.install = function(opts) {
 
 	U.copy(opts, options);
 	F.route(options.url, view_console);
-	F.route(options.url, json_console, ['xhr', 'json']);
+
+	F.websocket(options.url, websocket_action, ['json']);
 
 	console.log = function() {
 		prepend('log', arguments);
@@ -44,11 +46,50 @@ exports.uninstall = function() {
 	F.removeListener('controller', auth);
 };
 
+function websocket_action() {
+
+	var self = this;
+
+	websocket = self;
+
+	self.autodestroy(() => websocket = null);
+
+	self.on('open', function(client) {
+
+		if (options.user && options.password) {
+			if ((options.user + ':' + options.password).hash().toString() !== client.query.token) {
+				client.attacker = true;
+				client.close();
+				return;
+			}
+		}
+
+		client.send(MSG_INIT);
+	});
+
+	self.on('message', function(client, command) {
+
+		if (client.attacker)
+			return;
+
+		try
+		{
+			F.eval(command);
+		} catch (e) {
+			F.error(e);
+		}
+	});
+}
+
 function prepend(type, arg) {
-	history.length === options.history && history.shift();
+	history.length === options.history && history.pop();
 	var dt = new Date();
-	ticks = dt.getTime();
-	history.push(dt.format('yyyy-MM-dd HH:mm:ss') + ' (' + type + '): ' + append.apply(null, arg));
+	var str = dt.format('yyyy-MM-dd HH:mm:ss') + ' (' + type + '): ' + append.apply(null, arg);
+	history.unshift(str);
+	if (websocket) {
+		MSG_BODY.body = str;
+		websocket.send(MSG_BODY);
+	}
 }
 
 function append() {
@@ -84,31 +125,7 @@ function append() {
 }
 
 function view_console() {
-	var self = this;
-	self.view('@console/index');
-}
-
-function json_console() {
-
-	var self = this;
-	var body = self.body;
-
-	if (body.exec) {
-		try
-		{
-			F.eval(body.exec);
-		} catch (e) {
-			F.error(e);
-		}
-	}
-
-	if (body.ticks === ticks) {
-		self.plain('null');
-		return;
-	}
-
-	output.ticks = ticks;
-	self.json(output);
+	this.view('@console/index', options.user && options.password ? (options.user + ':' + options.password).hash().toString() : '');
 }
 
 function auth(controller) {

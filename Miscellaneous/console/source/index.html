@@ -3,65 +3,78 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>CONSOLE</title>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=10" />
-    <meta name="format-detection" content="telephone=no" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-    <meta name="robots" content="all,follow" />
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-    <style type="text/css">
-        *{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}
-        html { height: 100%; }
-        body { height: 100%; background-color: white; font: normal 12px Arial; padding: 0; margin: 0; font-smoothing: antialiased; }
-        pre { background-color: #F0F0F0; margin: 0; padding: 20px; height: 80%; overflow: scroll; }
-        div { height: 20%; margin: 0; padding: 10px; }
-        textarea { width: 100%; height: 100%; margin: 0; padding: 0; border: 0; font: normal 14px 'Consolas', 'Courier New'; outline: 0; resize: none; }
-    </style>
+	<title>CONSOLE</title>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=10" />
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<meta name="robots" content="all,follow" />
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<style type="text/css">
+		*{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}
+		html { height: 100%; }
+		body { height: 100%; background-color: white; font: normal 12px Arial; padding: 0; margin: 0; font-smoothing: antialiased; }
+		pre { background-color: #F0F0F0; margin: 0; padding: 20px; height: 80%; overflow: scroll; }
+		div { height: 20%; margin: 0; padding: 10px; }
+		textarea { width: 100%; height: 100%; margin: 0; padding: 0; border: 0; font: normal 14px 'Consolas', 'Courier New'; outline: 0; resize: none; }
+	</style>
 </head>
-<body>
+<body data-token="@{model}">
 
-    <pre></pre>
-    <div>
-        <textarea placeholder="Execute code (cmd/ctrl + enter) ...." autofocus="autofocus"></textarea>
-    </div>
+	<pre></pre>
+	<div>
+		<textarea placeholder="Execute code (cmd/ctrl + enter) ...." autofocus="autofocus"></textarea>
+	</div>
 
-    <script>
-        var ticks = -1;
+	<script>
 
-        $('textarea').on('keydown', function(e) {
-            ((e.metaKey || e.ctrlKey) && e.keyCode === 13) && exec(this.value);
-        });
+		var ws = null;
 
-        function exec(cmd) {
-            var obj = {};
+		$('textarea').on('keydown', function(e) {
+			((e.metaKey || e.ctrlKey) && e.keyCode === 13) && exec(this.value);
+		});
 
-            if (cmd && cmd.length)
-                obj.exec = cmd.trim();
+		function ws_connect() {
+            var el = $('pre');
 
-            obj.ticks = ticks;
-            $.ajax({ url: window.location.pathname, type: 'POST', data: JSON.stringify(obj), contentType: 'application/json', dataType: 'json', async: false, success: function(data) {
+			ws = new WebSocket((location.protocol.length === 6 ? 'wss' : 'ws') + '://' + location.host + location.pathname + '?token=' + ($('body').attr('data-token') || ''));
 
-                if (data === null)
-                    return;
+			ws.onclose = function() {
+				ws = null;
+				setTimeout(ws_connect, 2000);
+			};
 
-                ticks = data.ticks;
-                var el = $('pre');
+			ws.onmessage = function(e) {
+				var m = JSON.parse(decodeURIComponent(e.data));
+				switch (m.TYPE) {
+					case 'init':
+						var str = '';
+						for (var i = 0, length = m.history.length; i < length; i++)
+							str += format(m.history[i]);
+		  				str && el.html(str);
+		  				break;
 
-                for (var i = 0, length = data.output.length; i < length; i++) {
-                    var log = data.output[i];
-                    var index = log.indexOf('):');
-                    data.output[i] = '<b>' + log.substring(0, index) + '</b>' + log.substring(index);
-                }
+		  			case 'add':
+		  				el.prepend(format(m.body));
+		  				break;
+				}
 
-                el.html(data.output.join('\n'));
-                el.scrollTop(el.get(0).scrollHeight);
-            }});
-        }
+				el.scrollTop(el.get(0).scrollHeight);
+			};
+		}
 
-        setInterval(function() { exec(); }, 1000);
-        exec();
-    </script>
+		function format(log) {
+			var index = log.indexOf('):');
+			return '<b>' + log.substring(0, index) + '</b>' + log.substring(index) + '\n';
+		}
+
+		function exec(cmd) {
+			cmd && ws && ws.send(JSON.stringify(cmd.trim()));
+		}
+
+		setTimeout(ws_connect, 1000);
+
+	</script>
 
 </body>
 </html>
