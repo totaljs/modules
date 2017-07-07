@@ -16,4 +16,4 @@ var options = {};
 INSTALL('package', 'https://cdn.totaljs.com/console.package', options);
 ```
 
-![Console](https://www.totaljs.com/exports/module-console.png)
+![Console](https://blog.totaljs.com/download/1707070825Tvew8b.jpg)
