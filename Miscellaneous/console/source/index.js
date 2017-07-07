@@ -82,10 +82,10 @@ function websocket_action() {
 }
 
 function prepend(type, arg) {
-	history.length === options.history && history.pop();
+	history.length === options.history && history.shift();
 	var dt = new Date();
 	var str = dt.format('yyyy-MM-dd HH:mm:ss') + ' (' + type + '): ' + append.apply(null, arg);
-	history.unshift(str);
+	history.push(str);
 	if (websocket) {
 		MSG_BODY.body = str;
 		websocket.send(MSG_BODY);
