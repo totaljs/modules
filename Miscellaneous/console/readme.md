@@ -13,7 +13,7 @@ var options = {};
 
 // options.url = '/$console/';
 
-INSTALL('package', 'https://modules.totaljs.com/latest/console.package', options);
+INSTALL('package', 'https://cdn.totaljs.com/console.package', options);
 ```
 
 ![Console](https://www.totaljs.com/exports/module-console.png)
