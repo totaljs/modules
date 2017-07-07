@@ -1,6 +1,6 @@
 # Installation
 
-With this module __you can control a whole application__. The module contains real-time console with textbox for performing custom commands.
+With this module __you can control the whole application__. The module contains real-time console with textbox for performing custom commands.
 
 - download and copy `console.package` into the `/packages/` directory __or create a definition with:__
 
