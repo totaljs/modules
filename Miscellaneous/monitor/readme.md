@@ -58,13 +58,13 @@ __IMPORTANT:__ download other modules too: [webcounter](https://github.com/total
 
 ```javascript
 // WebCounter module
-INSTALL('module', 'https://modules.totaljs.com/latest/webcounter.js');
+INSTALL('module', 'https://cdn.totaljs.com/webcounter.js');
 
 // Request stats module
-INSTALL('module', 'https://modules.totaljs.com/latest/reqstats.js');
+INSTALL('module', 'https://cdn.totaljs.com/reqstats.js');
 
 // Total.js monitoring
-INSTALL('module', 'https://modules.totaljs.com/latest/monitor.js');
+INSTALL('module', 'https://cdn.totaljs.com/monitor.js');
 ```
 
 
