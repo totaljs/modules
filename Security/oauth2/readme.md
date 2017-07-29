@@ -5,7 +5,7 @@ example)
 - download and copy `oauth2.js` into the `/modules/` directory __or create a definition with:__
 
 ```javascript
-INSTALL('module', 'https://cnd.totaljs.com/latest/oauth2.js');
+INSTALL('module', 'https://cnd.totaljs.com/oauth2.js');
 ```
 
 ```javascript
