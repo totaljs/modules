@@ -5,7 +5,7 @@ example)
 - download and copy `oauth2.js` into the `/modules/` directory __or create a definition with:__
 
 ```javascript
-INSTALL('module', 'https://cnd.totaljs.com/oauth2.js');
+INSTALL('module', 'https://cdn.totaljs.com/oauth2.js');
 ```
 
 ```javascript
@@ -78,7 +78,7 @@ function oauth_login_callback() {
 
 ## CALLBACK
 
-### GOOGLE
+### GOOGLE
 
 ```javascript
 { kind: 'plus#person',
@@ -171,7 +171,7 @@ function oauth_login_callback() {
   email: 'a@a.com' }
 ```
 
-# GitHub
+### GitHub
 
 ```javascript
 { login: 'petersirka',
@@ -225,7 +225,7 @@ function oauth_login_callback() {
   picture: 'https://graph.facebook.com/000/picture' }
 ```
 
-### Yahoo
+### Yahoo
 
 ```javascript
 { profile: 
@@ -290,7 +290,7 @@ The response from Instagram __doesn't contain email__!!!
   id: '1635329562' }
 ```
 
-### Yandex
+### Yandex
 
 You must allow user account information in __Yandex.Passport API__ scope.
 
