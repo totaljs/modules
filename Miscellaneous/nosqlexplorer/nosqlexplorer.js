@@ -9,7 +9,7 @@ exports.install = function(options) {
 		URL = options.url;
 
 	if (!URL)
-		URL = '/$nosqlexporer/'
+		URL = '/$nosqlexplorer/';
 
 	F.route(URL, nosql);
 	F.accept('nosql', 'text/plain');
