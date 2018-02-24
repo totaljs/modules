@@ -6,6 +6,7 @@ exports.install = function(options) {
 	options && options.url && (url = options.url);
 	options && options.token && (token = options.token);
 	F.route(url, json_monitor);
+	F._request_check_mobile = true;
 };
 
 function json_monitor() {
