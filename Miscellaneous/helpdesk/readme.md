@@ -33,8 +33,8 @@ var options = {};
 // options.customer = 'EMAIL ADDRESS';
 // options.support = 'EMAIL ADDRESS';
 
-INSTALL('package', 'https://cdn.totaljs.com/2017xc9db052e/helpdesk.package', options);
+INSTALL('package', 'https://cdn.totaljs.com/helpdesk.package', options);
 
 // OR UpToDate mechanism:
-UPTODATE('package', 'https://cdn.totaljs.com/2017xc9db052e/helpdesk.package', options, '1 week');
+UPTODATE('package', 'https://cdn.totaljs.com/helpdesk.package', options, '1 week');
 ```

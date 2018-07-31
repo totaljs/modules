@@ -26,8 +26,8 @@ var options = {};
 
 // options.controllers = { api: true, manager: true };
 
-INSTALL('package', 'https://cdn.totaljs.com/2017xc9db052e/quickapi.package', options);
+INSTALL('package', 'https://cdn.totaljs.com/quickapi.package', options);
 
 // OR UpToDate mechanism:
-UPTODATE('package', 'https://cdn.totaljs.com/2017xc9db052e/quickapi.package', options, '1 week');
+UPTODATE('package', 'https://cdn.totaljs.com/quickapi.package', options, '1 week');
 ```
