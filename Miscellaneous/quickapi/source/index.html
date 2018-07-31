@@ -1,0 +1,306 @@
+@{layout('')}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>QuickAPI: @{config.name}</title>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=11" />
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<meta name="robots" content="all,follow" />
+	<link href="https://cdn.totaljs.com/spa.min.css" rel="stylesheet" type="text/css" />
+	<script src="https://cdn.totaljs.com/spa.min.js"></script>
+	<style type="text/css">
+		/*auto*/
+		input:-ms-input-placeholder, input:-webkit-input-placeholder, input:-moz-input-placeholder { color: silver; }
+		input[type="text"]:disabled, input[type="password"]:disabled, select:disabled { background-color: #F0F0F0; cursor: not-allowed; color: silver; }
+
+		body { background-color: #E6E9ED; font-smoothing: antialiased; height: 100%; }
+
+		.api { font-family: monospace; border-bottom: 1px solid #D0D0D0; padding: 3px 0; }
+		.api .url { margin-bottom: 2px; cursor: pointer; font-size: 16px; }
+		.api .url .method { position: relative; display: inline-block; color: white; font-size: 14px; padding: 3px 10px; border-radius: 4px; width: 80px; text-align: center; margin-right: 5px; line-height: 14px; font-weight: bold; }
+		.api .url .POST { background-color: #3BAFDA; }
+		.api .url .GET { background-color: #8CC152; }
+		.api .url .PUT { background-color: #967ADC; }
+		.api .url .DELETE { background-color: #DA4453; }
+		.api .url .auth { float: right; color: #DA4453; font-family: Arial; font-size: 12px; margin: 3px 0 0 0; }
+		.api .url .auth .fa { margin-right: 5px; }
+		.api .body { background-color: white; padding: 20px; border-radius: 4px; margin: 10px 0; }
+		.api .schema span { color: gray; }
+		.api .schema .fa { margin-right: 5px; color: #DA4453; font-size: 9px; vertical-align: top; line-height: 20px; }
+		.api .description { font-family: Arial; font-size: 12px; margin: 0 0 5px; color: black; border-bottom: 1px solid #E0E0E0; padding-bottom: 5px; }
+
+		h1 { font-weight: normal; font-family: Arial; font-size: 16px; margin: 20px 0 10px; padding: 0; }
+		h2 { font-weight: normal; font-family: Arial; font-size: 25px; margin: 0 0 15px; padding: 0; }
+
+		.padding { padding: 20px; }
+		.hidden { display: none; }
+
+		.ui-textbox { border: 1px solid #E0E0E0; padding: 8px 2px 8px 5px; border-radius: 2px; position: relative; width: 100%; background-color: white; display: table; }
+		.ui-textbox input { display: table-cell; border: 0; outline: 0; font: normal 14px Arial; color: black; width: 100%; background-color: white; }
+		.ui-textbox div { width: 1%; position: relative; vertical-align: middle; display: table-cell; text-align: center; white-space: nowrap; text-overflow: clip; border-left: 1px solid #E0E0E0; width: 30px; color: silver; }
+		.ui-textbox .fa-times { color: red; cursor: pointer; }
+		.ui-textbox-label { margin-bottom: 5px; font-size: 12px; color: #656D78; text-align: left; }
+		.ui-textbox-label .fa { width: 14px; }
+		.ui-textbox-label-required:before { color: red; content: '***'; margin-right: 5px; }
+		.ui-textbox-invalid { border-color: #E1A1A1 !important; background-color: #FFF3F3 !important; }
+		.ui-textbox-invalid input { background-color: #FFF3F3 !important; }
+		.ui-textbox .fa-caret-up, .ui-textbox .fa-caret-down { display:block; line-height:9px; cursor: pointer; }
+
+		.welcome { font-size: 14px; margin-top: 30px; }
+
+		header { background-color: white; padding-bottom: 25px; box-shadow: 0 5px 10px rgba(0,0,0,0.07); }
+	</style>
+</head>
+<body>
+
+	<header>
+		<div class="container">
+			<h1><b>@{config.name}</b> v@{config.version}</h1>
+			<div class="row">
+				<div class="col-md-5">
+					<div data-jc="textbox" data-jc-path="common.search" data-jc-type="search" data-placeholder="Search in API ..."></div>
+				</div>
+			</div>
+		</div>
+	</header>
+
+	<div class="container">
+		@{if model.description}
+			<div class="welcome">@{!model.description}</div>
+		@{fi}
+		<br />
+		<div data-jc="search" data-jc-path="common.search" data-selector=".api,h2,br">
+		@{foreach ctrl in model}
+			<h2>Controller: <b>@{ctrl.controller.capitalize()}</b> (@{ctrl.routes.length}x)</h2>
+			@{foreach m in ctrl.routes}
+				<div class="api" data-search="@{m.method} @{m.url}">
+					<div class="url" data-url="@{m.url}"><span class="method @{m.method}">@{if m.upload}UPLOAD@{else}@{m.method}@{fi}</span>@{!m.url.replace(/\{\w+\}/g, text => '<b>' + text + '</b>')}@{if m.authorize}<span class="auth"><i class="fa fa-lock"></i>authorized</span>@{fi}</div>
+					@{if m.description || m.schema}
+					<div class="body hidden">
+						@{if m.description}
+							<div class="description"><b>Description:</b> @{!m.description}</div>
+						@{fi}
+						@{if m.schema}
+							<div class="schema">
+							@{foreach s in m.schema}
+								<div>@{if s.required}<i class="fa fa-warning"></i>@{fi}@@{s.name} <span>{@{s.type}}</span></div>
+							@{end}
+							</div>
+						@{fi}
+					</div>
+					@{fi}
+				</div>
+			@{end}
+			<br />
+		@{end}
+		</div>
+	</div>
+
+	<br />
+	<script>
+
+		var common = { search: '' };
+
+		$(document).on('click', '.url', function() {
+			$(this).parent().closest('.api').find('.body').toggleClass('hidden');
+		});
+
+		COMPONENT('textbox', function() {
+
+			var self = this;
+			var isRequired = self.attr('data-required') === 'true';
+			var validation = self.attr('data-validate');
+			var input;
+			var container;
+
+			self.validate = function(value) {
+
+				if (input.prop('disabled') || !isRequired)
+					return true;
+
+				var type = typeof(value);
+
+				if (type === 'undefined' || type === 'object')
+					value = '';
+				else
+					value = value.toString();
+
+				EXEC('$calendar.hide');
+
+				switch (self.type) {
+					case 'email':
+						return value.isEmail();
+					case 'url':
+						return value.isURL();
+					case 'currency':
+					case 'number':
+						return value > 0;
+				}
+
+				return validation ? self.evaluate(value, validation, true) ? true : false : value.length > 0;
+			};
+
+			!isRequired && self.noValid();
+
+			self.required = function(value) {
+				self.element.find('.ui-textbox-label').toggleClass('ui-textbox-label-required', value);
+				self.noValid(!value);
+				isRequired = value;
+				!value && self.state(1, 1);
+			};
+
+			self.make = function() {
+
+				var attrs = [];
+				var builder = [];
+				var tmp;
+
+				attrs.attr('type', self.type === 'password' ? self.type : 'text');
+				attrs.attr('placeholder', self.attr('data-placeholder'));
+				attrs.attr('maxlength', self.attr('data-maxlength'));
+				attrs.attr('data-component-keypress', self.attr('data-component-keypress'));
+				attrs.attr('data-component-keypress-delay', self.attr('data-component-keypress-delay'));
+				attrs.attr('data-component-bind', '');
+				attrs.attr('name', self.path);
+
+				tmp = self.attr('data-align');
+				tmp && attrs.attr('class', 'ui-' + tmp);
+				self.attr('data-autofocus') === 'true' && attrs.attr('autofocus');
+
+				var content = self.html();
+				var icon = self.attr('data-icon');
+				var icon2 = self.attr('data-control-icon');
+				var increment = self.attr('data-increment') === 'true';
+
+				builder.push('<input {0} />'.format(attrs.join(' ')));
+
+				if (!icon2 && self.type === 'date')
+					icon2 = 'fa-calendar';
+				else if (self.type === 'search') {
+					icon2 = 'fa-search ui-textbox-control-icon';
+					self.element.on('click', '.ui-textbox-control-icon', function() {
+						self.$stateremoved = false;
+						$(this).removeClass('fa-times').addClass('fa-search');
+						self.set('');
+					});
+					self.getter2 = function(value) {
+						if (self.$stateremoved && !value)
+							return;
+						self.$stateremoved = value ? false : true;
+						self.find('.ui-textbox-control-icon').toggleClass('fa-times', value ? true : false).toggleClass('fa-search', value ? false : true);
+					};
+				}
+
+				icon2 && builder.push('<div><span class="fa {0}"></span></div>'.format(icon2));
+				increment && !icon2 && builder.push('<div><span class="fa fa-caret-up"></span><span class="fa fa-caret-down"></span></div>');
+				increment && self.element.on('click', '.fa-caret-up,.fa-caret-down', function(e) {
+					var el = $(this);
+					var inc = -1;
+					if (el.hasClass('fa-caret-up'))
+						inc = 1;
+					self.change(true);
+					self.inc(inc);
+				});
+
+				self.type === 'date' && self.element.on('click', '.fa-calendar', function(e) {
+					e.preventDefault();
+					window.$calendar && window.$calendar.toggle($(this).parent().parent(), self.element.find('input').val(), function(date) {
+						self.set(date);
+					});
+				});
+
+				if (!content.length) {
+					self.element.addClass('ui-textbox ui-textbox-container');
+					self.html(builder.join(''));
+					input = self.find('input');
+					container = self.find('.ui-textbox');
+					return;
+				}
+
+				var html = builder.join('');
+				builder = [];
+				builder.push('<div class="ui-textbox-label{0}">'.format(isRequired ? ' ui-textbox-label-required' : ''));
+				icon && builder.push('<span class="fa {0}"></span> '.format(icon));
+				builder.push(content);
+				builder.push(':</div><div class="ui-textbox">{0}</div>'.format(html));
+
+				self.html(builder.join(''));
+				self.element.addClass('ui-textbox-container');
+				input = self.find('input');
+				container = self.find('.ui-textbox');
+			};
+
+			self.state = function(type, who) {
+				if (!type)
+					return;
+				var invalid = self.isInvalid();
+				if (invalid === self.$oldstate)
+					return;
+				self.$oldstate = invalid;
+				container.toggleClass('ui-textbox-invalid', invalid);
+			};
+		});
+
+		COMPONENT('search', function() {
+
+			var self = this;
+			var options_class;
+			var options_selector;
+			var options_attribute;
+			var options_delay;
+
+			self.readonly();
+			self.make = function() {
+				options_class = self.attr('data-class') || 'hidden';
+				options_selector = self.attr('data-selector');
+				options_attribute = self.attr('data-attribute') || 'data-search';
+				options_delay = (self.attr('data-delay') || '200').parseInt();
+			};
+
+			self.setter = function(value, path, type) {
+
+				if (!options_selector || !options_attribute || value == null)
+					return;
+
+				KEYPRESS(function() {
+
+					var elements = self.element.find(options_selector);
+
+					if (!value) {
+						elements.removeClass(options_class);
+						return;
+					}
+
+					var search = value.toLowerCase().replace(/y/gi, 'i');
+					var hide = [];
+					var show = [];
+
+					elements.toArray().waitFor(function(item, next) {
+						var el = $(item);
+						var val = (el.attr(options_attribute) || '').toLowerCase().replace(/y/gi, 'i');
+						if (val.indexOf(search) === -1)
+							hide.push(el);
+						else
+							show.push(el);
+						setTimeout(next, 3);
+					}, function() {
+
+						hide.forEach(function(item) {
+							item.toggleClass(options_class, true);
+						});
+
+						show.forEach(function(item) {
+							item.toggleClass(options_class, false);
+						});
+					});
+
+				}, options_delay, 'search' + self.id);
+			};
+		});
+	</script>
+
+</body>
+</html>

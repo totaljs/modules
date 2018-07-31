@@ -1,0 +1,108 @@
+@{layout('')}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>HelpDesk: @{config.name}</title>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=11" />
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<meta name="robots" content="all,follow" />
+	<link href="https://cdn.totaljs.com/spa.min.css" rel="stylesheet" type="text/css" />
+	<link href="@{repository.url}default.css" rel="stylesheet" type="text/css" />
+	<script src="https://cdn.totaljs.com/spa.min.js"></script>
+	<script src="@{repository.url}default.js"></script>
+</head>
+<body>
+
+	<div data-jc="confirm"></div>
+	<div class="container">
+
+		<div class="taskform">
+			<span><i class="fa fa-bug"></i></span>
+			<div><input type="text" maxlength="1000" placeholder="@(Type an issue and press enter)" class="enter" name="newtask" autofocus="autofocus" /></div>
+		</div>
+
+		<div data-jc="empty" data-jc-path="tasks.items" class="hidden"><i class="fa fa-check-circle fa-5x"></i>@(This project doesn't have any issues.)</div>
+
+		<div id="columns" data-jc="repeater" data-jc-path="tasks.items">
+			<script type="text/html">
+				<figure data-id="{{ id }}"{{ if solved }} class="solved"{{ fi }}>
+					<ul class="operations">
+						<li class="click" data-type="toggle"><i class="fa fa-thumbs{{ if !solved }}-o{{ fi }}-up"></i></li>
+						<li class="click" data-type="remove"><i class="fa fa-times"></i></li>
+					</ul>
+					<div class="created"><i class="fa fa-clock-o"></i>{{ datecreated | time }}{{ if solved }}<i class="fa fa-check-circle ml5"></i>@(Solved:) {{ datesolved | time }}{{ fi }}</div>
+					<p>{{ body | body }}</p>
+					{{ if comments.length }}
+					<ul class="comments">
+						{{ foreach m in comments }}
+						<li{{ if m.customer }} class="customer"{{ fi }}><i class="fa fa-times click" data-type="removecomment" data-index="{{ $index }}"></i><span>{{ m.datecreated | time }}</span><div>{{ m.body | body }}</div></li>
+						{{ end }}
+					</ul>
+					{{ fi }}
+					<div class="commentform">
+						<span><i class="fa fa-commenting-o"></i></span>
+						<div><input type="text" maxlength="1000" class="enter" name="comment" placeholder="@(Type a comment and press enter)" /></div>
+					</div>
+				</figure>
+			</script>
+		</div>
+	</div>
+
+	<script>
+
+		$(document).on('click', '.click', function() {
+			var el = $(this);
+			var id = el.closest('figure').attr('data-id');
+			var type = el.attr('data-type');
+			var indexer = (el.attr('data-index') || '-1').parseInt();
+
+			if (type === 'toggle')
+				return AJAX('POST ' + url, { id: id, type: type }, tasks_refresh);
+
+			FIND('confirm').confirm('@(Are you sure you want to perform this operation?)', ['@(Yes)', '@(No)'], function(index) {
+				!index && AJAX('POST ' + url, { id: id, type: type, index: indexer }, tasks_refresh);
+			});
+		});
+
+		Tangular.register('time', function(value) {
+
+			if (!value)
+				return;
+
+			var diff = DATETIME.getTime() - value.parseDate().getTime();
+			var minutes = ((diff / 1000) / 60) >> 0;
+
+			if (minutes < 60) {
+				if (minutes < 3)
+					return '@(now)';
+				return @(minutes + ' minutes ago');
+			}
+
+			var hours = (minutes / 60) >> 0;
+			if (hours < 24)
+				return @(hours + ' ' + Tangular.helpers.pluralize(hours, 'hours', 'hour', 'hours', 'hours') + ' ago');
+
+			var days = (hours / 24) >> 0;
+			if (days < 30)
+				return @(days + ' ' + Tangular.helpers.pluralize(days, 'days', 'day', 'days', 'days') + ' ago');
+
+			var months = (days / 29) >> 0;
+			if (months < 12)
+				return @(months + ' ' + Tangular.helpers.pluralize(months, 'months', 'month', 'months', 'months') + ' ago');
+
+			var years = (months / 12) >> 0;
+			return @(years + ' ' + Tangular.helpers.pluralize(years, 'years', 'year', 'years', 'years') + ' ago');
+		});
+
+		Tangular.register('month', function(value) {
+			var months = [@('january', 'february', 'march', 'april', 'may', 'juny', 'july', 'august', 'september', 'october', 'november', 'december')];
+			return months[value - 1];
+		});
+
+	</script>
+
+</body>
+</html>
