@@ -2,14 +2,15 @@
 // Copyright Peter Širka <petersirka@gmail.com>
 
 const Qs = require('querystring');
-const stats = { facebook: 0, google: 0,linkedin: 0, yahoo: 0, dropbox: 0, github: 0, yandex: 0, instagram: 0, vk: 0, live: 0 };
-const OAUTH2_HEADER = { code: '', client_id: '', client_secret: '', redirect: '', grant_type: 'authorization_code' };
+const stats = { facebook: 0, google: 0, linkedin: 0, yahoo: 0, dropbox: 0, github: 0, yandex: 0, instagram: 0, vk: 0, live: 0, msgraph: 0 };
+const OAUTH2_HEADER = { code: '', client_id: '', client_secret: '', redirect_uri: '', grant_type: 'authorization_code' };
 const OAUTH2_BEARER = { Authorization: '', 'User-Agent': 'total.js' };
 const FLAG_POST = ['post'];
+const FLAG_POST_JSON = ['post', 'json'];
 const FLAG_GET = ['get'];
 
 exports.id = 'oauth2';
-exports.version = 'v1.6.0';
+exports.version = 'v1.7.0';
 
 exports.usage = function() {
 	return stats;
@@ -120,7 +121,7 @@ function github_profile(key, secret, code, url, callback) {
 }
 
 function dropbox_redirect(key, url) {
-	return 'https://www.dropbox.com/1/oauth2/authorize?redirect_uri={0}&response_type=code&client_id={1}'.format(encodeURIComponent(url), key);
+	return 'https://www.dropbox.com/oauth2/authorize?redirect_uri={0}&response_type=code&client_id={1}'.format(encodeURIComponent(url), key);
 }
 
 function dropbox_profile(key, secret, code, url, callback) {
@@ -130,12 +131,14 @@ function dropbox_profile(key, secret, code, url, callback) {
 	OAUTH2_HEADER.client_secret = secret;
 	OAUTH2_HEADER.redirect_uri = url;
 
-	U.request('https://api.dropbox.com/1/oauth2/token', FLAG_POST, OAUTH2_HEADER, function(err, data) {
+	U.request('https://api.dropboxapi.com/oauth2/token', FLAG_POST, OAUTH2_HEADER, function(err, data) {
 		if (!process_error(err, data, callback))
 			return;
-		var token = data.parseJSON().access_token;
+		var response = data.parseJSON();
+		var token = response.access_token,
+			account_id = response.account_id;
 		OAUTH2_BEARER.Authorization = 'Bearer ' + token;
-		U.request('https://api.dropbox.com/1/account/info', FLAG_GET, '', process('dropbox', callback, token), null, OAUTH2_BEARER);
+		U.request('https://api.dropboxapi.com/2/users/get_account', FLAG_POST_JSON, { account_id }, process('dropbox', callback, token), null, OAUTH2_BEARER);
 	});
 }
 
@@ -217,6 +220,27 @@ function vk_profile(key, secret, code, url, callback) {
 	});
 }
 
+function msgraph_redirect(key, url) {
+	return 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id={1}&scope=openid%20offline_access%20https%3A%2F%2Fgraph.microsoft.com%2Fuser.read&response_type=code&redirect_uri={0}&response_mode=query'.format(encodeURIComponent(url), encodeURIComponent(key));
+}
+
+function msgraph_profile(key, secret, code, url, callback) {
+
+	OAUTH2_HEADER.code = code;
+	OAUTH2_HEADER.client_id = key;
+	OAUTH2_HEADER.client_secret = secret;
+	OAUTH2_HEADER.grant_type = 'authorization_code';
+	OAUTH2_HEADER.redirect_uri = url;
+
+	U.request('https://login.microsoftonline.com/common/oauth2/v2.0/token', FLAG_POST, OAUTH2_HEADER, function(err, data) {
+		if (!process_error(err, data, callback))
+			return;
+		var token = data.parseJSON().access_token;
+		OAUTH2_BEARER.Authorization = 'Bearer ' + token;
+		U.request('https://graph.microsoft.com/v1.0/me/', FLAG_GET, '', process('msgraph', callback, token), null, OAUTH2_BEARER);
+	});
+}
+
 function process_error(err, data, callback) {
 
 	if (err) {
@@ -247,15 +271,25 @@ function process(name, callback, token) {
 			return;
 		}
 
-		var user = data.parseJSON();
+		if (!data.trim().isJSON()) {
+			callback(data);
+			return;
+		}
+
+		var user = data.trim().parseJSON();
 
 		if (!user) {
-			callback(new Error('User data from OAuth2 ' + name + ' doesn\'t exist.'), user);
+			callback(new Error('User data from OAuth2 ' + name + ' doesn\'t exist.'));
 			return;
 		}
 
 		if (name === 'yahoo') {
 			if (!user.profile && !user.guid) {
+				err = user;
+				user = null;
+			}
+		} else if (name === 'dropbox') {
+			if (!user['account_id']) {
 				err = user;
 				user = null;
 			}
@@ -300,6 +334,9 @@ exports.redirect = function(type, key, url, controller) {
 		case 'vk':
 			controller.redirect(vk_redirect(key, url));
 			break;
+		case 'msgraph':
+			controller.redirect(msgraph_redirect(key, url));
+			break;
 	}
 };
 
@@ -335,6 +372,9 @@ exports.callback = function(type, key, secret, url, controller, callback) {
 		case 'vk':
 			vk_profile(key, secret, controller.query.code, url, callback);
 			break;
+		case 'msgraph':
+			msgraph_profile(key, secret, controller.query.code, url, callback);
+			break;
 	}
 };
 
@@ -358,3 +398,5 @@ exports.yandex_profile = yandex_profile;
 exports.yandex_redirect = yandex_redirect;
 exports.vk_profile = vk_profile;
 exports.vk_redirect = vk_redirect;
+exports.msgraph_profile = msgraph_profile;
+exports.msgraph_redirect = msgraph_redirect;
