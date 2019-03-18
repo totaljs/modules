@@ -26,6 +26,8 @@ exports.install = function() {
     F.route('/login/live/callback/', oauth_login_callback, ['unauthorize']);
     F.route('/login/instagram/', oauth_login, ['unauthorize']);
     F.route('/login/instagram/callback/', oauth_login_callback, ['unauthorize']);
+    F.route('/login/msgraph/', oauth_login, ['unauthorize']);
+    F.route('/login/msgraph/callback/', oauth_login_callback, ['unauthorize']);
 }
 
 // Controller action
@@ -71,15 +73,16 @@ function oauth_login_callback() {
 - LinkedIn - <https://www.linkedin.com/secure/developer>
 - DropBox - <https://www.dropbox.com/developers/apps>
 - GitHub - <https://github.com/settings/applications>
-- Live - <https://account.live.com/developers/applications/>
+- Live (__DEPRECATED__ use `msgraph` instead) - <https://account.live.com/developers/applications/>
 - Instagram - <https://instagram.com/developer/>
 - Yandex - <https://oauth.yandex.com>
 - VKontakte - <http://vk.com/apps?act=manage>
+- Microsoft Graph - <https://apps.dev.microsoft.com/> or __App registrations (Preview)__ experience in the Azure portal
 
 ## CALLBACK
 
 ### GOOGLE
-
+Reference: <https://developers.google.com/+/web/api/rest/latest/people#resource>
 ```javascript
 { kind: 'plus#person',
   etag: '"RqKWnRU4WW46-6W3rWhLR9iFZQM/EJnOkqg0s0pcrrs0iKvN73LvCnk"',
@@ -153,22 +156,24 @@ function oauth_login_callback() {
 
 ### Dropbox
 
-```javascript
-{ referral_link: 'https://db.tt/8u4PMvgb',
-  display_name: 'Peter Širka',
-  uid: 000000,
-  locale: 'en',
-  email_verified: true,
-  team: null,
-  quota_info: 
-   { datastores: 0,
-     shared: 0,
-     quota: 000,
-     normal: 000 },
-  is_paired: false,
-  country: 'SK',
-  name_details: { familiar_name: 'Peter', surname: 'Širka', given_name: 'Peter' },
-  email: 'a@a.com' }
+Reference: <https://www.dropbox.com/developers/documentation/http/documentation#users-get_account>
+
+```json
+{
+    "account_id": "dbid:AAH4f99T0taONIb-OurWxbNQ6ywGRopQngc",
+    "name": {
+        "given_name": "Franz",
+        "surname": "Ferdinand",
+        "familiar_name": "Franz",
+        "display_name": "Franz Ferdinand (Personal)",
+        "abbreviated_name": "FF"
+    },
+    "email": "franz@dropbox.com",
+    "email_verified": true,
+    "disabled": false,
+    "is_teammate": false,
+    "profile_photo_url": "https://dl-web.dropbox.com/account_photo/get/dbid%3AAAH4f99T0taONIb-OurWxbNQ6ywGRopQngc?vers=1453416696524\u0026size=128x128"
+}
 ```
 
 ### GitHub
@@ -258,6 +263,8 @@ function oauth_login_callback() {
 
 ### Live
 
+__DEPRECATED__ use `msgraph` instead
+
 ```javascript
 { id: 'XXX',
   name: 'Peter Širka',
@@ -319,4 +326,27 @@ VK doesn't send back email address and the scope contains requirement for the em
   nickname: '',
   screen_name: '....',
   photo_big: 'http://vk.com/images/camera_200.png' }
+```
+
+### Microsoft Graph
+
+Reference: <https://docs.microsoft.com/en-us/graph/api/resources/user?view=graph-rest-1.0#json-representation>
+
+```json
+{
+    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users/$entity",
+    "businessPhones": [
+        "+1 412 555 0109"
+    ],
+    "displayName": "Megan Bowen",
+    "givenName": "Megan",
+    "jobTitle": "Auditor",
+    "mail": "MeganB@M365x214355.onmicrosoft.com",
+    "mobilePhone": null,
+    "officeLocation": "12/1110",
+    "preferredLanguage": "en-US",
+    "surname": "Bowen",
+    "userPrincipalName": "MeganB@M365x214355.onmicrosoft.com",
+    "id": "48d31887-5fad-4d73-a9f5-3c356e68a038"
+}
 ```
