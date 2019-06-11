@@ -8,7 +8,7 @@ exports.install = function() {
 
 	F.file('/*.*', scss_compiler, ['.scss']); // Monitor all folders for changes.
 
-	F.config['static-accepts']['.scss'] = true;
+	F.config['static_accepts']['.scss'] = true;
 
 	F.onCompileCSS = function (filename, content) {
 		var r = sass.renderSync({ data: content, outputStyle: 'compressed' });
