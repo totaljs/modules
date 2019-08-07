@@ -1,8 +1,6 @@
 // MIT License
 // Copyright (c) 2019 Peter Širka <petersirka@gmail.com>
 
-'use strict';
-
 const Crypto = require('crypto');
 
 // Base32 methods are updated code from "Base32.js" library
@@ -179,7 +177,7 @@ exports.generate = function(label, issuer, type) {
 
 	// type can be "totp" (default), "hotp"
 
-	var bytes = Crypto.randomBytes(32);
+	var bytes = Crypto.randomBytes(20);
 	var set = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
 	var builder = [];
 
@@ -189,7 +187,7 @@ exports.generate = function(label, issuer, type) {
 	var secret = base32encode(Buffer.from(builder.join('').toUpperCase())).toString().replace(/=/g, '');
 	var data = {};
 	data.secret = secret;
-	data.url = 'otpauth://' + (type || 'totp') + '/' + encodeURIComponent(label || '') + '?secret=' + data.secret + '&issuer=' + encodeURIComponent(issuer || '') + '&algorithm=sha1&digits=6&period=30';
+	data.url = 'otpauth://' + (type || 'totp') + '/totaljs?secret=' + data.secret + '&issuer=' + encodeURIComponent(issuer || '');//  + '&algorithm=sha1&digits=6&period=30';
 	data.qrcode = 'https://api.qrserver.com/v1/create-qr-code/?color=000000&bgcolor=FFFFFF&data=' + encodeURIComponent(data.url) + '&qzone=0&margin=0&size=200x200&ecc=L';
 	return data;
 };
