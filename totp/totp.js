@@ -1,5 +1,6 @@
-// MIT License
-// Copyright (c) 2019 Peter Širka <petersirka@gmail.com>
+// Author: Peter Širka / Total Avengers
+// Web: https://www.totaljs.com
+// License: MIT
 
 const Crypto = require('crypto');
 

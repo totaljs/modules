@@ -1,3 +1,7 @@
+// Author: Peter Širka / Total Avengers
+// Web: https://www.totaljs.com
+// License: MIT
+
 const Fs = require('fs');
 
 // Constants
