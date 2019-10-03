@@ -1,7 +1,3 @@
-// Author: Peter Širka / Total Avengers
-// Web: https://www.totaljs.com
-// License: MIT
-
 const Fs = require('fs');
 
 // Constants
@@ -128,7 +124,7 @@ OP.services.check = function(controller, callback) {
 };
 
 // Users
-OP.users.auth = function(options, callback) {
+OP.auth = OP.users.auth = function(options, callback) {
 
 	// options.url {String}
 	// options.expire {String}
@@ -238,7 +234,7 @@ OP.users.auth = function(options, callback) {
 					platform.users = meta.users;
 					platform.apps = meta.apps;
 					platform.services = meta.services;
-					platform.serialnumber = meta.serialnumber;
+					platform.sn = meta.sn;
 					platform.settings = meta.settings || EMPTYOBJECT;
 				}
 
@@ -411,9 +407,6 @@ OP.users.notify = function(url, msg, callback) {
 	// msg.type
 	// msg.body
 	// msg.data
-
-	if (msg.type == null)
-		msg.type = 1;
 
 	if (msg.type == null)
 		msg.type = 1;
