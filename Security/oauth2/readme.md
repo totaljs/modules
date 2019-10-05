@@ -34,7 +34,7 @@ exports.install = function() {
 function oauth_login() {
     var self = this;
     var type = self.req.path[1];
-    
+
     // config:
     // oauth2.google.key =
     // oauth2.google.secret =
@@ -89,7 +89,7 @@ Reference: <https://developers.google.com/+/web/api/rest/latest/people#resource>
   occupation: 'Web developer & Web designer',
   gender: 'male',
   emails: [ { value: 'a@a.com', type: 'account' } ],
-  urls: 
+  urls:
    [ { value: 'http://www.facebook.com/PeterSirka',
        type: 'otherProfile',
        label: 'petersirka' },
@@ -107,10 +107,10 @@ Reference: <https://developers.google.com/+/web/api/rest/latest/people#resource>
   displayName: 'Peter Širka',
   name: { familyName: 'Širka', givenName: 'Peter' },
   url: 'https://plus.google.com/+PeterŠirka',
-  image: 
+  image:
    { url: 'https://lh6.googleusercontent.com/-qJtxCwBkVcg/AAAAAAAAAAI/AAAAAAAAAeY/Mn8ABMy5BJE/photo.jpg?sz=50',
      isDefault: false },
-  organizations: 
+  organizations:
    [ { name: 'Datalan',
        title: '.NET Developer',
        type: 'work',
@@ -132,9 +132,9 @@ Reference: <https://developers.google.com/+/web/api/rest/latest/people#resource>
   language: 'sk',
   circledByCount: 312,
   verified: false,
-  cover: 
+  cover:
    { layout: 'banner',
-     coverPhoto: 
+     coverPhoto:
       { url: 'https://lh6.googleusercontent.com/-CXhru8AWMjc/VEF47IlEwaI/AAAAAAAAA6U/dGRkNNYNDmI/s630-fcrop64=1,52770000ff78ffff/google.png',
         height: 357,
         width: 940 },
@@ -233,11 +233,11 @@ Reference: <https://www.dropbox.com/developers/documentation/http/documentation#
 ### Yahoo
 
 ```javascript
-{ profile: 
+{ profile:
    { guid: 'XXXX',
      ageCategory: 'A',
      created: '2015-03-03T08:21:27Z',
-     image: 
+     image:
       { height: 192,
         imageUrl: 'https://s.yimg.com/dh/ap/social/profile/profile_b192.png',
         size: '192x192',
@@ -275,7 +275,7 @@ __DEPRECATED__ use `msgraph` instead
   birth_month: 11,
   birth_year: 1984,
   gender: null,
-  emails: 
+  emails:
    { preferred: 'a@a.com',
      account: 'a@a.com',
      personal: 'a@a.com',
@@ -289,12 +289,17 @@ __DEPRECATED__ use `msgraph` instead
 The response from Instagram __doesn't contain email__!!!
 
 ```javascript
-{ username: 'petersirka',
-  bio: '',
-  website: '',
-  profile_picture: 'https://instagramimages-a.akamaihd.net/profiles/anonymousUser.jpg',
-  full_name: 'Peter Širka',
-  id: '1635329562' }
+{
+  access_token: '......',
+  user: {
+    username: 'petersirka',
+    bio: '',
+    website: '',
+    profile_picture: 'https://instagramimages-a.akamaihd.net/profiles/anonymousUser.jpg',
+    full_name: 'Peter Širka',
+    id: '1635329562'
+  }
+}
 ```
 
 ### Yandex
