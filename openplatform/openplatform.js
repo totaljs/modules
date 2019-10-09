@@ -22,7 +22,7 @@ FILE('/openplatform.json', function(req, res) {
 	res.file(PATH.root('openplatform.json'));
 });
 
-OP.version = 1.006;
+OP.version = 1.007;
 OP.meta = null;
 
 Fs.readFile(PATH.root('openplatform.json'), function(err, data) {
@@ -76,6 +76,12 @@ function initpending(platform, err) {
 	}
 	platform.pending.length = 0;
 }
+
+OP.services.route = function(url, callback) {
+	ROUTE('POST ' + url, function() {
+		OP.services.check(this, callback);
+	});
+};
 
 OP.services.init = function(meta, next) {
 	// meta.id
