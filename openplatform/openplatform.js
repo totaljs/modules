@@ -240,6 +240,7 @@ OP.auth = OP.users.auth = function(options, callback) {
 					platform.users = meta.users;
 					platform.apps = meta.apps;
 					platform.services = meta.services;
+					platform.servicetoken = meta.servicetoken;
 					platform.sn = meta.sn;
 					platform.settings = meta.settings || EMPTYOBJECT;
 				}
