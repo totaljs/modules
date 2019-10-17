@@ -22,7 +22,10 @@ FILE('/openplatform.json', function(req, res) {
 	res.file(PATH.root('openplatform.json'));
 });
 
-OP.version = 1.007;
+// Applies localization
+LOCALIZE(req => req.query.language);
+
+OP.version = 1.008;
 OP.meta = null;
 
 Fs.readFile(PATH.root('openplatform.json'), function(err, data) {
