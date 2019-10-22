@@ -488,6 +488,7 @@ function OpenPlatformUser(profile, platform) {
 	self.statusid = profile.statusid;
 	self.timeformat = profile.timeformat;
 	self.dtlogged = NOW;
+	self.customer = profile.customer;
 
 	// Internal
 	self.profile = profile;
