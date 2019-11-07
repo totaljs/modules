@@ -45,7 +45,9 @@ function view_index() {
 			obj.upload = item.flags2.upload;
 
 			if (item.schema && item.schema.length && (obj.method === 'POST' || obj.method === 'PUT')) {
-				var schema = $$$(item.schema[0], item.schema[1]);
+				var schema = GETSCHEMA(item.schema[0], item.schema[1]);
+				if (!schema)
+					continue;
 				obj.schema = [];
 				Object.keys(schema.schema).forEach(function(key) {
 					var tmp = schema.schema[key];
