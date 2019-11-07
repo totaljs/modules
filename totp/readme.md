@@ -1,4 +1,4 @@
-# TOTP: Time-Based One-Time Password Algorithm
+# TOTP: Time-Based One-Time Password Algorithm
 
 - mobile apps: Google Authenticator or Microsoft Authenticator
 - download and copy `totp.js` into the `/modules/` directory __or create a definition with:__

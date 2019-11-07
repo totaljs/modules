@@ -22,7 +22,10 @@ FILE('/openplatform.json', function(req, res) {
 	res.file(PATH.root('openplatform.json'));
 });
 
-OP.version = 1.006;
+// Applies localization
+LOCALIZE(req => req.query.language);
+
+OP.version = 1.008;
 OP.meta = null;
 
 Fs.readFile(PATH.root('openplatform.json'), function(err, data) {
@@ -77,6 +80,12 @@ function initpending(platform, err) {
 	platform.pending.length = 0;
 }
 
+OP.services.route = function(url, callback) {
+	ROUTE('POST ' + url, function() {
+		OP.services.check(this, callback);
+	});
+};
+
 OP.services.init = function(meta, next) {
 	// meta.id
 	// meta.openplatformid
@@ -124,7 +133,7 @@ OP.services.check = function(controller, callback) {
 };
 
 // Users
-OP.users.auth = function(options, callback) {
+OP.auth = OP.users.auth = function(options, callback) {
 
 	// options.url {String}
 	// options.expire {String}
@@ -234,7 +243,8 @@ OP.users.auth = function(options, callback) {
 					platform.users = meta.users;
 					platform.apps = meta.apps;
 					platform.services = meta.services;
-					platform.serialnumber = meta.serialnumber;
+					platform.servicetoken = meta.servicetoken;
+					platform.sn = meta.sn;
 					platform.settings = meta.settings || EMPTYOBJECT;
 				}
 
@@ -411,9 +421,6 @@ OP.users.notify = function(url, msg, callback) {
 	if (msg.type == null)
 		msg.type = 1;
 
-	if (msg.type == null)
-		msg.type = 1;
-
 	var cb = callback ? function(err, response) {
 		callback(err, response.parseJSON(true));
 	} : null;
@@ -481,6 +488,7 @@ function OpenPlatformUser(profile, platform) {
 	self.statusid = profile.statusid;
 	self.timeformat = profile.timeformat;
 	self.dtlogged = NOW;
+	self.customer = profile.customer;
 
 	// Internal
 	self.profile = profile;

@@ -163,7 +163,7 @@ function live_profile(key, secret, code, url, callback) {
 }
 
 function instagram_redirect(key, url) {
-	return 'https://api.instagram.com/oauth/authorize/?redirect_uri={0}&response_type=code&client_id={1}&scope=basic+likes'.format(encodeURIComponent(url), key);
+	return 'https://api.instagram.com/oauth/authorize/?redirect_uri={0}&response_type=code&client_id={1}&scope=basic'.format(encodeURIComponent(url), key);
 }
 
 function instagram_profile(key, secret, code, url, callback) {
@@ -290,6 +290,11 @@ function process(name, callback, token) {
 			}
 		} else if (name === 'dropbox') {
 			if (!user['account_id']) {
+				err = user;
+				user = null;
+			}
+		} else if (name === 'instagram') {
+			if (!user.user || !user.user.id) {
 				err = user;
 				user = null;
 			}
