@@ -134,7 +134,7 @@ OP.services.check = function(controller, callback) {
 };
 
 // Users
-OP.auth = OP.users.auth = function(options, callback) {
+OP.users.auth = function(options, callback) {
 
 	// options.url {String}
 	// options.rev {String}
