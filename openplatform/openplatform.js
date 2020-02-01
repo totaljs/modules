@@ -9,6 +9,7 @@ const BLOCKEDTIMEOUT = '15 minutes';
 const SESSIONINTERVAL = 7; // in minutes
 const AUTOSYNCINTERVAL = 2; // in minutes
 const LIMIT = 100; // max. items per page
+const LIMITREVISIONS = 7;
 const ERR_SERVICES_TOKEN = 'OpenPlatform token is invalid.';
 
 // Variables
@@ -25,7 +26,7 @@ FILE('/openplatform.json', function(req, res) {
 // Applies localization
 LOCALIZE(req => req.query.language);
 
-OP.version = 1.009;
+OP.version = 1.010;
 OP.meta = null;
 
 Fs.readFile(PATH.root('openplatform.json'), function(err, data) {
@@ -145,6 +146,20 @@ OP.auth = OP.users.auth = function(options, callback) {
 	if (user && (!options.rev || user.profile.rev === options.rev)) {
 		callback(null, user);
 		return;
+	}
+
+	if (user && options.rev && user.profile.rev && user.profile.rev !== options.rev) {
+
+		if (user.profile.revcount)
+			user.profile.revcount++;
+		else
+			user.profile.revcount = 1;
+
+		// A simple protection for revisions
+		if (user.profile.revcount > LIMITREVISIONS) {
+			callback(null, user);
+			return;
+		}
 	}
 
 	REQUEST(options.url, FLAGS, function(err, response) {
@@ -641,3 +656,133 @@ function autosyncforce(platform) {
 		pending && autosyncforce(pending);
 	});
 }
+
+OP.auth = function(callback) {
+	AUTH(function($) {
+		var op = $.query.openplatform;
+
+		if (!op || op.length < 20) {
+			$.invalid();
+			return;
+		}
+
+		var opt = {};
+
+		opt.url = op;
+		opt.rev = $.query.rev;
+
+		OP.users.auth(opt, function(err, user, type, cached) {
+
+			// type 0 : from session
+			// type 1 : profile downloaded from OP without OP meta data
+			// type 2 : profile downloaded from OP with meta data
+			// cached : means that meta data of OP has been downloaded before this call
+
+			if (user) {
+				user.language && ($.req.$language = user.language);
+				callback($, user, type, cached);
+			} else
+				$.invalid();
+		});
+	});
+
+};
+
+var BLACKLIST = { id: 1, dtcreated: 1, repo: 1 };
+
+OP.users.sync_all = function(interval, modified, fields, filter, processor, callback) {
+
+	if (typeof(filter) === 'function') {
+		callback = processor;
+		processor = filter;
+		filter = {};
+	}
+
+	var props = typeof(fields) === 'string' ? fields.split(',') : fields;
+	var opt = {};
+
+	opt.filter = function(builder) {
+		builder.where('openplatformid', this.platform.id);
+		builder.in('id', this.id);
+		return builder;
+	};
+
+	var process = function(users, next, platform) {
+
+		if (!users || !users.length) {
+			next && next();
+			return;
+		}
+
+		opt.next = next;
+		opt.users = users;
+		opt.platform = platform;
+
+		var id = [];
+		for (let i = 0; i < users.length; i++) {
+			let user = users[i];
+			if (user) {
+				user.checksum = '';
+				for (let j = 0; j < props.length; j++) {
+
+					var field = props[j];
+					if (BLACKLIST[field])
+						continue;
+
+					var val = user[field];
+					if (val)
+						user.checksum += (val instanceof Array ? val.join(',') : val instanceof Date ? val.getTime() : val) + ';';
+					else
+						user.checksum += '0;';
+				}
+				user.checksum = user.checksum.hash(true) + '';
+				id.push(user.id);
+			}
+		}
+
+		opt.id = id;
+		processor(opt);
+	};
+
+	var initfilter = CLONE(filter);
+	initfilter.fields = fields;
+
+	filter.modified = modified;
+	filter.fields = fields;
+
+	OP.users.autosync(interval, initfilter, filter, process, callback);
+	return process;
+};
+
+OP.users.sync_rem = function(interval, modified, processor, callback) {
+
+	var opt = {};
+
+	opt.filter = function(builder) {
+		builder.where('openplatformid', this.platform.id);
+		builder.in('id', this.id);
+		return builder;
+	};
+
+	var process = function(users, next, platform) {
+
+		if (!users || !users.length) {
+			next && next();
+			return;
+		}
+
+		opt.users = users;
+		opt.id = id;
+		opt.next = next;
+		opt.platform = platform;
+
+		var id = [];
+		for (let i = 0; i < users.length; i++)
+			id.push(users[i].id);
+
+		processor(opt);
+	};
+
+	OP.users.autosync(interval, { removed: true }, { modified: modified, removed: true }, process, callback);
+	return process;
+};
