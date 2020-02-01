@@ -671,7 +671,7 @@ OP.auth = function(callback) {
 		opt.url = op;
 		opt.rev = $.query.rev;
 
-		OP.users.auth(opt, function(err, user, type, cached) {
+		OP.users.auth(opt, function(err, user, type, cached, raw) {
 
 			// type 0 : from session
 			// type 1 : profile downloaded from OP without OP meta data
@@ -680,7 +680,7 @@ OP.auth = function(callback) {
 
 			if (user) {
 				user.language && ($.req.$language = user.language);
-				callback($, user, type, cached);
+				callback($, user, type, cached, raw);
 			} else
 				$.invalid();
 		});
