@@ -26,7 +26,7 @@ FILE('/openplatform.json', function(req, res) {
 // Applies localization
 LOCALIZE(req => req.query.language);
 
-OP.version = 1.010;
+OP.version = 1.011;
 OP.meta = null;
 
 Fs.readFile(PATH.root('openplatform.json'), function(err, data) {
@@ -101,7 +101,6 @@ OP.services.init = function(meta, next) {
 OP.services.check = function(controller, callback) {
 
 	var arr = (controller.headers['x-openplatform'] || '').split('-');
-
 	if (!arr[0] && !arr[3]) {
 		controller.invalid('error-openplatform-token', ERR_SERVICES_TOKEN);
 		return;
@@ -115,22 +114,39 @@ OP.services.check = function(controller, callback) {
 	meta.servicetoken = arr[4];
 
 	if (meta.verifytoken || meta.directoryid)
-		meta.id = (meta.openplatformid + '-' + (meta.verifytoken || '0') + '-' + (meta.directoryid || '0')).crc32(true);
+		meta.openplatformid = (meta.openplatformid + '-' + (meta.verifytoken || '0') + '-' + (meta.directoryid || '0')).crc32(true) + '';
 
-	var id = meta.id + '';
-	var platform = OP.platforms[id];
-	if (platform == null) {
+	var id = meta.openplatformid;
+	var key = 'services' + id;
+	var platform = OP.platforms[key];
+
+	if (platform && platform.dtexpire < NOW) {
+		platform.openplatformid = id;
+		platform.directoryid = meta.directoryid;
+		platform.verifytoken = meta.verifytoken;
+		platform.servicetoken = meta.servicetoken;
+		meta = platform;
+		platform = null;
+	}
+
+	if (platform) {
+		if (platform.id == id && platform.servicetoken === meta.servicetoken)
+			callback.call(controller, null, meta, controller);
+		else {
+			delete OP.platforms[key];
+			controller.invalid('error-openplatform-token', ERR_SERVICES_TOKEN);
+		}
+	} else {
+		meta.id = id;
 		OP.services.init(meta, function(err, is) {
-			if (is)
-				callback(err, meta);
-			else
+			if (is) {
+				meta.dtexpire = NOW.add(SYNCMETA);
+				OP.platforms[key] = meta;
+				callback.call(controller, err, meta, controller);
+			} else
 				controller.invalid('error-openplatform-token', ERR_SERVICES_TOKEN);
 		});
-	} else if (platform.id == id && platform.servicetoken === meta.servicetoken)
-		callback(null, meta);
-	else
-		controller.invalid('error-openplatform-token', ERR_SERVICES_TOKEN);
-
+	}
 };
 
 // Users
@@ -238,6 +254,10 @@ OP.users.auth = function(options, callback) {
 				for (var i = 0; i < profile.groups.length; i++)
 					profile.filter.push('#' + profile.groups[i]);
 			}
+
+			profile.services = meta.services;
+			profile.users = meta.users;
+			profile.apps = meta.apps;
 
 			var user = new OpenPlatformUser(profile, platform);
 
@@ -457,6 +477,7 @@ ON('service', function(counter) {
 	var keys;
 
 	if (counter % SESSIONINTERVAL === 0) {
+
 		// Clears all expired sessions
 		keys = Object.keys(OP.sessions);
 		for (let i = 0; i < keys.length; i++) {
@@ -593,7 +614,7 @@ OPU.logout = function() {
 };
 
 OPU.service = function(app, service, data, callback) {
-	RESTBuilder.POST(this.platform.services + '&app=' + app + '&service=' + service, data).callback(callback);
+	RESTBuilder.POST(this.profile.services + '&app=' + app + '&service=' + service, data).callback(callback);
 };
 
 OPU.cl = function() {
