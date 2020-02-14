@@ -1,28 +1,26 @@
 // MIT License
 // Copyright Peter Širka <petersirka@gmail.com>
 
-const REGEXP_BROWSER = /Chrome\/\d+|Firefox\/[0-9.]|Safari\/\d+|MSIE.\d+|Opera\/[0-9.]+/;
-const REGEXP_MOBILE = /mobile/i;
 const USAGE = { errors: [], counter: 0 };
 
 exports.name = 'clienterror';
 exports.usage = () => USAGE;
 exports.options = { logger: true, console: true, filename: 'clienterror', url: '/$clienterror/' };
-exports.version = 'v2.0.0';
+exports.version = 'v3.0.0';
 
 var options = exports.options;
 
 exports.install = function(opt) {
 	options = U.extend(options, opt, true);
-	F.on('controller', onController);
-	F.route(options.url, process_error, ['post', 'json', 'referer']);
+	ON('controller', controller);
+	ROUTE('POST ' + options.url, process_error, ['referer']);
 };
 
 exports.uninstall = function() {
-	F.removeListener('controller', onController);
+	OFF('controller', controller);
 };
 
-function onController(controller) {
+function controller(controller) {
 	!controller.robot && controller.head("<script>window.onerror=function(e){var err=(e.stack||e).toString();if(window.CLIENTERROR===err)return;window.CLIENTERROR=err;var x=new XMLHttpRequest();x.open('POST','{0}',true);x.setRequestHeader('Content-type','application/json');x.send(JSON.stringify({url:location.href,error:e}));};</script>".format(options.url));
 }
 
@@ -35,17 +33,10 @@ function process_error() {
 	self.empty();
 	USAGE.counter++;
 
-	var r = ua.match(REGEXP_BROWSER);
-	if (r)
-		browser = r.toString();
-
-	if (REGEXP_MOBILE.test(ua))
-		browser += ' (mobile)';
-
 	options.logger && self.logger(options.filename, body.url, body.error, browser, self.ip);
 	options.console && console.log('CLIENTERROR:', body.url, body.error, browser, self.ip);
 
-	body.browser = browser;
+	body.browser = ua ? ua.parseUA() : 'Unknown';
 	body.ip = self.ip;
 
 	USAGE.errors.push(body);
