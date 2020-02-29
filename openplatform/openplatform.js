@@ -26,7 +26,7 @@ FILE('/openplatform.json', function(req, res) {
 // Applies localization
 LOCALIZE(req => req.query.language);
 
-OP.version = 1.011;
+OP.version = 1.012;
 OP.meta = null;
 
 Fs.readFile(PATH.root('openplatform.json'), function(err, data) {
@@ -156,6 +156,20 @@ OP.users.auth = function(options, callback) {
 	// options.rev {String}
 	// options.expire {String}
 
+	if (OP.meta.openplatform && OP.meta.openplatform.length) {
+		var is = false;
+		for (var i = 0; i < OP.meta.openplatform.length; i++) {
+			if (options.url.substring(0, OP.meta.openplatform[i].length) === OP.meta.openplatform[i]) {
+				is = true;
+				break;
+			}
+		}
+		if (!is) {
+			callback('error-openplatform-hostname');
+			return;
+		}
+	}
+
 	var key = 'session' + options.url.hash(true);
 	var user = OP.sessions[key];
 
@@ -171,7 +185,7 @@ OP.users.auth = function(options, callback) {
 		else
 			user.profile.revcount = 1;
 
-		// A simple protection for revisions
+		// A simple protection for chaning count of revisions
 		if (user.profile.revcount > LIMITREVISIONS) {
 			callback(null, user);
 			return;
