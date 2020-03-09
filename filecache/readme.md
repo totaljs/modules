@@ -20,8 +20,8 @@ console.log(id);
 filecache.add(self.files[0], new Date().add('minute', 5), function(id, header) {
 	console.log(id);
 	console.log(header);
-	// { expire: Date, contentType: String, filename: String, length: Number, width: Number, height: Number }
-}, true);
+	// { expire: Date, type: String, filename: String, length: Number, width: Number, height: Number }
+});
 ```
 
 #### Read a file informations: filecache.info(id);
@@ -34,7 +34,7 @@ var self = this;
 var filecache = MODULE('filecache');
 
 console.log(filechace.info('d4e2ec5edbc4eda32e48'));
-// { expire: Date, contentType: String, filename: String, path: String, length: Number, width: Number, height: Number }
+// { expire: Date, type: String, filename: String, path: String, length: Number, width: Number, height: Number }
 
 ```
 
@@ -52,11 +52,11 @@ filecache.read('id', function(err, header, stream) {
 		return;
 	}
 
-	// header.contentType {String}
+	// header.type {String}
 	// header.filename {String}
 	// header.expire {DateTime}
 
-	self.stream(header.contentType, stream);
+	self.stream(header.type, stream);
 });
 ```
 
