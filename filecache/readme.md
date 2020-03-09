@@ -1,16 +1,16 @@
-# FileCache
+# FileCache module
 
 - copy **filecache.js** to __/your-totaljs-website/modules/__
 - __IMPORTANT:__ this module does not work with the cluster
 
 FileCache stores uploaded files for some time. The module automatically removed older files.
 
-#### Add a file: filecache.add(file, expire, [callback])
+#### Add a file: filecache.add(file, expire, [callback])
 
 ```js
 // this === controller
 var self = this;
-var filecache = self.module('filecache');
+var filecache = MODULE('filecache');
 
 var id = filecache.add(self.files[0], new Date().add('minute', 5));
 console.log(id);
@@ -31,7 +31,7 @@ filecache.add(self.files[0], new Date().add('minute', 5), function(id, header) {
 ```js
 // this === controller
 var self = this;
-var filecache = self.module('filecache');
+var filecache = MODULE('filecache');
 
 console.log(filechace.info('d4e2ec5edbc4eda32e48'));
 // { expire: Date, contentType: String, filename: String, path: String, length: Number, width: Number, height: Number }
@@ -43,7 +43,7 @@ console.log(filechace.info('d4e2ec5edbc4eda32e48'));
 ```js
 // this === controller
 var self = this;
-var filecache = self.module('filecache');
+var filecache = MODULE('filecache');
 
 filecache.read('id', function(err, header, stream) {
 
@@ -65,7 +65,7 @@ filecache.read('id', function(err, header, stream) {
 ```js
 // this === controller
 var self = this;
-var filecache = self.module('filecache');
+var filecache = MODULE('filecache');
 
 filecache.copy('id', '/newpah/myfile.jpg', function(err, path) {
 
@@ -82,7 +82,7 @@ filecache.copy('id', '/newpah/myfile.jpg', function(err, path) {
 ```js
 // this === controller
 var self = this;
-var filecache = self.module('filecache');
+var filecache = MODULE('filecache');
 
 console.log(filecache.has('id')); // TRUE or FALSE
 ```
@@ -92,32 +92,11 @@ console.log(filecache.has('id')); // TRUE or FALSE
 ```js
 // this === controller
 var self = this;
-var filecache = self.module('filecache');
+var filecache = MODULE('filecache');
 
 filecache.remove('id');
 
 // or
 
 filecache.remove(['id1', 'id2', 'id3']);
-```
-
-#### Send files to FileServer: filecache.fileserver(name, id, [callback], [headers], [removeAfterRead])
-
-> removeAfterRead = true
-
-```js
-// this === controller
-var self = this;
-var filecache = self.module('filecache');
-var fileserver = self.module('fileserver');
-
-var files = filecache.fileserver('mywebsite', 'id', function(err, result) {
-
-});
-
-// or
-
-var files = filecache.fileserver('mywebsite', ['id1', 'id2', 'id3'], function(err, result) {
-
-});
 ```
