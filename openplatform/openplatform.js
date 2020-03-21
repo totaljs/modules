@@ -26,7 +26,7 @@ FILE('/openplatform.json', function(req, res) {
 // Applies localization
 LOCALIZE(req => req.query.language);
 
-OP.version = 1.012;
+OP.version = 1.013;
 OP.meta = null;
 
 Fs.readFile(PATH.root('openplatform.json'), function(err, data) {
@@ -108,7 +108,7 @@ OP.services.check = function(controller, callback) {
 
 	var meta = {};
 	meta.openplatformid = arr[0];
-	meta.directoryid = arr[1];
+	meta.directoryid = +arr[1];
 	meta.verifytoken = arr[2];
 	meta.userid = arr[3];
 	meta.servicetoken = arr[4];
