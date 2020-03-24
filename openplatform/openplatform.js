@@ -26,7 +26,7 @@ FILE('/openplatform.json', function(req, res) {
 // Applies localization
 LOCALIZE(req => req.query.language);
 
-OP.version = 1.013;
+OP.version = 1.014;
 OP.meta = null;
 
 Fs.readFile(PATH.root('openplatform.json'), function(err, data) {
@@ -248,6 +248,18 @@ OP.users.auth = function(options, callback) {
 				platform.isloading = true;
 				platform.pending = [];
 				platform.cache = {};
+
+				platform.sync_users = function(options, processor, done) {
+
+					if (!platform.users) {
+						done && done();
+						return;
+					}
+
+					options.url = platform.users;
+					OP.users.sync(options, processor, done);
+				};
+
 				OP.platforms[id] = platform;
 				init = true;
 			}
@@ -449,6 +461,12 @@ OP.users.sync = function(options, process, done) {
 				}
 
 				counter += response.items.length;
+
+				if (!response.items.length) {
+					done && done(null, counter);
+					return;
+				}
+
 				process(response.items, function() {
 					page++;
 					if (page > response.pages)
