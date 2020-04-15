@@ -18,24 +18,30 @@ var autosyncitems = [];
 var autosyncrunning = 0;
 var autosyncpending = [];
 
+OP.metafile = {};
+OP.metafile.url = '/openplatform.json';
+OP.metafile.filename = PATH.root('openplatform.json');
+
 // Registers a file route
-FILE('/openplatform.json', function(req, res) {
-	res.file(PATH.root('openplatform.json'));
+ON('ready', function() {
+	FILE(OP.metafile.route, function(req, res) {
+		res.file(OP.metafile.filename);
+	});
+
+	Fs.readFile(OP.metafile.filename, function(err, data) {
+		if (data) {
+			OP.meta = data.toString('utf8').parseJSON(true);
+			if (OP.meta)
+				OP.meta.save = () => Fs.writeFile(OP.metafile.filename, JSON.stringify(OP.meta, null, '\t'), NOOP);
+		}
+	});
 });
 
 // Applies localization
 LOCALIZE(req => req.query.language);
 
-OP.version = 1.014;
+OP.version = 1.015;
 OP.meta = null;
-
-Fs.readFile(PATH.root('openplatform.json'), function(err, data) {
-	if (data) {
-		OP.meta = data.toString('utf8').parseJSON(true);
-		if (OP.meta)
-			OP.meta.save = () => Fs.writeFile(PATH.root('openplatform.json'), JSON.stringify(OP.meta, null, '\t'), NOOP);
-	}
-});
 
 OP.init = function(meta, next) {
 	next(null, meta);
