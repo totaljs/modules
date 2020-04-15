@@ -24,7 +24,7 @@ OP.metafile.filename = PATH.root('openplatform.json');
 
 // Registers a file route
 ON('ready', function() {
-	FILE(OP.metafile.route, function(req, res) {
+	FILE(OP.metafile.url, function(req, res) {
 		res.file(OP.metafile.filename);
 	});
 
