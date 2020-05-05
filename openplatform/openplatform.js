@@ -40,7 +40,7 @@ ON('ready', function() {
 // Applies localization
 LOCALIZE(req => req.query.language);
 
-OP.version = 1.015;
+OP.version = 1.016;
 OP.meta = null;
 
 OP.init = function(meta, next) {
@@ -207,6 +207,11 @@ OP.users.auth = function(options, callback) {
 			err = meta[0] ? meta[0].error : response;
 			OP.options.debug && OP.error('users.auth', err);
 			callback(err);
+			return;
+		}
+
+		if (meta.url !== OP.meta.url) {
+			callback('URL addresses between OpenPlatform and application do not match');
 			return;
 		}
 
