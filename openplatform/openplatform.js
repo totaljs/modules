@@ -556,7 +556,9 @@ function OpenPlatformUser(profile, platform) {
 	self.id = profile.id;
 	self.openplatformid = platform.id;
 	self.darkmode = profile.darkmode;
+	self.colorscheme = profile.colorscheme;
 	self.dateformat = profile.dateformat;
+	self.numberformat = profile.numberformat;
 	self.datefdow = firstdate[profile.language] || 0;
 	self.email = profile.email;
 	self.filter = profile.filter;
