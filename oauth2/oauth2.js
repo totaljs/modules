@@ -10,7 +10,7 @@ const FLAG_POST_JSON = ['post', 'json'];
 const FLAG_GET = ['get'];
 
 exports.id = 'oauth2';
-exports.version = 'v1.7.0';
+exports.version = 'v1.8.0';
 
 exports.usage = function() {
 	return stats;
@@ -37,6 +37,34 @@ function facebook_profile(key, secret, code, url, callback) {
 			url = 'https://graph.facebook.com/me?' + data + '&fields=email,first_name,last_name,gender,hometown,locale,name,id,timezone,picture';
 
 		U.request(url, FLAG_GET, '', process('facebook', callback, token));
+	});
+}
+
+function openplatform_redirect(op, key, url) {
+	return op + '/oauth/authorize/?client_id={0}&redirect_uri={1}'.format(key, encodeURIComponent(url));
+}
+
+function openplatform_profile(op, key, secret, code, url, callback) {
+
+	OAUTH2_HEADER.code = code;
+	OAUTH2_HEADER.client_id = key;
+	OAUTH2_HEADER.client_secret = secret;
+	OAUTH2_HEADER.redirect_uri = url;
+
+	U.request(op + '/oauth/token/?client_id={0}&redirect_uri={1}&client_secret={2}&code={3}'.format(key, url, secret, code), FLAG_POST, OAUTH2_HEADER, function(err, data) {
+		if (err)
+			return callback(err);
+
+		if (data.indexOf('"error"') !== -1)
+			return callback(data);
+
+		var url;
+		var token = '';
+
+		token = JSON.parse(data).access_token;
+		url = op + '/oauth/profile/';
+		OAUTH2_BEARER.Authorization = 'Bearer ' + token;
+		U.request(url, FLAG_GET, '', process('openplatform', callback, token), null, OAUTH2_BEARER);
 	});
 }
 
@@ -307,8 +335,11 @@ function process(name, callback, token) {
 	};
 }
 
-exports.redirect = function(type, key, url, controller) {
+exports.redirect = function(type, key, url, controller, param) {
 	switch (type) {
+		case 'openplatform':
+			controller.redirect(openplatform_redirect(param, key, url));
+			break;
 		case 'facebook':
 			controller.redirect(facebook_redirect(key, url));
 			break;
@@ -345,8 +376,11 @@ exports.redirect = function(type, key, url, controller) {
 	}
 };
 
-exports.callback = function(type, key, secret, url, controller, callback) {
+exports.callback = function(type, key, secret, url, controller, callback, param) {
 	switch (type) {
+		case 'openplatform':
+			openplatform_profile(param, key, secret, controller.query.code, url, callback);
+			break;
 		case 'facebook':
 			facebook_profile(key, secret, controller.query.code, url, callback);
 			break;
@@ -405,3 +439,5 @@ exports.vk_profile = vk_profile;
 exports.vk_redirect = vk_redirect;
 exports.msgraph_profile = msgraph_profile;
 exports.msgraph_redirect = msgraph_redirect;
+exports.openplatform_profile = openplatform_profile;
+exports.openplatform_redirect = openplatform_redirect;

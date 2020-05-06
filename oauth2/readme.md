@@ -43,6 +43,9 @@ function oauth_login() {
     // ...
 
     MODULE('oauth2').redirect(type, CONFIG('oauth2.' + type + '.key'), self.host('/login/' + type + '/callback/'), self);
+
+    // OpenPlatform:
+    // MODULE('oauth2').redirect(type, CONFIG('oauth2.' + type + '.key'), self.host('/login/' + type + '/callback/'), self, OPENPLATFORM_URL_ADDRESS);
 }
 
 // Controller action
@@ -62,6 +65,12 @@ function oauth_login_callback() {
         console.log(profile);
         self.json(SUCCESS(true));
     });
+
+    // OpenPlatform:
+    // MODULE('oauth2').callback(type, CONFIG('oauth2.' + type + '.key'), CONFIG('oauth2.' + type + '.secret'), url, self, function(err, profile, access_token) {
+    //     console.log(profile);
+    //     self.json(SUCCESS(true));
+    // }, OPENPLATFORM_URL_ADDRESS);
 }
 ```
 
@@ -78,6 +87,7 @@ function oauth_login_callback() {
 - Yandex - <https://oauth.yandex.com>
 - VKontakte - <http://vk.com/apps?act=manage>
 - Microsoft Graph - <https://apps.dev.microsoft.com/> or __App registrations (Preview)__ experience in the Azure portal
+- OpenPlatform
 
 ## CALLBACK
 
