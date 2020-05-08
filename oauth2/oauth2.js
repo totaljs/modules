@@ -51,7 +51,7 @@ function openplatform_profile(op, key, secret, code, url, callback) {
 	OAUTH2_HEADER.client_secret = secret;
 	OAUTH2_HEADER.redirect_uri = url;
 
-	U.request(op + '/oauth/token/?client_id={0}&redirect_uri={1}&client_secret={2}&code={3}'.format(key, url, secret, code), FLAG_POST, OAUTH2_HEADER, function(err, data) {
+	U.request(op + '/oauth/token/'.format(key, url, secret, code), FLAG_POST, OAUTH2_HEADER, function(err, data) {
 		if (err)
 			return callback(err);
 
