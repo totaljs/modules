@@ -27,7 +27,6 @@ ON('ready', function() {
 	FILE(OP.metafile.url, function(req, res) {
 		res.file(OP.metafile.filename);
 	});
-
 	Fs.readFile(OP.metafile.filename, function(err, data) {
 		if (data) {
 			OP.meta = data.toString('utf8').parseJSON(true);
@@ -40,7 +39,7 @@ ON('ready', function() {
 // Applies localization
 LOCALIZE(req => req.query.language);
 
-OP.version = 1.016;
+OP.version = 1.017;
 OP.meta = null;
 
 OP.init = function(meta, next) {
@@ -161,6 +160,12 @@ OP.users.auth = function(options, callback) {
 	// options.url {String}
 	// options.rev {String}
 	// options.expire {String}
+
+	// Meta aren't loaded, we need to wait
+	if (!OP.meta) {
+		setTimeout(OP.users.auth, 500, options, callback);
+		return;
+	}
 
 	if (OP.meta.openplatform && OP.meta.openplatform.length) {
 		var is = false;
