@@ -576,6 +576,10 @@ function OpenPlatformUser(profile, platform) {
 	self.dtlogged = NOW;
 	self.customer = profile.customer;
 
+	// All informations
+	self.email = profile.email;
+	self.phone = profile.phone;
+
 	// Internal
 	self.profile = profile;
 	self.platform = platform;
