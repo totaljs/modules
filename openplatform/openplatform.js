@@ -1,8 +1,6 @@
 const Fs = require('fs');
 
 // Constants
-const FLAGS = ['get'];
-const FLAGSNOTIFY = ['post', 'json'];
 const SYNCMETA = '10 minutes';
 const EXPIRE = '10 minutes';
 const BLOCKEDTIMEOUT = '15 minutes';
@@ -27,7 +25,6 @@ ON('ready', function() {
 	FILE(OP.metafile.url, function(req, res) {
 		res.file(OP.metafile.filename);
 	});
-
 	Fs.readFile(OP.metafile.filename, function(err, data) {
 		if (data) {
 			OP.meta = data.toString('utf8').parseJSON(true);
@@ -40,7 +37,7 @@ ON('ready', function() {
 // Applies localization
 LOCALIZE(req => req.query.language);
 
-OP.version = 1.016;
+OP.version = 1.018;
 OP.meta = null;
 
 OP.init = function(meta, next) {
@@ -162,6 +159,12 @@ OP.users.auth = function(options, callback) {
 	// options.rev {String}
 	// options.expire {String}
 
+	// Meta aren't loaded, we need to wait
+	if (!OP.meta) {
+		setTimeout(OP.users.auth, 500, options, callback);
+		return;
+	}
+
 	if (OP.meta.openplatform && OP.meta.openplatform.length) {
 		var is = false;
 		for (var i = 0; i < OP.meta.openplatform.length; i++) {
@@ -198,11 +201,11 @@ OP.users.auth = function(options, callback) {
 		}
 	}
 
-	REQUEST(options.url, FLAGS, function(err, response) {
+	RESTBuilder.GET(options.url).callback(function(err, response) {
 
 		err && OP.options.debug && OP.error('users.auth', err);
 
-		var meta = response.parseJSON(true);
+		var meta = response;
 		if (meta instanceof Array) {
 			err = meta[0] ? meta[0].error : response;
 			OP.options.debug && OP.error('users.auth', err);
@@ -345,11 +348,11 @@ OP.users.auth = function(options, callback) {
 					}
 
 					if (OP.options.meta && meta.meta) {
-						REQUEST(meta.meta, FLAGS, function(err, response) {
+						RESTBuilder.GET(meta.meta).exec(function(err, response) {
 							OP.sessions[key] = user;
 							platform.isloading = false;
 							err && OP.options.debug && OP.error('users.auth', err);
-							platform.meta = response ? response.parseJSON(true) : EMPTYOBJECT;
+							platform.meta = response ? response : EMPTYOBJECT;
 							callback(null, user, 2, is, raw);
 							autosyncitems.length && autosyncforce(platform);
 							platform.pending.length && initpending(platform);
@@ -502,17 +505,17 @@ OP.users.notify = function(url, msg, callback) {
 		msg.type = 1;
 
 	var cb = callback ? function(err, response) {
-		callback(err, response.parseJSON(true));
+		callback(err, response);
 	} : null;
 
-	REQUEST(url, FLAGSNOTIFY, msg, cb);
+	RESTBuilder.POST(url, msg).exec(cb);
 };
 
 OP.users.badge = function(url, callback) {
 	var cb = callback ? function(err, response) {
 		callback(err, response.parseJSON(true));
 	} : null;
-	REQUEST(url, FLAGS, cb);
+	RESTBuilder.GET(url).exec(cb);
 };
 
 ON('service', function(counter) {
