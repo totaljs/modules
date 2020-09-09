@@ -37,7 +37,7 @@ ON('ready', function() {
 // Applies localization
 LOCALIZE(req => req.query.language);
 
-OP.version = 1.018;
+OP.version = 1.019;
 OP.meta = null;
 
 OP.init = function(meta, next) {
@@ -728,7 +728,7 @@ function autosyncforce(platform) {
 
 OP.auth = function(callback) {
 	AUTH(function($) {
-		var op = $.query.openplatform;
+		var op = $.query.openplatform || $.headers['x-openplatform'];
 
 		if (!op || op.length < 20) {
 			$.invalid();
