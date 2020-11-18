@@ -739,7 +739,7 @@ OP.auth = function(callback) {
 			// decode
 			try {
 
-				var tmp = Buffer.from(op.substring(7), 'base64').split(',');
+				var tmp = Buffer.from(op.substring(7), 'base64').toString('utf8').split(',');
 				if (!tmp[0] || tmp[0].length < 20) {
 					$.invalid();
 					return;
