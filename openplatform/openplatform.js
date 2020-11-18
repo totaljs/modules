@@ -214,7 +214,7 @@ OP.users.auth = function(options, callback) {
 		}
 
 		if (meta.url !== OP.meta.url) {
-			callback('URL addresses  do not match between OpenPlatform and application');
+			callback('URL addresses do not match between OpenPlatform and application');
 			return;
 		}
 
