@@ -739,11 +739,23 @@ OP.auth = function(callback) {
 			// decode
 			try {
 
-				var tmp = Buffer.from(op.substring(7), 'base64').toString('utf8').split(',');
-				if (!tmp[0] || tmp[0].length < 20) {
+				var cache = global.TEMP ? global.TEMP[op] : undefined;
+				var tmp;
+
+				if (cache === null) {
 					$.invalid();
 					return;
 				}
+
+				if (!global.TEMP || !cache) {
+					tmp = Buffer.from(op.substring(7), 'base64').toString('utf8').split(',');
+					if (!tmp[0] || tmp[0].length < 20) {
+						$.invalid();
+						return;
+					}
+					global.TEMP[op] = tmp;
+				} else
+					tmp = cache;
 
 				var qd = $.req._querydata;
 				qd.openplatform = op = tmp[0];
