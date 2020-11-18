@@ -214,7 +214,7 @@ OP.users.auth = function(options, callback) {
 		}
 
 		if (meta.url !== OP.meta.url) {
-			callback('URL addresses between OpenPlatform and application do not match');
+			callback('URL addresses  do not match between OpenPlatform and application');
 			return;
 		}
 
@@ -728,11 +728,31 @@ function autosyncforce(platform) {
 
 OP.auth = function(callback) {
 	AUTH(function($) {
-		var op = $.query.openplatform || $.headers['x-openplatform'];
+		var op = $.query.openplatform || $.headers.authorization;
 
 		if (!op || op.length < 20) {
 			$.invalid();
 			return;
+		}
+
+		if (op.substring(0, 7) === 'base64 ') {
+			// decode
+			try {
+
+				var tmp = Buffer.from(op.substring(7), 'base64').split(',');
+				if (!tmp[0] || tmp[0].length < 20) {
+					$.invalid();
+					return;
+				}
+
+				var qd = $.req._querydata;
+				qd.openplatform = op = tmp[0];
+				qd.rev = tmp[1];
+				qd.language = tmp[2];
+			} catch (e) {
+				$.invalid();
+				return;
+			}
 		}
 
 		var opt = {};
