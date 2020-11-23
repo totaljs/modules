@@ -223,7 +223,7 @@ OP.users.auth = function(options, callback) {
 			// meta.id === this "appid" in OpenPlatform
 			var blocked = OP.blocked[meta.openplatformid];
 			if (blocked) {
-				callback(blocked.err);
+				callback(blocked.err, null, null, null, meta);
 				return;
 			}
 
@@ -279,7 +279,7 @@ OP.users.auth = function(options, callback) {
 			}
 
 			if (err) {
-				callback(err);
+				callback(err, null, null, null, raw);
 				return;
 			}
 
@@ -328,9 +328,9 @@ OP.users.auth = function(options, callback) {
 				if (options.url.substring(0, meta.openplatform.length) !== meta.openplatform || rawid !== meta.openplatform.crc32(true)) {
 					err = 'Invalid OpenPlatform meta data.';
 					platform.isloading = false;
-					OP.blocked[platform.id] = { expire: NOW.add(BLOCKEDTIMEOUT), err: err };
+					OP.blocked[platform.id] = { expire: NOW.add(BLOCKEDTIMEOUT), err: err, url: OP.meta.url };
 					platform.pending.length && initpending(platform, err);
-					callback(err);
+					callback(err, null, null, null, raw);
 					return;
 				}
 
@@ -341,8 +341,8 @@ OP.users.auth = function(options, callback) {
 
 					if (err) {
 						platform.isloading = false;
-						OP.blocked[platform.id] = { expire: NOW.add(BLOCKEDTIMEOUT), err: err };
-						callback(err);
+						OP.blocked[platform.id] = { expire: NOW.add(BLOCKEDTIMEOUT), err: err, url: OP.meta.url };
+						callback(err, null, null, null, raw);
 						platform.pending.length && initpending(platform, err);
 						return;
 					}
@@ -780,8 +780,10 @@ OP.auth = function(callback) {
 			// type 2 : profile downloaded from OP with meta data
 			// cached : means that meta data of OP has been downloaded before this call
 
-			if (err)
+			if (err) {
 				$.req.operror = err;
+				$.req.opmeta = raw;
+			}
 
 			if (user) {
 				user.language && ($.req.$language = user.language);
