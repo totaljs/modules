@@ -366,6 +366,7 @@ OP.users.auth = function(options, callback) {
 						platform.pending.length && initpending(platform);
 					}
 				});
+
 			} else {
 				OP.sessions[key] = user;
 				platform.isloading = false;
@@ -778,6 +779,9 @@ OP.auth = function(callback) {
 			// type 1 : profile downloaded from OP without OP meta data
 			// type 2 : profile downloaded from OP with meta data
 			// cached : means that meta data of OP has been downloaded before this call
+
+			if (err)
+				$.req.operror = err;
 
 			if (user) {
 				user.language && ($.req.$language = user.language);
