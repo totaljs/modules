@@ -288,12 +288,14 @@ OP.users.auth = function(options, callback) {
 			if (profile.roles) {
 				for (var i = 0; i < profile.roles.length; i++)
 					profile.filter.push('@' + profile.roles[i]);
-			}
+			} else
+				profile.roles = [];
 
 			if (profile.groups) {
 				for (var i = 0; i < profile.groups.length; i++)
 					profile.filter.push('#' + profile.groups[i]);
-			}
+			} else
+				profile.groups = [];
 
 			profile.services = meta.services;
 			profile.users = meta.users;
