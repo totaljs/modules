@@ -777,6 +777,13 @@ function autosyncforce(platform) {
 	});
 }
 
+function makeurl() {
+	var url = OP.meta.url;
+	if (url[url.length - 1] !== '/')
+		url += '/';
+	return QUERIFY(url, this.query);
+}
+
 OP.auth = function(callback) {
 	AUTH(function($) {
 		var op = $.query.openplatform || $.headers.authorization;
@@ -812,6 +819,7 @@ OP.auth = function(callback) {
 				qd.openplatform = op = tmp[0];
 				qd.rev = tmp[1];
 				qd.language = tmp[2];
+
 			} catch (e) {
 				$.invalid();
 				return;
@@ -819,7 +827,6 @@ OP.auth = function(callback) {
 		}
 
 		var opt = {};
-
 		opt.url = op;
 		opt.rev = $.query.rev;
 		opt.req = $.req;
@@ -831,12 +838,13 @@ OP.auth = function(callback) {
 			// type 2 : profile downloaded from OP with meta data
 			// cached : means that meta data of OP has been downloaded before this call
 
-			if (err) {
+			if (err)
 				$.req.operror = err;
-				$.req.opmeta = raw;
-			}
+
+			$.req.opmeta = raw;
 
 			if (user) {
+				$.req.opurl = makeurl;
 				user.language && ($.req.$language = user.language);
 				callback($, user, type, cached, raw);
 			} else
