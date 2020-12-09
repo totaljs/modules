@@ -546,7 +546,7 @@ OP.users.notify = function(url, msg, callback) {
 
 OP.users.badge = function(url, callback) {
 	var cb = callback ? function(err, response) {
-		callback(err, response.parseJSON(true));
+		callback(err, response);
 	} : null;
 	RESTBuilder.GET(url).exec(cb);
 };
