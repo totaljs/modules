@@ -31,6 +31,7 @@ ON('ready', function() {
 			if (OP.meta)
 				OP.meta.save = () => Fs.writeFile(OP.metafile.filename, JSON.stringify(OP.meta, null, '\t'), NOOP);
 		}
+		EMIT('openplatform_ready', OP.meta);
 	});
 });
 
