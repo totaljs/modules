@@ -927,7 +927,7 @@ OP.users.sync_rem = function(interval, modified, processor, callback) {
 
 	opt.filter = function(builder) {
 		builder.where('openplatformid', this.platform.id);
-		builder.in('id', this.id);
+		builder.in('id', opt.id);
 		return builder;
 	};
 
@@ -939,7 +939,6 @@ OP.users.sync_rem = function(interval, modified, processor, callback) {
 		}
 
 		opt.users = users;
-		opt.id = id;
 		opt.next = next;
 		opt.platform = platform;
 
@@ -947,6 +946,7 @@ OP.users.sync_rem = function(interval, modified, processor, callback) {
 		for (let i = 0; i < users.length; i++)
 			id.push(users[i].id);
 
+		opt.id = id;
 		processor(opt);
 	};
 
