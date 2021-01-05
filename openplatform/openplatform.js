@@ -706,7 +706,7 @@ OPU.notify = function(type, message, data, callback) {
 };
 
 OPU.dbms = function(builder) {
-	return builder.where('userid', this.id).where('openplatformid', this.openplatformid);
+	return builder.userid(this.id).where('openplatformid', this.openplatformid);
 };
 
 OPU.badge = function(callback) {
