@@ -38,7 +38,7 @@ ON('ready', function() {
 // Applies localization
 LOCALIZE(req => req.query.language);
 
-OP.version = 1.020;
+OP.version = 1.021;
 OP.meta = null;
 
 OP.init = function(meta, next) {
@@ -547,7 +547,7 @@ OP.users.notify = function(url, msg, callback) {
 
 OP.users.badge = function(url, callback) {
 	var cb = callback ? function(err, response) {
-		callback(err, response);
+		callback(err, response.parseJSON(true));
 	} : null;
 	RESTBuilder.GET(url).exec(cb);
 };
@@ -607,7 +607,7 @@ function OpenPlatformUser(profile, platform) {
 			case ',.':
 				self.numberformat = 3;
 				break;
-			case ',.':
+			case '.,':
 				self.numberformat = 4;
 				break;
 		}
@@ -703,6 +703,10 @@ OPU.notify = function(type, message, data, callback) {
 
 	var profile = this.profile;
 	profile.notifications && OP.users.notify(profile.notify, msg, callback);
+};
+
+OPU.dbms = function(builder) {
+	return builder.where('userid', this.id).where('openplatformid', this.openplatformid);
 };
 
 OPU.badge = function(callback) {
@@ -927,7 +931,7 @@ OP.users.sync_rem = function(interval, modified, processor, callback) {
 
 	opt.filter = function(builder) {
 		builder.where('openplatformid', this.platform.id);
-		builder.in('id', opt.id);
+		builder.in('id', this.id);
 		return builder;
 	};
 
@@ -939,6 +943,7 @@ OP.users.sync_rem = function(interval, modified, processor, callback) {
 		}
 
 		opt.users = users;
+		opt.id = id;
 		opt.next = next;
 		opt.platform = platform;
 
@@ -946,7 +951,6 @@ OP.users.sync_rem = function(interval, modified, processor, callback) {
 		for (let i = 0; i < users.length; i++)
 			id.push(users[i].id);
 
-		opt.id = id;
 		processor(opt);
 	};
 
