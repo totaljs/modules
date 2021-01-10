@@ -10,9 +10,11 @@ __Requirements__:
 - copy it to `yourapp/modules/monitor.js`
 - restart the app
 
+If your module is installed and applied, then register your application on [__Total.js AppMonitor__](https://platform.totaljs.com?open=monitor).
+
 ## Configuration
 
-You can change the endpoint for the monitor via `/config` file of the application like this:
+You can change the endpoint for the monitor via the `/config` file of the application like this:
 
 ```html
 // Default configuration
