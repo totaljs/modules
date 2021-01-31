@@ -28,9 +28,10 @@ function view_index() {
 		var output = {};
 		var builder = [];
 
-		for (var i = 0, length = F.routes.web.length; i < length; i++) {
+		for (var i = 0; i < F.routes.web.length; i++) {
 			var item = F.routes.web[i];
-			if (!item.owner.startsWith('controller#') || !item.method)
+
+			if (!item.owner.startsWith('controller' + (F.is4 ? '_' : '#')) || !item.method)
 				continue;
 
 			var controller = item.owner.substring(11);
@@ -45,11 +46,16 @@ function view_index() {
 			obj.upload = item.flags2.upload;
 
 			if (item.schema && item.schema.length && (obj.method === 'POST' || obj.method === 'PUT')) {
-				var schema = GETSCHEMA(item.schema[0], item.schema[1]);
+
+				var schema = F.is4 ? GETSCHEMA((item.schema[0] ? (item.schema[0] + '/') : '') + item.schema[1]) : GETSCHEMA(item.schema[0], item.schema[1]);
 				if (!schema)
 					continue;
+
 				obj.schema = [];
-				Object.keys(schema.schema).forEach(function(key) {
+
+				var keys = Object.keys(schema.schema);
+				for (var j = 0; j < keys.length; j++) {
+					var key = keys[j];
 					var tmp = schema.schema[key];
 					var type;
 
@@ -84,7 +90,7 @@ function view_index() {
 					}
 
 					obj.schema.push({ name: key, required: tmp.required, type: type, isArray: tmp.isArray });
-				});
+				}
 			}
 
 			if (output[controller])
@@ -93,10 +99,12 @@ function view_index() {
 				output[controller] = [obj];
 		}
 
-		Object.keys(output).forEach(function(key) {
+		var keys = Object.keys(output);
+		for (var i = 0; i < keys.length; i++) {
+			var key = keys[i];
 			output[key].quicksort('url', false, 20);
 			builder.push({ controller: key, routes: output[key] });
-		});
+		}
 
 		builder.quicksort('controller');
 		builder.description = OPT.description;
