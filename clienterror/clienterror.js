@@ -21,7 +21,7 @@ exports.uninstall = function() {
 };
 
 function controller(controller) {
-	!controller.robot && controller.head("<script>window.onerror=function(e){var err=(e.stack||e).toString();if(window.CLIENTERROR===err)return;window.CLIENTERROR=err;var x=new XMLHttpRequest();x.open('POST','{0}',true);x.setRequestHeader('Content-type','application/json');x.send(JSON.stringify({url:location.href,error:e}));};</script>".format(options.url));
+	!controller.robot && controller.head("<script>window.onerror=function(e){var err=(e.stack||e).toString();if(window.CLIENTERROR===err)return;window.CLIENTERROR=err;var x=new XMLHttpRequest();x.open('POST','{0}',true);x.setRequestHeader('Content-type','application/json');x.send(JSON.stringify({url:location.href,error:e.stack}));};</script>".format(options.url));
 }
 
 function process_error() {
