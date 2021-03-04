@@ -8,6 +8,7 @@ __Requirements__:
 
 - download module `code.js`
 - copy it to `yourapp/modules/code.js`
+- update `/config` file
 - restart the app
 
 ## Configuration
@@ -15,6 +16,6 @@ __Requirements__:
 You can change the endpoint for the monitor via the `/config` file of the application like this:
 
 ```html
-// Default configuration
 code_url     : /$code/
+code_token   : 123456
 ```
