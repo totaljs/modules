@@ -105,6 +105,10 @@ DEBUG && NEWSCHEMA('CodeModule', function(schema) {
 				wiki($, model);
 				break;
 
+			case 'ip':
+				ipaddress($, model);
+				break;
+
 			default:
 				$.invalid(400);
 				break;
@@ -340,6 +344,16 @@ function wiki($) {
 
 	}, path => (/schemas|controllers/).test(path));
 
+}
+
+function ipaddress($) {
+	var opt = {};
+	opt.url = 'https://ipecho.net/plain';
+	opt.callback = function(err, response) {
+		$.controller.plain(response.body || 'undefined');
+		$.cancel();
+	};
+	REQUEST(opt);
 }
 
 DEBUG && ON('service', function(counter) {
