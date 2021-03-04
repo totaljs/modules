@@ -20,5 +20,5 @@ code_url     : /$code/
 code_token   : 123456
 ```
 
-- `code_url` is API endpoint for communicating between Total.js Code Editor and your app
+- `code_url` is an API endpoint for communicating between Total.js Code Editor and your app
 - `code_token` is a security element (optional)
