@@ -302,6 +302,7 @@ OP.users.auth = function(options, callback) {
 			if (iscloud) {
 				profile.roles = [profile.role];
 				profile.groups = [];
+				profile.sa = profile.role === 'sa';
 				profile.filter.push('@' + profile.role);
 			} else {
 				if (profile.roles) {
@@ -547,7 +548,7 @@ OP.users.notify = function(url, msg, callback) {
 
 OP.users.badge = function(url, callback) {
 	var cb = callback ? function(err, response) {
-		callback(err, response.parseJSON(true));
+		callback(err, response);
 	} : null;
 	RESTBuilder.GET(url).exec(cb);
 };
@@ -607,7 +608,7 @@ function OpenPlatformUser(profile, platform) {
 			case ',.':
 				self.numberformat = 3;
 				break;
-			case '.,':
+			case ',.':
 				self.numberformat = 4;
 				break;
 		}
@@ -703,10 +704,6 @@ OPU.notify = function(type, message, data, callback) {
 
 	var profile = this.profile;
 	profile.notifications && OP.users.notify(profile.notify, msg, callback);
-};
-
-OPU.dbms = function(builder) {
-	return builder.userid(this.id).where('openplatformid', this.openplatformid);
 };
 
 OPU.badge = function(callback) {
@@ -870,20 +867,20 @@ OP.users.sync_all = function(interval, modified, fields, filter, processor, call
 	}
 
 	var props = typeof(fields) === 'string' ? fields.split(',') : fields;
-	var opt = {};
-
-	opt.filter = function(builder) {
-		builder.where('openplatformid', this.platform.id);
-		builder.in('id', this.id);
-		return builder;
-	};
-
 	var process = function(users, next, platform) {
 
 		if (!users || !users.length) {
 			next && next();
 			return;
 		}
+
+		var opt = {};
+
+		opt.filter = function(builder) {
+			builder.where('openplatformid', this.platform.id);
+			builder.in('id', this.id);
+			return builder;
+		};
 
 		opt.next = next;
 		opt.users = users;
@@ -927,20 +924,20 @@ OP.users.sync_all = function(interval, modified, fields, filter, processor, call
 
 OP.users.sync_rem = function(interval, modified, processor, callback) {
 
-	var opt = {};
-
-	opt.filter = function(builder) {
-		builder.where('openplatformid', this.platform.id);
-		builder.in('id', this.id);
-		return builder;
-	};
-
 	var process = function(users, next, platform) {
 
 		if (!users || !users.length) {
 			next && next();
 			return;
 		}
+
+		var opt = {};
+
+		opt.filter = function(builder) {
+			builder.where('openplatformid', this.platform.id);
+			builder.in('id', this.id);
+			return builder;
+		};
 
 		opt.users = users;
 		opt.id = id;
