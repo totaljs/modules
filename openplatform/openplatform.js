@@ -38,7 +38,7 @@ ON('ready', function() {
 // Applies localization
 LOCALIZE(req => req.query.language);
 
-OP.version = 1.021;
+OP.version = 1.022;
 OP.meta = null;
 
 OP.init = function(meta, next) {
@@ -204,7 +204,7 @@ OP.users.auth = function(options, callback) {
 
 	var iscloud = options.url.substring(0, 25) === 'https://openplatform.app/';
 
-	RESTBuilder.GET(options.url).callback(function(err, response) {
+	var builder = RESTBuilder.GET(options.url).callback(function(err, response) {
 
 		err && OP.options.debug && OP.error('users.auth', err);
 
@@ -377,7 +377,7 @@ OP.users.auth = function(options, callback) {
 					}
 
 					if (!iscloud && OP.options.meta && meta.meta) {
-						RESTBuilder.GET(meta.meta).exec(function(err, response) {
+						var builder = RESTBuilder.GET(meta.meta).exec(function(err, response) {
 							OP.sessions[key] = user;
 							platform.isloading = false;
 							err && OP.options.debug && OP.error('users.auth', err);
@@ -386,6 +386,7 @@ OP.users.auth = function(options, callback) {
 							autosyncitems.length && autosyncforce(platform);
 							platform.pending.length && initpending(platform);
 						});
+						CONF.openplatform_origin && builder.header('x-origin', CONF.openplatform_origin);
 					} else {
 						OP.sessions[key] = user;
 						platform.isloading = false;
@@ -406,6 +407,8 @@ OP.users.auth = function(options, callback) {
 		} else
 			callback(err);
 	});
+
+	CONF.openplatform_origin && builder.header('x-origin', CONF.openplatform_origin);
 };
 
 OP.users.logout = function(user) {
@@ -491,6 +494,8 @@ OP.users.sync = function(options, process, done) {
 			builder.url(options.url);
 			builder.get(filter);
 
+			CONF.openplatform_origin && builder.header('x-origin', CONF.openplatform_origin);
+
 			builder.exec(function(err, response, output) {
 
 				err && OP.options.debug && OP.error('users.sync', err);
@@ -543,14 +548,16 @@ OP.users.notify = function(url, msg, callback) {
 		callback(err, response);
 	} : null;
 
-	RESTBuilder.POST(url, msg).exec(cb);
+	var builder = RESTBuilder.POST(url, msg).exec(cb);
+	CONF.openplatform_origin && builder.header('x-origin', CONF.openplatform_origin);
 };
 
 OP.users.badge = function(url, callback) {
 	var cb = callback ? function(err, response) {
 		callback(err, response);
 	} : null;
-	RESTBuilder.GET(url).exec(cb);
+	var builder = RESTBuilder.GET(url).exec(cb);
+	CONF.openplatform_origin && builder.header('x-origin', CONF.openplatform_origin);
 };
 
 ON('service', function(counter) {
@@ -715,7 +722,8 @@ OPU.logout = function() {
 };
 
 OPU.service = function(app, service, data, callback) {
-	RESTBuilder.POST(this.profile.services + '&app=' + app + '&service=' + service, data).callback(callback);
+	var builder = RESTBuilder.POST(this.profile.services + '&app=' + app + '&service=' + service, data).callback(callback);
+	CONF.openplatform_origin && builder.header('x-origin', CONF.openplatform_origin);
 };
 
 OPU.cl = function() {
