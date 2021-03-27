@@ -1,6 +1,7 @@
-[![Support](https://www.totaljs.com/img/button-support.png)](https://www.totaljs.com/support/) [![Donate](https://www.totaljs.com/img/button-donate.png)](https://www.totaljs.com/#make-a-donation)
-
-
 # Total.js modules / packages
+
+- [Documentation](https://docs.totaljs.com)
+- [Join Total.js Telegram](https://t.me/totaljs)
+- [Support](https://www.totaljs.com/support/)
 
 Download modules and packages for your Total.js applications.
