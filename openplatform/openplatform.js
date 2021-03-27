@@ -377,7 +377,7 @@ OP.users.auth = function(options, callback) {
 					}
 
 					if (!iscloud && OP.options.meta && meta.meta) {
-						var builder = RESTBuilder.GET(meta.meta).exec(function(err, response) {
+						var builder = RESTBuilder.GET(meta.meta).callback(function(err, response) {
 							OP.sessions[key] = user;
 							platform.isloading = false;
 							err && OP.options.debug && OP.error('users.auth', err);
@@ -548,7 +548,7 @@ OP.users.notify = function(url, msg, callback) {
 		callback(err, response);
 	} : null;
 
-	var builder = RESTBuilder.POST(url, msg).exec(cb);
+	var builder = RESTBuilder.POST(url, msg).callback(cb);
 	CONF.openplatform_origin && builder.header('x-origin', CONF.openplatform_origin);
 };
 
@@ -556,7 +556,7 @@ OP.users.badge = function(url, callback) {
 	var cb = callback ? function(err, response) {
 		callback(err, response);
 	} : null;
-	var builder = RESTBuilder.GET(url).exec(cb);
+	var builder = RESTBuilder.GET(url).callback(cb);
 	CONF.openplatform_origin && builder.header('x-origin', CONF.openplatform_origin);
 };
 
