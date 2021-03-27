@@ -38,7 +38,7 @@ ON('ready', function() {
 // Applies localization
 LOCALIZE(req => req.query.language);
 
-OP.version = 1.022;
+OP.version = 1.023;
 OP.meta = null;
 
 OP.init = function(meta, next) {
@@ -331,7 +331,7 @@ OP.users.auth = function(options, callback) {
 			}
 
 			var is = !init;
-			var syncmeta = is ? platform.dtsync.add(options.sync || SYNCMETA) < NOW : true;
+			var syncmeta = platform.resync || (is ? platform.dtsync.add(options.sync || SYNCMETA) < NOW : true);
 			if (syncmeta) {
 
 				// Update platform meta data
@@ -379,6 +379,7 @@ OP.users.auth = function(options, callback) {
 					if (!iscloud && OP.options.meta && meta.meta) {
 						var builder = RESTBuilder.GET(meta.meta).callback(function(err, response) {
 							OP.sessions[key] = user;
+							platform.resync = false;
 							platform.isloading = false;
 							err && OP.options.debug && OP.error('users.auth', err);
 							platform.meta = response ? response : EMPTYOBJECT;
@@ -389,6 +390,7 @@ OP.users.auth = function(options, callback) {
 						CONF.openplatform_origin && builder.header('x-origin', CONF.openplatform_origin);
 					} else {
 						OP.sessions[key] = user;
+						platform.resync = false;
 						platform.isloading = false;
 						platform.meta = EMPTYOBJECT;
 						callback(null, user, 2, is, raw);
@@ -502,6 +504,10 @@ OP.users.sync = function(options, process, done) {
 
 				// Error
 				if (err) {
+
+					if (options.platform)
+						options.platform.resync = true;
+
 					OP.options.debug && OP.error('users.sync', err);
 					done(err, counter);
 					return;
@@ -562,31 +568,24 @@ OP.users.badge = function(url, callback) {
 
 ON('service', function(counter) {
 
-	var keys;
-
 	if (counter % SESSIONINTERVAL === 0) {
 
 		// Clears all expired sessions
-		keys = Object.keys(OP.sessions);
-		for (let i = 0; i < keys.length; i++) {
-			let key = keys[i];
+		for (let key in OP.sessions) {
 			if (OP.sessions[key].expire < NOW)
 				delete OP.sessions[key];
 		}
 
 		// Clears blocked platforms
-		keys = Object.keys(OP.blocked);
-		for (let i = 0; i < keys.length; i++) {
-			let key = keys[i];
+		for (let key in OP.blocked) {
 			if (OP.blocked[key].expire < NOW)
 				delete OP.blocked[key];
 		}
 	}
 
 	if (counter % AUTOSYNCINTERVAL === 0) {
-		keys = Object.keys(OP.platforms);
-		for (let i = 0; i < keys.length; i++)
-			autosyncforce(OP.platforms[keys[i]]);
+		for (let key in OP.platforms)
+			autosyncforce(OP.platforms[key]);
 	}
 
 });
@@ -746,6 +745,12 @@ function autosyncforce(platform) {
 	autosyncitems.wait(function(sync, next) {
 
 		var dt = platform.cache[sync.id];
+
+		// A problem with tokenization in user synchronization
+		if (platform.resync) {
+			next();
+			return;
+		}
 
 		// Can we synchronize?
 		if (dt && dt.add(sync.interval) > NOW) {
