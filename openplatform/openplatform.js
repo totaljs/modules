@@ -36,7 +36,7 @@ ON('ready', function() {
 // Applies localization
 LOCALIZE(req => req.query.language);
 
-OP.version = 1.023;
+OP.version = 1.024;
 OP.meta = null;
 
 OP.init = function(meta, next) {
@@ -799,8 +799,16 @@ function makeurl() {
 	return QUERIFY(url, this.query);
 }
 
+var DDOS = {};
+
 OP.auth = function(callback) {
 	AUTH(function($) {
+
+		if (DDOS[$.req.ip] > 15) {
+			$.invalid();
+			return;
+		}
+
 		var op = $.query.openplatform || $.headers.authorization;
 
 		if (!op || op.length < 20) {
@@ -847,6 +855,13 @@ OP.auth = function(callback) {
 		opt.req = $.req;
 
 		OP.users.auth(opt, function(err, user, type, cached, raw) {
+
+			if (err) {
+				if (DDOS[$.req.ip])
+					DDOS[$.req.ip]++;
+				else
+					DDOS[$.req.ip] = 1;
+			}
 
 			// type 0 : from session
 			// type 1 : profile downloaded from OP without OP meta data
@@ -967,3 +982,8 @@ OP.users.sync_rem = function(interval, modified, processor, callback) {
 	OP.users.autosync(interval, { removed: true }, { modified: modified, removed: true }, process, callback);
 	return process;
 };
+
+ON('service', function(counter) {
+	if (counter % 30 === 0)
+		DDOS = {};
+});
