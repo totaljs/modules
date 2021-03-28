@@ -204,7 +204,7 @@ OP.users.auth = function(options, callback) {
 
 	var iscloud = options.url.substring(0, 25) === 'https://openplatform.app/';
 
-	var builder = RESTBuilder.GET(options.url).callback(function(err, response) {
+	var builder = RESTBuilder.GET(options.url).header('Referer', OP.meta.url).callback(function(err, response) {
 
 		err && OP.options.debug && OP.error('users.auth', err);
 
@@ -386,8 +386,8 @@ OP.users.auth = function(options, callback) {
 							callback(null, user, 2, is, raw);
 							autosyncitems.length && autosyncforce(platform);
 							platform.pending.length && initpending(platform);
-						});
-						CONF.openplatform_origin && builder.header('x-origin', CONF.openplatform_origin);
+						}).header('Referer', OP.meta.url);
+						CONF.openplatform_origin && builder.header('X-Origin', CONF.openplatform_origin);
 					} else {
 						OP.sessions[key] = user;
 						platform.resync = false;
@@ -410,7 +410,7 @@ OP.users.auth = function(options, callback) {
 			callback(err);
 	});
 
-	CONF.openplatform_origin && builder.header('x-origin', CONF.openplatform_origin);
+	CONF.openplatform_origin && builder.header('X-Origin', CONF.openplatform_origin);
 };
 
 OP.users.logout = function(user) {
@@ -496,7 +496,7 @@ OP.users.sync = function(options, process, done) {
 			builder.url(options.url);
 			builder.get(filter);
 
-			CONF.openplatform_origin && builder.header('x-origin', CONF.openplatform_origin);
+			CONF.openplatform_origin && builder.header('X-Origin', CONF.openplatform_origin);
 
 			builder.exec(function(err, response, output) {
 
@@ -554,16 +554,16 @@ OP.users.notify = function(url, msg, callback) {
 		callback(err, response);
 	} : null;
 
-	var builder = RESTBuilder.POST(url, msg).callback(cb);
-	CONF.openplatform_origin && builder.header('x-origin', CONF.openplatform_origin);
+	var builder = RESTBuilder.POST(url, msg).header('Referer', OP.meta.url).callback(cb);
+	CONF.openplatform_origin && builder.header('X-Origin', CONF.openplatform_origin);
 };
 
 OP.users.badge = function(url, callback) {
 	var cb = callback ? function(err, response) {
 		callback(err, response);
 	} : null;
-	var builder = RESTBuilder.GET(url).callback(cb);
-	CONF.openplatform_origin && builder.header('x-origin', CONF.openplatform_origin);
+	var builder = RESTBuilder.GET(url).header('Referer', OP.meta.url).callback(cb);
+	CONF.openplatform_origin && builder.header('X-Origin', CONF.openplatform_origin);
 };
 
 ON('service', function(counter) {
@@ -721,8 +721,8 @@ OPU.logout = function() {
 };
 
 OPU.service = function(app, service, data, callback) {
-	var builder = RESTBuilder.POST(this.profile.services + '&app=' + app + '&service=' + service, data).callback(callback);
-	CONF.openplatform_origin && builder.header('x-origin', CONF.openplatform_origin);
+	var builder = RESTBuilder.POST(this.profile.services + '&app=' + app + '&service=' + service, data).header('Referer', OP.meta.url).callback(callback);
+	CONF.openplatform_origin && builder.header('X-Origin', CONF.openplatform_origin);
 };
 
 OPU.cl = function() {
@@ -746,7 +746,6 @@ function autosyncforce(platform) {
 
 		var dt = platform.cache[sync.id];
 
-		// A problem with tokenization in user synchronization
 		if (platform.resync) {
 			next();
 			return;
