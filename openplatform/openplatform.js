@@ -761,7 +761,7 @@ function autosyncforce(platform) {
 		platform.cache[sync.id] = NOW;
 
 		// Is initial options nullable?
-		if ((dt == null && !sync.init) || (sync.before && sync.before(platform) === false)) {
+		if ((!dt && !sync.init) || (sync.before && sync.before(platform) === false)) {
 			sync.dtsync = NOW;
 			next();
 			return;
