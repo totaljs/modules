@@ -22,9 +22,7 @@ OP.metafile.filename = PATH.root('openplatform.json');
 
 // Registers a file route
 ON('ready', function() {
-	FILE(OP.metafile.url, function(req, res) {
-		res.file(OP.metafile.filename);
-	});
+	FILE(OP.metafile.url, (req, res) => res.file(OP.metafile.filename));
 	Fs.readFile(OP.metafile.filename, function(err, data) {
 		if (data) {
 			OP.meta = data.toString('utf8').parseJSON(true);
@@ -202,7 +200,12 @@ OP.users.auth = function(options, callback) {
 		}
 	}
 
-	var builder = RESTBuilder.GET(options.url).header('Referer', OP.meta.url).callback(function(err, response) {
+	var builder = RESTBuilder.GET(options.url).header('Referer', OP.meta.url).callback(function(err, response, output) {
+
+		if (CONF.openplatform_origin && output.headers['x-origin'] !== CONF.openplatform_origin) {
+			callback('Invalid origin');
+			return;
+		}
 
 		err && OP.options.debug && OP.error('users.auth', err);
 
@@ -254,7 +257,9 @@ OP.users.auth = function(options, callback) {
 			profile.expire = NOW.add(options.expire || EXPIRE);
 
 			if (!platform.id) {
+
 				platform.id = id;
+				platform.appid = meta.id;
 				platform.directoryid = profile.directoryid;
 				platform.directory = profile.directory;
 				platform.openplatformid = meta.openplatformid;
@@ -287,6 +292,11 @@ OP.users.auth = function(options, callback) {
 				OP.platforms[id] = platform;
 				init = true;
 			} else {
+
+				if (platform.appid !== meta.id) {
+					callback('Invalid OpenPlatform');
+					return;
+				}
 
 				// Invalid serial number
 				if (platform.sn && platform.sn !== meta.sn) {
