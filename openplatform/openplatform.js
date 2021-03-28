@@ -203,7 +203,6 @@ OP.users.auth = function(options, callback) {
 	}
 
 	var iscloud = options.url.substring(0, 25) === 'https://openplatform.app/';
-
 	var builder = RESTBuilder.GET(options.url).header('Referer', OP.meta.url).callback(function(err, response) {
 
 		err && OP.options.debug && OP.error('users.auth', err);
@@ -218,6 +217,15 @@ OP.users.auth = function(options, callback) {
 
 		if (!iscloud && meta.url !== OP.meta.url) {
 			callback('URL addresses do not match between OpenPlatform and application');
+			return;
+		}
+
+		if (meta.url.charAt(meta.url.length - 1) === '/')
+			meta.url = meta.url.substring(0, meta.url.length - 1);
+
+		var verifyurl = meta.openplatform + '/verify/?accesstoken=';
+		if (options.url.substring(0, verifyurl.length) !== verifyurl) {
+			callback('Invalid OpenPlatform');
 			return;
 		}
 
@@ -290,6 +298,14 @@ OP.users.auth = function(options, callback) {
 
 				OP.platforms[id] = platform;
 				init = true;
+			} else {
+
+				// Invalid serial number
+				if (platform.sn && platform.sn !== meta.sn) {
+					callback('Invalid serial number');
+					return;
+				}
+
 			}
 
 			if (err) {
