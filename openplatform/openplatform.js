@@ -202,7 +202,6 @@ OP.users.auth = function(options, callback) {
 		}
 	}
 
-	var iscloud = options.url.substring(0, 25) === 'https://openplatform.app/';
 	var builder = RESTBuilder.GET(options.url).header('Referer', OP.meta.url).callback(function(err, response) {
 
 		err && OP.options.debug && OP.error('users.auth', err);
@@ -215,7 +214,7 @@ OP.users.auth = function(options, callback) {
 			return;
 		}
 
-		if (!iscloud && meta.url !== OP.meta.url) {
+		if (meta.url !== OP.meta.url) {
 			callback('URL addresses do not match between OpenPlatform and application');
 			return;
 		}
@@ -238,11 +237,11 @@ OP.users.auth = function(options, callback) {
 				return;
 			}
 
-			var profile = iscloud ? meta : meta.profile;
+			var profile = meta.profile;
 			var raw = meta;
 			var rawid = meta.openplatformid;
 
-			if (!iscloud && (meta.verifytoken || profile.directoryid))
+			if (meta.verifytoken || profile.directoryid)
 				meta.openplatformid = (meta.openplatformid + '-' + (meta.verifytoken || '0') + '-' + (profile.directoryid || '0')).crc32(true);
 
 			var id = meta.openplatformid + '';
@@ -256,29 +255,18 @@ OP.users.auth = function(options, callback) {
 
 			if (!platform.id) {
 				platform.id = id;
-				platform.cloud = iscloud;
 				platform.directoryid = profile.directoryid;
 				platform.directory = profile.directory;
 				platform.openplatformid = meta.openplatformid;
-
-				if (iscloud) {
-					platform.name = meta.group.name;
-					platform.email = meta.group.email;
-					platform.users = meta.group.users;
-					platform.settings = EMPTYOBJECT;
-					platform.url = 'https://openplatform.app';
-				} else {
-					platform.name = meta.name;
-					platform.email = meta.email;
-					platform.url = meta.openplatform;
-					platform.urlmeta = meta.meta;
-					platform.users = meta.users;
-					platform.apps = meta.apps;
-					platform.services = meta.services;
-					platform.servicetoken = meta.servicetoken;
-					platform.settings = meta.settings || EMPTYOBJECT;
-				}
-
+				platform.name = meta.name;
+				platform.email = meta.email;
+				platform.url = meta.openplatform;
+				platform.urlmeta = meta.meta;
+				platform.users = meta.users;
+				platform.apps = meta.apps;
+				platform.services = meta.services;
+				platform.servicetoken = meta.servicetoken;
+				platform.settings = meta.settings || EMPTYOBJECT;
 				platform.sn = meta.sn;
 				platform.dtsync = NOW;
 				platform.isloading = true;
@@ -315,28 +303,21 @@ OP.users.auth = function(options, callback) {
 
 			profile.filter = [profile.id];
 
-			if (iscloud) {
-				profile.roles = [profile.role];
+			if (profile.roles) {
+				for (var i = 0; i < profile.roles.length; i++)
+					profile.filter.push('@' + profile.roles[i]);
+			} else
+				profile.roles = [];
+
+			if (profile.groups) {
+				for (var i = 0; i < profile.groups.length; i++)
+					profile.filter.push('#' + profile.groups[i]);
+			} else
 				profile.groups = [];
-				profile.sa = profile.role === 'sa';
-				profile.filter.push('@' + profile.role);
-			} else {
-				if (profile.roles) {
-					for (var i = 0; i < profile.roles.length; i++)
-						profile.filter.push('@' + profile.roles[i]);
-				} else
-					profile.roles = [];
 
-				if (profile.groups) {
-					for (var i = 0; i < profile.groups.length; i++)
-						profile.filter.push('#' + profile.groups[i]);
-				} else
-					profile.groups = [];
-
-				profile.services = meta.services;
-				profile.apps = meta.apps;
-				profile.users = meta.users;
-			}
+			profile.services = meta.services;
+			profile.apps = meta.apps;
+			profile.users = meta.users;
 
 			var user = new OpenPlatformUser(profile, platform);
 
@@ -352,25 +333,19 @@ OP.users.auth = function(options, callback) {
 
 				// Update platform meta data
 				if (!init) {
-					if (iscloud) {
-						platform.name = meta.group.name;
-						platform.email = meta.group.email;
-						platform.users = meta.group.users;
-					} else {
-						platform.name = meta.name;
-						platform.email = meta.email;
-						platform.url = meta.openplatform;
-						platform.urlmeta = meta.meta;
-						platform.users = meta.users;
-						platform.apps = meta.apps;
-						platform.services = meta.services;
-						platform.servicetoken = meta.servicetoken;
-						platform.sn = meta.sn;
-						platform.settings = meta.settings || EMPTYOBJECT;
-					}
+					platform.name = meta.name;
+					platform.email = meta.email;
+					platform.url = meta.openplatform;
+					platform.urlmeta = meta.meta;
+					platform.users = meta.users;
+					platform.apps = meta.apps;
+					platform.services = meta.services;
+					platform.servicetoken = meta.servicetoken;
+					platform.sn = meta.sn;
+					platform.settings = meta.settings || EMPTYOBJECT;
 				}
 
-				if (!iscloud && (options.url.substring(0, meta.openplatform.length) !== meta.openplatform || rawid !== meta.openplatform.crc32(true))) {
+				if ((options.url.substring(0, meta.openplatform.length) !== meta.openplatform || rawid !== meta.openplatform.crc32(true))) {
 					err = 'Invalid OpenPlatform meta data.';
 					platform.isloading = false;
 					OP.blocked[platform.id] = { expire: NOW.add(BLOCKEDTIMEOUT), err: err, url: OP.meta.url };
@@ -392,7 +367,7 @@ OP.users.auth = function(options, callback) {
 						return;
 					}
 
-					if (!iscloud && OP.options.meta && meta.meta) {
+					if (OP.options.meta && meta.meta) {
 						var builder = RESTBuilder.GET(meta.meta).callback(function(err, response) {
 							OP.sessions[key] = user;
 							platform.resync = false;
