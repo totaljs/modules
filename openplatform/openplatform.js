@@ -22,7 +22,7 @@ OP.metafile.filename = PATH.root('openplatform.json');
 
 // Registers a file route
 ON('ready', function() {
-	FILE(OP.metafile.url, (req, res) => res.file(OP.metafile.filename));
+	FILE(OP.metafile.url, (req, res) => res.json(OP.meta));
 	Fs.readFile(OP.metafile.filename, function(err, data) {
 		if (data) {
 			OP.meta = data.toString('utf8').parseJSON(true);
