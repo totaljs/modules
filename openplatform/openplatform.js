@@ -658,6 +658,10 @@ OPU.permit = function(type, arr) {
 	}
 };
 
+OPU.dbms = function(builder) {
+	return builder.where('openplatformid', this.profile.openplatformid).where('userid', this.id);
+};
+
 OPU.permissions = function(type, arr) {
 	var self = this;
 	if (!arr || !arr.length)
