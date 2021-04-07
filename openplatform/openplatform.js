@@ -26,6 +26,7 @@ ON('ready', function() {
 	Fs.readFile(OP.metafile.filename, function(err, data) {
 		if (data) {
 			OP.meta = data.toString('utf8').parseJSON(true);
+			CONF.name = OP.meta.name;
 			if (OP.meta)
 				OP.meta.save = () => Fs.writeFile(OP.metafile.filename, JSON.stringify(OP.meta, null, '\t'), NOOP);
 		}
