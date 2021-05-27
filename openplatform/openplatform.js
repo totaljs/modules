@@ -627,7 +627,7 @@ function OpenPlatformUser(profile, platform) {
 			case ',.':
 				self.numberformat = 3;
 				break;
-			case ',.':
+			case '.,':
 				self.numberformat = 4;
 				break;
 		}
