@@ -832,6 +832,9 @@ OP.auth = function(callback) {
 			return;
 		}
 
+		if (!OP.meta.url)
+			OP.meta.url = $.req.hostname();
+
 		if (op.substring(0, 7) === 'base64 ') {
 			// decode
 			try {
