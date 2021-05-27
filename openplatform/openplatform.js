@@ -22,7 +22,13 @@ OP.metafile.filename = PATH.root('openplatform.json');
 
 // Registers a file route
 ON('ready', function() {
-	FILE(OP.metafile.url, (req, res) => res.json(OP.meta));
+
+	FILE(OP.metafile.url, function(req, res) {
+		if (!OP.meta.url)
+			OP.meta.url = req.hostname();
+		res.json(OP.meta);
+	});
+
 	Fs.readFile(OP.metafile.filename, function(err, data) {
 		if (data) {
 			OP.meta = data.toString('utf8').parseJSON(true);
@@ -37,7 +43,7 @@ ON('ready', function() {
 // Applies localization
 LOCALIZE(req => req.query.language);
 
-OP.version = 1.025;
+OP.version = 1.026;
 OP.meta = null;
 
 OP.init = function(meta, next) {
