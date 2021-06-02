@@ -43,6 +43,7 @@ var CALLBACKID = 0;
 	instance.output(data);
 	instance.reconfigure(config);
 	instance.newflowstream(meta, isworker);
+	instance.input = function(data) {}
 */
 
 function Instance(instance, id) {
@@ -104,13 +105,13 @@ Instance.prototype.input = function(id, data) {
 		var tmpid = id.substring(1);
 		for (var key in self.flow.meta.flow) {
 			let tmp = self.flow.meta.flow[key];
-			if (tmp.message && tmp.component === tmpid)
-				tmp.message(data);
+			if (tmp.input && tmp.component === tmpid)
+				tmp.input(data);
 		}
 	} else {
 		let tmp = self.flow.meta.flow[id];
-		if (tmp.message)
-			tmp.message(data);
+		if (tmp.input)
+			tmp.input(data);
 	}
 
 	return self;
