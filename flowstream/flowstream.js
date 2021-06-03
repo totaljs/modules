@@ -16,16 +16,20 @@ var CALLBACKID = 0;
 	Module exports:
 	module.init(meta [isworker]);
 	module.socket(meta, socket, check(client) => true);
-	module.send(flowstreamid, id, data);
+	module.input([flowstreamid], [id], data);
 	module.trigger(flowstreamid, id, data);
+	module.refresh([flowstreamid], [type]);
 
 	Methods:
 	instance.trigger(id, data);
 	instance.destroy();
-	instance.input(id, data);
+	instance.input([flowstreamid], [fromid], [toid], data);
 	instance.add(id, body, [callback]);
 	instance.rem(id, [callback]);
+	instance.components(callback);
+	instance.refresh([type]);
 	instance.io(callback);
+	instance.ioread(flowstreamid, id, callback);
 	instance.reconfigure(id, config);
 	instance.variables(variables);
 	instance.variables2(variables);
@@ -36,11 +40,12 @@ var CALLBACKID = 0;
 	instance.onsave(data);
 	instance.ondone();
 	instance.onerror(err, type);
-	instance.onoutput(id, data);
+	instance.output(fid, data, tfsid, tid);
 
 	Extended Flow instances by:
 	instance.save();
-	instance.output(data);
+	instance.toinput(data, [flowstreamid], [id]);
+	instance.output(data, [flowstreamid], [id]);
 	instance.reconfigure(config);
 	instance.newflowstream(meta, isworker);
 	instance.input = function(data) {}
@@ -76,10 +81,19 @@ Instance.prototype.destroy = function() {
 
 	var self = this;
 
-	if (self.flow.isworkerthread)
+	setTimeout(() => exports.refresh(self.id, 'destroy'), 500);
+
+	if (self.flow.isworkerthread) {
+		self.flow.$socket && self.flow.$socket.destroy();
 		self.flow.terminate();
-	else
+	} else {
+		if (self.flow.sockets) {
+			for (var key in self.flow.sockets)
+				self.flow.sockets[key].destroy();
+		}
+		self.flow.$socket && self.flow.$socket.destroy();
 		self.flow.destroy();
+	}
 
 	for (var key in CALLBACKS) {
 		if (CALLBACKS[key].id === self.id)
@@ -92,26 +106,37 @@ Instance.prototype.destroy = function() {
 // Sends data to the speficic input
 // "@id" sends to all component with "id"
 // "id" sends to instance with "id"
-Instance.prototype.input = function(id, data) {
+Instance.prototype.input = function(flowstreamid, fromid, toid, data) {
 
 	var self = this;
+	var flow = self.flow;
 
-	if (self.flow.isworkerthread) {
-		self.flow.postMessage({ TYPE: 'stream/input', id: id, data: data });
+	if (flow.isworkerthread) {
+		flow.postMessage({ TYPE: 'stream/input', flowstreamid: flowstreamid, fromid: fromid, id: toid, data: data });
 		return self;
 	}
 
-	if (id[0] === '@') {
-		var tmpid = id.substring(1);
-		for (var key in self.flow.meta.flow) {
-			let tmp = self.flow.meta.flow[key];
-			if (tmp.input && tmp.component === tmpid)
-				tmp.input(data);
+	if (toid) {
+		if (toid[0] === '@') {
+			var tmpid = toid.substring(1);
+			for (var key in flow.meta.flow) {
+				let tmp = flow.meta.flow[key];
+				if (tmp.input && tmp.component === tmpid)
+					tmp.input(flowstreamid, fromid, data);
+			}
+		} else {
+			let tmp = flow.meta.flow[toid];
+			if (tmp.input)
+				tmp.input(flowstreamid, fromid, data);
 		}
 	} else {
-		let tmp = self.flow.meta.flow[id];
-		if (tmp.input)
-			tmp.input(data);
+		// Send to all inputs
+		for (var key in flow.meta.flow) {
+			var f = flow.meta.flow[key];
+			var c = flow.meta.components[f.component];
+			if (f.input && c.type === 'input2')
+				f.input(flowstreamid, fromid, data);
+		}
 	}
 
 	return self;
@@ -145,32 +170,76 @@ Instance.prototype.rem = function(id, callback) {
 	return self;
 };
 
-// Reads all inputs, outputs, publish, subscribe instances
-Instance.prototype.io = function(callback) {
+// Reads all components
+Instance.prototype.components = function(callback) {
 
 	var self = this;
 
 	if (self.flow.isworkerthread) {
 		var callbackid = CALLBACKID++;
 		CALLBACKS[callbackid] = { id: self.flow.id, callback: callback };
-		self.flow.postMessage({ TYPE: 'stream/io', callbackid: callbackid });
+		self.flow.postMessage({ TYPE: 'stream/components', callbackid: callbackid });
+		return self;
+	}
+
+	callback(null, self.flow.components(true));
+};
+
+function readmeta(meta) {
+	var obj = {};
+	obj.id = meta.id;
+	obj.name = meta.name;
+	obj.version = meta.version;
+	obj.icon = meta.icon;
+	obj.color = meta.color;
+	obj.reference = meta.reference;
+	obj.group = meta.group;
+	obj.author = meta.author;
+	return obj;
+}
+
+function readinstance(flow, id) {
+	var tmp = flow.meta.flow[id];
+	var com = flow.meta.components[tmp.component];
+	if (com.type === 'output' || com.type === 'input' || com.type === 'config')
+		return { id: id, componentid: tmp.component, component: com.name, name: tmp.config.name || com.name, schema: com.schemaid ? com.schemaid[1] : undefined, icon: com.icon, type: com.type, readme: tmp.config.readme };
+}
+
+// Reads all inputs, outputs, publish, subscribe instances
+Instance.prototype.io = function(id, callback) {
+
+	var self = this;
+
+	if (self.flow.isworkerthread) {
+		var callbackid = CALLBACKID++;
+		CALLBACKS[callbackid] = { id: self.flow.id, callback: callback };
+		self.flow.postMessage({ TYPE: 'stream/io', id: id, callbackid: callbackid });
 		return self;
 	}
 
 	var flow = self.flow;
+
+	if (id) {
+		var obj = null;
+		if (flow.meta.flow[id])
+			callback(null, readinstance(flow, id));
+		else
+			callback();
+		return;
+	}
+
 	var arr = [];
+
 	for (var key in flow.meta.flow) {
-		let tmp = flow.meta.flow[key];
-		let com = flow.meta.components[tmp.component];
-		if (com.type === 'output' || com.type === 'input' || com.type === 'pub' || com.type === 'sub' || com.type === 'config')
-			arr.push({ id: key, componentid: tmp.component, name: com.config.name || com.name, schema: com.schemaid ? com.schemaid[1] : undefined, icon: com.icon, type: com.type });
+		var obj = readinstance(flow, key);
+		obj && arr.push(obj);
 	}
 
 	callback(null, arr);
 };
 
 // Reconfigures a component
-Instance.reconfigure = function(id, config) {
+Instance.prototype.reconfigure = function(id, config) {
 	if (self.flow.isworkerthread)
 		self.flow.postMessage({ TYPE: 'stream/reconfigure', id: id, data: config });
 	else
@@ -179,7 +248,7 @@ Instance.reconfigure = function(id, config) {
 };
 
 // Updates variables
-Instance.variables = function(variables) {
+Instance.prototype.variables = function(variables) {
 
 	var self = this;
 	var flow = self.flow;
@@ -198,8 +267,21 @@ Instance.variables = function(variables) {
 	return self;
 };
 
+Instance.prototype.refresh = function(id, type) {
+	var self = this;
+	var flow = self.flow;
+	if (flow.isworkerthread) {
+		flow.postMessage({ TYPE: 'stream/refresh', id: id, type: type });
+	} else {
+		for (var key in flow.meta.flow) {
+			var instance = flow.meta.flow[key];
+			instance.flowstream && instance.flowstream(id, type);
+		}
+	}
+};
+
 // Updates global variables
-Instance.variables2 = function(variables) {
+Instance.prototype.variables2 = function(variables) {
 
 	var self = this;
 	var flow = self.flow;
@@ -217,7 +299,7 @@ Instance.variables2 = function(variables) {
 	return self;
 };
 
-Instance.export = function(callback) {
+Instance.prototype.export = function(callback) {
 	var self = this;
 	var flow = self.flow;
 	if (flow.isworkerthread) {
@@ -234,14 +316,28 @@ exports.init = function(meta, isworker) {
 	return isworker ? init_worker(meta) : init_current(meta);
 };
 
-exports.send = function(flowstreamid, id, data) {
-	var fs = FLOWS[flowstreamid];
-	fs && fs.input(id, data);
+exports.input = function(ffsid, fid, tfsid, tid, data) {
+	if (tfsid) {
+		var fs = FLOWS[tfsid];
+		fs && fs.$instance.input(ffsid, fid, tid, data);
+	} else {
+		for (var key in FLOWS) {
+			var flow = FLOWS[key];
+			flow.$instance.input(ffsid, fid, tid, data);
+		}
+	}
 };
 
 exports.trigger = function(flowstreamid, id, data) {
 	var fs = FLOWS[flowstreamid];
 	fs && fs.trigger(id, data);
+};
+
+exports.refresh = function(id, type) {
+	for (var key in FLOWS) {
+		var flow = FLOWS[key];
+		flow.$instance.refresh(id, type);
+	}
 };
 
 function init_current(meta) {
@@ -251,6 +347,10 @@ function init_current(meta) {
 
 	flow.proxy.online = false;
 	flow.$instance = new Instance(flow, meta.id);
+
+	flow.$instance.output = function(fid, data, tfsid, tid) {
+		exports.input(meta.id, fid, tfsid, tid, data);
+	};
 
 	if (Parent) {
 
@@ -273,33 +373,66 @@ function init_current(meta) {
 						tmp.trigger(msg.data);
 					break;
 
-				case 'stream/io':
-					var arr = [];
+				case 'stream/refresh':
 					for (var key in flow.meta.flow) {
-						let tmp = flow.meta.flow[key];
-						let com = flow.meta.components[tmp.component];
-						if (com.type === 'output' || com.type === 'input' || com.type === 'pub' || com.type === 'sub' || com.type === 'config')
-							arr.push({ id: key, flowid: meta.id, componentid: tmp.component, name: com.config.name || com.name, schema: com.schemaid ? com.schemaid[1] : undefined, icon: com.icon, type: com.type });
+						var instance = flow.meta.flow[key];
+						instance.flowstream && instance.flowstream(msg.id, msg.type);
 					}
-					msg.data = arr;
+					break;
+
+				case 'stream/io2':
+					var cb = CALLBACKS[msg.callbackid];
+					if (cb) {
+						delete CALLBACKS[msg.callbackid];
+						cb.callback(msg.error, msg.data);
+					}
+					break;
+
+				case 'stream/components':
+					msg.data = flow.components(true);
+					Parent.postMessage(msg);
+					break;
+
+				case 'stream/io':
+
+					if (msg.id) {
+						msg.data = readinstance(flow, msg.id);
+					} else {
+						var arr = [];
+						for (var key in flow.meta.flow) {
+							let tmp = readinstance(flow, key);
+							if (tmp)
+								arr.push(tmp);
+						}
+						msg.data = arr;
+					}
+
 					Parent.postMessage(msg);
 					break;
 
 				case 'stream/input':
 
-					if (msg.id[0] === '@') {
-						var id = msg.id.substring(1);
-						for (var key in flow.meta.flow) {
-							let tmp = flow.meta.flow[key];
-							if (tmp.message && tmp.component === id)
-								tmp.message(msg.data);
+					if (msg.id) {
+						if (msg.id[0] === '@') {
+							var id = msg.id.substring(1);
+							for (var key in flow.meta.flow) {
+								let tmp = flow.meta.flow[key];
+								if (tmp.input && tmp.component === id)
+									tmp.input(msg.flowstreamid, msg.fromid, msg.data);
+							}
+						} else {
+							let tmp = flow.meta.flow[msg.id];
+							if (tmp.input)
+								tmp.input(msg.flowstreamid, msg.fromid, msg.data);
 						}
 					} else {
-						let tmp = flow.meta.flow[msg.id];
-						if (tmp.message)
-							tmp.message(msg.data);
+						for (var key in flow.meta.flow) {
+							var f = flow.meta.flow[key];
+							var c = flow.meta.components[f.component];
+							if (f.input && c.type === 'input2')
+								f.input(msg.flowstreamid, msg.fromid, msg.data);
+						}
 					}
-
 					break;
 
 				case 'stream/add':
@@ -307,6 +440,7 @@ function init_current(meta) {
 						msg.error = err ? err.toString() : null;
 						if (msg.callbackid !== -1)
 							Parent.postMessage(msg);
+						flow.save();
 					});
 					break;
 
@@ -315,6 +449,7 @@ function init_current(meta) {
 						msg.error = err ? err.toString() : null;
 						if (msg.callbackid !== -1)
 							Parent.postMessage(msg);
+						flow.save();
 					});
 					break;
 
@@ -368,11 +503,41 @@ function init_current(meta) {
 			Parent.postMessage({ TYPE: 'stream/error', error: err, type: type });
 		};
 
-		flow.proxy.output = function(id, data) {
-			Parent.postMessage({ TYPE: 'stream/output', id: id, data: data });
+		flow.proxy.refresh = function(type) {
+			Parent.postMessage({ TYPE: 'stream/refresh', type: type });
+		};
+
+		flow.proxy.output = function(id, data, flowstreamid, instanceid) {
+			Parent.postMessage({ TYPE: 'stream/output', id: id, data: data, flowstreamid: flowstreamid, instanceid: instanceid });
+		};
+
+		flow.proxy.input = function(fromid, tfsid, toid, data) {
+			Parent.postMessage({ TYPE: 'stream/toinput', fromflowstreamid: flow.id, fromid: fromid, toflowstreamid: tfsid, toid: toid, data: data });
+		};
+
+		flow.proxy.io = function(flowstreamid, id, callback) {
+
+			if (typeof(flowstreamid) === 'function') {
+				callback = flowstreamid;
+				id = null;
+				flowstreamid = null;
+			} else if (typeof(id) === 'function') {
+				callback = id;
+				id = null;
+			}
+
+			var callbackid = callback ? (CALLBACKID++) : -1;
+			if (callback)
+				CALLBACKS[callbackid] = { id: flow.id, callback: callback };
+
+			Parent.postMessage({ TYPE: 'stream/io2', flowstreamid: flowstreamid, id: id, callbackid: callbackid });
 		};
 
 	} else {
+
+		flow.proxy.io = function(flowstreamid, id, callback) {
+			exports.io(flowstreamid, id, callback);
+		};
 
 		flow.proxy.send = NOOP;
 		flow.proxy.save = function(data) {
@@ -380,20 +545,28 @@ function init_current(meta) {
 				flow.$instance.onsave && flow.$instance.onsave(data);
 		};
 
+		flow.proxy.refresh = function(type) {
+			exports.refresh(flow.id, type);
+		};
+
 		flow.proxy.error = function(err, type) {
-			flow.socket && flow.socket.send({ TYPE: 'flow/error', error: error, type: type });
+			flow.socket && flow.$socket.send({ TYPE: 'flow/error', error: error, type: type });
 		};
 
 		flow.proxy.done = function(err) {
 			flow.$instance.ondone && setImmediate(flow.$instance.ondone, err);
 		};
 
+		flow.proxy.input = function(fromid, tfsid, toid, data) {
+			exports.input(flow.id, fromid, tfsid, toid, data);
+		};
+
 		flow.proxy.error = function(err, type) {
 			flow.$instance.onerror && flow.$instance.onerror(err, type);
 		};
 
-		flow.proxy.output = function(id, data) {
-			flow.$instance.onoutput && flow.$instance.onoutput(id, data);
+		flow.proxy.output = function(id, data, flowstreamid, instanceid) {
+			flow.$instance.output && flow.$instance.output(id, data, flowstreamid, instanceid);
 		};
 	}
 
@@ -405,6 +578,10 @@ function init_worker(meta) {
 	var worker = new W.Worker(__filename, { workerData: meta });
 	worker.$instance = new Instance(worker, meta.id);
 	worker.isworkerthread = true;
+	worker.$schema = meta;
+	worker.$instance.output = function(id, data, flowstreamid, instanceid) {
+		exports.input(meta.id, id, flowstreamid, instanceid, data);
+	};
 
 	FLOWS[meta.id] = worker;
 
@@ -413,6 +590,7 @@ function init_worker(meta) {
 		switch (msg.TYPE) {
 
 			case 'stream/export':
+			case 'stream/components':
 				var cb = CALLBACKS[msg.callbackid];
 				if (cb) {
 					delete CALLBACKS[msg.callbackid];
@@ -420,8 +598,16 @@ function init_worker(meta) {
 				}
 				break;
 
+			case 'stream/toinput':
+				exports.input(msg.fromflowstreamid, msg.fromid, msg.toflowstreamid, msg.toid, msg.data);
+				break;
+
+			case 'stream/refresh':
+				exports.refresh(meta.id, msg.type);
+				break;
+
 			case 'stream/error':
-				worker.socket && worker.socket.send({ TYPE: 'flow/error', error: msg.error, type: msg.type });
+				worker.socket && worker.$socket.send({ TYPE: 'flow/error', error: msg.error, type: msg.type });
 				worker.$instance.onerror && worker.$instance.onerror(msg.error, msg.type);
 				break;
 
@@ -433,8 +619,16 @@ function init_worker(meta) {
 				worker.$instance.ondone && worker.$instance.ondone(msg.error);
 				break;
 
+			case 'stream/io2':
+				exports.io(msg.flowstreamid, msg.id, function(err, data) {
+					msg.data = data;
+					msg.error = err;
+					worker.postMessage(msg);
+				});
+				break;
+
 			case 'stream/output':
-				worker.$instance.output && worker.$instance.output(msg.id, msg.data);
+				worker.$instance.output && worker.$instance.output(msg.id, msg.data, msg.flowstreamid, msg.instanceid);
 				break;
 
 			case 'stream/add':
@@ -457,13 +651,13 @@ function init_worker(meta) {
 			case 'ui/send':
 				switch (msg.type) {
 					case 1:
-						worker.socket && worker.socket.send(msg.data, client => client.id === msg.clientid);
+						worker.$socket && worker.$socket.send(msg.data, client => client.id === msg.clientid);
 						break;
 					case 2:
-						worker.socket && worker.socket.send(msg.data, client => client.id !== msg.clientid);
+						worker.$socket && worker.$socket.send(msg.data, client => client.id !== msg.clientid);
 						break;
 					default:
-						worker.socket && worker.socket.send(msg.data);
+						worker.$socket && worker.$socket.send(msg.data);
 						break;
 				}
 				break;
@@ -473,6 +667,72 @@ function init_worker(meta) {
 
 	return worker.$instance;
 }
+
+exports.io = function(flowstreamid, id, callback) {
+
+	if (typeof(flowstreamid) === 'function') {
+		callback = flowstreamid;
+		id = null;
+		flowstreamid = null;
+	} else if (typeof(id) === 'function') {
+		callback = id;
+		id = null;
+	}
+
+	var flow;
+
+	if (id) {
+		flow = FLOWS[flowstreamid];
+
+		if (flow) {
+			flow.$instance.io(id, function(err, data) {
+				if (data) {
+					var tmp = readmeta(flow.$schema);
+					tmp.item = data;
+					data = tmp;
+				}
+				callback(err, data);
+			});
+		} else
+			callback();
+
+		return;
+	}
+
+	if (flowstreamid) {
+		flow = FLOWS[flowstreamid];
+		if (flow) {
+			flow.$instance.io(null, function(err, data) {
+				var f = flow.$schema || EMPTYOBJECT;
+				var meta = readmeta(f);
+				meta.items = data;
+				callback(null, meta);
+			});
+		} else
+			callback();
+		return;
+	}
+
+	var arr = [];
+
+	Object.keys(FLOWS).wait(function(key, next) {
+
+		var flow = FLOWS[key];
+		if (flow) {
+			flow.$instance.io(null, function(err, data) {
+				var f = flow.$schema || EMPTYOBJECT;
+				var meta = readmeta(f);
+				meta.items = data;
+				arr.push(meta);
+				next();
+			});
+		} else
+			next();
+
+	}, function() {
+		callback(null, arr);
+	});
+};
 
 exports.socket = function(flow, socket, check) {
 
@@ -484,7 +744,7 @@ exports.socket = function(flow, socket, check) {
 		return;
 	}
 
-	flow.socket = socket;
+	flow.$socket = socket;
 
 	var newclient = function(client) {
 
@@ -508,7 +768,7 @@ exports.socket = function(flow, socket, check) {
 
 	socket.autodestroy(function() {
 
-		delete flow.socket;
+		delete flow.$socket;
 
 		if (flow.isworkerthread)
 			flow.postMessage({ TYPE: 'ui/online', online: false });
@@ -891,6 +1151,7 @@ function MAKEFLOWSTREAM(meta) {
 
 		flow.stats.memory = memory;
 		flow.stats.TYPE = 'flow/stats';
+		flow.stats.errors = flow.errors.length;
 		flow.proxy.online && flow.proxy.send(stats);
 	};
 
@@ -944,28 +1205,27 @@ function MAKEFLOWSTREAM(meta) {
 			return exports.init(meta, isworker);
 		};
 
-		instance.sendfs = function(flowstreamid, id, data) {
-
-			if (data && data.ismessage && data.end) {
-				var tmp = data.data;
-				data.destroy();
-				data = tmp;
-			}
-
-			exports.send(flowstreamid, id, data);
+		instance.io = function(flowstreamid, id, callback) {
+			flow.proxy.io(flowstreamid, id, callback);
 		};
 
-		instance.output = function(data) {
-			flow.proxy.output(this.id, data);
+		instance.toinput = function(data, flowstreamid, id) {
+			flow.proxy.input(instance.id, flowstreamid, id, data);
+		};
+
+		instance.output = function(data, flowstreamid, id) {
+			flow.proxy.output(instance.id, data, flowstreamid, id);
 		};
 
 		instance.reconfigure = function(config) {
-			this.main.reconfigure(this.id, config);
+			instance.main.reconfigure(instance.id, config);
+			save();
 		};
 	};
 
 	flow.onreconfigure = function(instance) {
 		flow.proxy.online && flow.proxy.send({ TYPE: 'flow/config', id: instance.id, data: instance.config });
+		flow.proxy.refresh('configure');
 	};
 
 	flow.onerror = function(err) {
@@ -1015,10 +1275,18 @@ function MAKEFLOWSTREAM(meta) {
 
 	};
 
+	var loaded = false;
+
 	flow.on('schema', function() {
 		if (flow.ready) {
+
 			for (var key in flow.sockets)
 				flow.sockets[key].synchronize();
+
+			if (loaded)
+				flow.proxy.refresh('schema');
+
+			loaded = true;
 		}
 	});
 
@@ -1039,7 +1307,7 @@ function MAKEFLOWSTREAM(meta) {
 	};
 
 	return flow;
-};
+}
 
 var Message = require('total4/flowstream').prototypes().Message;
 
