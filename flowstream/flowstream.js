@@ -1065,12 +1065,19 @@ function MAKEFLOWSTREAM(meta) {
 				if (source) {
 					delete flow.sources[msg.id];
 					flow.sockets[msg.id] && flow.sockets[msg.id].destroy();
+					var remove = [];
 					for (var key in flow.meta.components) {
 						var com = flow.meta.components[key];
 						if (com.schemaid && com.schemaid[0] === msg.id)
-							flow.unregister(key);
+							remove.push(key);
 					}
-					save();
+
+					remove.wait(function(key, next) {
+						flow.unregister(key, next);
+					}, function() {
+						refresh_components();
+						save();
+					});
 				}
 
 				msg.error = source == null ? 'Not found' : null;
@@ -1371,7 +1378,7 @@ TMS.check = function(item, callback) {
 
 		client.on('close', function() {
 			client.tmsready = false;
-			callback(401);
+			callback('401: Unauthorized');
 		});
 
 		client.on('message', function(msg) {
@@ -1387,7 +1394,7 @@ TMS.check = function(item, callback) {
 		client.timeout = setTimeout(function() {
 			if (client.tmsready) {
 				client.close();
-				callback(408);
+				callback('408: Timeout');
 			}
 		}, 1500);
 
