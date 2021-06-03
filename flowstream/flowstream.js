@@ -4,6 +4,7 @@
 
 const W = require('worker_threads');
 const Parent = W.parentPort;
+const VERSION = 1;
 
 var CALLBACKS = {};
 var FLOWS = {};
@@ -975,6 +976,14 @@ function MAKEFLOWSTREAM(meta) {
 				}
 				break;
 
+			case 'export':
+				msg.TYPE = 'flow/export';
+				if (flow.proxy.online) {
+					msg.data = flow.export2();
+					flow.proxy.send(msg);
+				}
+				break;
+
 			case 'save':
 				flow.use(CLONE(msg.data), function(err) {
 					msg.error = err ? err.toString() : null;
@@ -1292,6 +1301,7 @@ function MAKEFLOWSTREAM(meta) {
 
 	flow.proxy.newclient = function(clientid) {
 		if (flow.proxy.online) {
+			flow.proxy.send({ TYPE: 'flow/flowstream', version: VERSION }, 1, clientid);
 			flow.proxy.send({ TYPE: 'flow/variables', data: flow.variables }, 1, clientid);
 			flow.proxy.send({ TYPE: 'flow/variables2', data: flow.variables2 }, 1, clientid);
 			flow.proxy.send({ TYPE: 'flow/components', data: flow.components(true) }, 1, clientid);
