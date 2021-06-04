@@ -284,6 +284,7 @@ OP.users.auth = function(options, callback) {
 				platform.services = meta.services;
 				platform.servicetoken = meta.servicetoken;
 				platform.settings = meta.settings || EMPTYOBJECT;
+				platform.mode = meta.mode;
 				platform.sn = meta.sn;
 				platform.dtsync = NOW;
 				platform.isloading = true;
@@ -364,6 +365,7 @@ OP.users.auth = function(options, callback) {
 					platform.services = meta.services;
 					platform.servicetoken = meta.servicetoken;
 					platform.sn = meta.sn;
+					platform.mode = meta.mode;
 					platform.settings = meta.settings || EMPTYOBJECT;
 				}
 
