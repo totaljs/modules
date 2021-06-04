@@ -1416,6 +1416,7 @@ TMS.connect = function(fs, sourceid, callback) {
 	WEBSOCKETCLIENT(function(client) {
 
 		var item = fs.sources[sourceid];
+		var prev;
 
 		item.restart = false;
 		client.options.reconnectserver = true;
@@ -1423,7 +1424,12 @@ TMS.connect = function(fs, sourceid, callback) {
 		if (item.token)
 			client.headers['x-token'] = item.token;
 
+		var syncforce = function() {
+			client.synchronize();
+		};
+
 		client.on('open', function() {
+			prev = null;
 			fs.sockets[item.id] = client;
 			item.error = 0;
 			item.init = true;
@@ -1431,12 +1437,13 @@ TMS.connect = function(fs, sourceid, callback) {
 			client.subscribers = {};
 			client.tmsready = true;
 			client.model = makemodel(item);
-			client.synchronize();
+			setTimeout(syncforce, 10);
 		});
 
 		client.synchronize = function() {
 
-			client.synchronized = true;
+			if (!client.tmsready)
+				return;
 
 			var publishers = {};
 
@@ -1449,7 +1456,14 @@ TMS.connect = function(fs, sourceid, callback) {
 				}
 			}
 
-			client.send({ type: 'subscribers', subscribers: Object.keys(publishers) });
+			var keys = Object.keys(publishers);
+			var cache = keys.join(',');
+
+			if (!prev || prev !== cache) {
+				prev = cache;
+				client.send({ type: 'subscribers', subscribers: keys });
+			}
+
 		};
 
 		client.on('close', function(code) {
@@ -1745,7 +1759,7 @@ TMS.refresh = function(fs, callback) {
 
 };
 
-TMS.synchronize = function(fs, force) {
+TMS.synchronize = function(fs) {
 
 	var sync = {};
 
@@ -1757,7 +1771,7 @@ TMS.synchronize = function(fs, force) {
 
 	for (var key in sync) {
 		var source = sync[key];
-		if (source && source.socket && (force || !source.socket.synchronized))
+		if (source && source.socket)
 			source.socket.synchronize();
 	}
 };
