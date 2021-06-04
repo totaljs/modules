@@ -994,7 +994,7 @@ function MAKEFLOWSTREAM(meta) {
 			case 'save':
 				flow.use(CLONE(msg.data), function(err) {
 					msg.error = err ? err.toString() : null;
-					flow.proxy.online && flow.proxy.send(msg, 2, clientid);
+					flow.proxy.online && flow.proxy.send(msg);
 					save();
 				});
 				msg.TYPE = 'flow/design';
