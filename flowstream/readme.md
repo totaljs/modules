@@ -15,4 +15,13 @@ var instance = MODULE('flowstream');
 // instance.input([flowstreamid], [id], data);
 // instance.trigger(flowstreamid, id, data);
 // instance.refresh([flowstreamid], [type]);
+// instance.exec(flowstreamid, opt);
+	// opt.id {String}
+	// opt.ref {String} optional, custom reference
+	// opt.uid {String} optional, custom reference
+	// opt.repo {Object} optional, a custom message repository object
+	// opt.vars {Object} optional, a custom message variables
+	// opt.data {Object/String/Number} optional, data for the message
+	// opt.timeout {Number} optional, a timeout in milliseconds
+	// otp.callback(err, msg) return processed message
 ```

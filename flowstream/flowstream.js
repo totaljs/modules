@@ -2,6 +2,9 @@
 // The MIT License
 // Copyright 2021 (c) Peter Širka <petersirka@gmail.com>
 
+if (!global.F)
+	require('total4');
+
 const W = require('worker_threads');
 const Parent = W.parentPort;
 const VERSION = 1;
@@ -56,6 +59,30 @@ function Instance(instance, id) {
 	this.id = id;
 	this.flow = instance;
 }
+
+Instance.prototype.exec = function(opt) {
+
+	// opt.id = instance_ID
+	// opt.callback = function(err, msg)
+	// opt.uid = String/Number;             --> returned back
+	// opt.ref = String/Number;             --> returned back
+	// opt.repo = {};                       --> returned back
+	// opt.data = {};                       --> returned back
+	// opt.vars = {};
+	// opt.timeout = Number;
+
+	var self = this;
+
+	if (self.flow.isworkerthread) {
+		var callbackid = opt.callback ? (CALLBACKID++) : -1;
+		if (callbackid !== -1)
+			CALLBACKS[callbackid] = { id: self.flow.id, callback: opt.callback };
+		self.flow.postMessage({ TYPE: 'stream/exec', id: opt.id, uid: opt.uid, ref: opt.ref, vars: opt.vars, repo: opt.repo, data: opt.data, timeout: opt.timeout, callbackid: callbackid });
+	} else
+		exec(self.flow, opt);
+
+	return self;
+};
 
 // Performs trigger
 Instance.prototype.trigger = function(id, data) {
@@ -317,6 +344,14 @@ exports.init = function(meta, isworker) {
 	return isworker ? init_worker(meta) : init_current(meta);
 };
 
+exports.exec = function(id, opt) {
+	var fs = FLOWS[id];
+	if (fs)
+		fs.exec(id, opt);
+	else if (opt.callback)
+		opt.callback(404);
+};
+
 exports.input = function(ffsid, fid, tfsid, tid, data) {
 	if (tfsid) {
 		var fs = FLOWS[tfsid];
@@ -340,6 +375,62 @@ exports.refresh = function(id, type) {
 		flow.$instance.refresh(id, type);
 	}
 };
+
+function exec(self, opt) {
+
+	var target = self.meta.flow[opt.id];
+	var msg = target && target.message ? target.newmessage() : null;
+
+	if (msg) {
+
+		if (opt.vars)
+			msg.vars = opt.vars;
+
+		if (opt.repo)
+			msg.repo = opt.repo;
+
+		msg.data = opt.data == null ? {} : opt.data;
+
+		if (opt.callbackid !== -1) {
+			msg.on('end', function(msg) {
+
+				var output = {};
+
+				output.uid = msg.uid;
+				output.ref = msg.ref;
+				output.error = msg.error;
+				output.repo = msg.repo;
+				output.data = msg.data;
+				output.count = msg.count;
+				output.cloned = msg.cloned;
+				output.duration = msg.duration;
+
+				if (Parent) {
+					if (opt.callbackid !== -1) {
+						opt.repo = undefined;
+						opt.vars = undefined;
+						opt.data = output;
+						Parent.postMessage(opt);
+					}
+				} else if (opt.callback)
+					opt.callback(output.error, output);
+			});
+		}
+
+		if (opt.timeout)
+			msg.totaltimeout(opt.timeout);
+
+		target.message(msg);
+
+	} else if (opt.callback) {
+		opt.callback(404);
+	} else if (Parent && opt.callbackid !== -1) {
+		opt.repo = undefined;
+		opt.vars = undefined;
+		opt.data = { error: 404 };
+		Parent.postMessage(opt);
+	}
+}
 
 function init_current(meta) {
 
@@ -365,7 +456,11 @@ function init_current(meta) {
 					break;
 
 				case 'stream/reconfigure':
-					flow.reconfigure(meta.id, meta.data);
+					flow.reconfigure(msg.id, msg.data);
+					break;
+
+				case 'stream/exec':
+					exec(flow, msg);
 					break;
 
 				case 'stream/trigger':
@@ -587,11 +682,18 @@ function init_worker(meta) {
 	FLOWS[meta.id] = worker;
 
 	worker.on('message', function(msg) {
-
 		switch (msg.TYPE) {
 
 			case 'stream/stats':
 				worker.stats = msg.data;
+				break;
+
+			case 'stream/exec':
+				var cb = CALLBACKS[msg.callbackid];
+				if (cb) {
+					delete CALLBACKS[msg.callbackid];
+					cb.callback(msg.data.error, msg.data);
+				}
 				break;
 
 			case 'stream/export':
@@ -1338,23 +1440,6 @@ function MAKEFLOWSTREAM(meta) {
 
 	return flow;
 }
-
-var Message = require('total4/flowstream').prototypes().Message;
-
-Message.variables = function(str, data) {
-	if (str.indexOf('{') !== -1) {
-		str = str.args(this.vars);
-		if (str.indexOf('{') !== -1) {
-			str = str.args(this.instance.main.variables);
-			if (str.indexOf('{') !== -1) {
-				str = str.args(this.instance.main.variables2);
-				if (data == true || (data && typeof(data) === 'object'))
-					str = str.args(data == true ? this.data : data);
-			}
-		}
-	}
-	return str;
-};
 
 // TMS implementation:
 TMS.check = function(item, callback) {
