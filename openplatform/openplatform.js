@@ -109,7 +109,7 @@ OP.services.init = function(meta, next) {
 
 OP.services.check = function(controller, callback) {
 
-	if (CONF.openplatform_origin && controller.headers['x-origin'] !== CONF.openplatform_origin) {
+	if (CONF.openplatform_origin && (!controller.headers || controller.headers['x-origin'] !== CONF.openplatform_origin)) {
 		controller.invalid('error-openplatform-token', ERR_SERVICES_TOKEN);
 		return;
 	}
@@ -214,7 +214,7 @@ OP.users.auth = function(options, callback) {
 
 	var builder = RESTBuilder.GET(options.url).header('Referer', OP.meta.url).callback(function(err, response, output) {
 
-		if (CONF.openplatform_origin && output.headers['x-origin'] !== CONF.openplatform_origin) {
+		if (CONF.openplatform_origin && (!output.headers || output.headers['x-origin'] !== CONF.openplatform_origin)) {
 			callback('Invalid origin');
 			return;
 		}
