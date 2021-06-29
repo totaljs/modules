@@ -1468,6 +1468,10 @@ TMS.check = function(item, callback) {
 
 		client.on('message', function(msg) {
 			switch (msg.type) {
+				case 'ping':
+					msg.type = 'pong';
+					client.send(msg);
+					break;
 				case 'meta':
 					callback(null, msg);
 					clearTimeout(client.timeout);
@@ -1505,6 +1509,15 @@ TMS.connect = function(fs, sourceid, callback) {
 
 		item.restart = false;
 		client.options.reconnectserver = true;
+		client.callbacks = {};
+		client.callbackindexer = 0;
+		client.callbacktimeout = function(callbackid) {
+			var cb = client.callbacks[callbackid];
+			if (cb) {
+				delete client.callbacks[callbackid];
+				cb(new ErrorBuilder().push(408)._prepare().items);
+			}
+		};
 
 		if (item.token)
 			client.headers['x-token'] = item.token;
@@ -1568,7 +1581,9 @@ TMS.connect = function(fs, sourceid, callback) {
 
 		client.on('message', function(msg) {
 
-			switch (msg.type) {
+			var type = msg.type || msg.TYPE;
+
+			switch (type) {
 				case 'meta':
 
 					item.meta = msg;
@@ -1576,6 +1591,7 @@ TMS.connect = function(fs, sourceid, callback) {
 					var checksum = HASH(JSON.stringify(msg)) + '';
 					client.subscribers = {};
 					client.publishers = {};
+					client.calls = {};
 
 					for (var i = 0; i < msg.publish.length; i++) {
 						var pub = msg.publish[i];
@@ -1587,6 +1603,13 @@ TMS.connect = function(fs, sourceid, callback) {
 						client.subscribers[sub.id] = 1;
 					}
 
+					if (msg.call) {
+						for (var i = 0; i < msg.call.length; i++) {
+							var call = msg.call[i];
+							client.calls[call.id] = 1;
+						}
+					}
+
 					if (item.checksum !== checksum) {
 						item.init = false;
 						item.checksum = checksum;
@@ -1594,6 +1617,15 @@ TMS.connect = function(fs, sourceid, callback) {
 					}
 
 					client.synchronize();
+					break;
+
+				case 'call':
+					var callback = client.callbacks[msg.callbackid];
+					if (callback) {
+						callback.id && clearTimeout(callback.id);
+						callback.callback(msg.error ? msg.data : null, msg.error ? null : msg.data);
+						delete client.callbacks[msg.callbackid];
+					}
 					break;
 
 				case 'subscribers':
@@ -1678,7 +1710,7 @@ const TEMPLATE_SUBSCRIBE = `<script total>
 	exports.make = function(instance) {
 		instance.message = function(msg, client) {
 			var socket = instance.main.sockets['{7}'];
-			if (socket && socket.subscribers['{1}']) {
+			if (socket && socket.subscribers && socket.subscribers['{1}']) {
 				/*
 					var err = new ErrorBuilder();
 					var data = framework_jsonschema.transform(schema, err, msg.data, true);
@@ -1708,6 +1740,67 @@ const TEMPLATE_SUBSCRIBE = `<script total>
 	</header>
 	<div class="schema">{6}</div>
 </body>`;
+
+const TEMPLATE_CALL = `<script total>
+
+	exports.name = '{0}';
+	exports.icon = '{3}';
+	exports.config = { timeout: 60000 };
+	exports.inputs = [{ id: 'input', name: '{1}' }];
+	exports.outputs = [{ id: 'response', name: 'Response' }, { id: 'error', name: 'Error' }];
+	exports.group = 'Calls';
+	exports.type = 'call';
+	exports.schemaid = ['{7}', '{1}'];
+
+	exports.make = function(instance) {
+
+		instance.message = function(msg, client) {
+			var socket = instance.main.sockets['{7}'];
+
+			if (socket && socket.calls && socket.calls['{1}']) {
+
+				/*
+					var err = new ErrorBuilder();
+					var data = framework_jsonschema.transform(schema, err, msg.data, true);
+				*/
+
+				var callback = function(err, response) {
+					if (err)
+						msg.send('error', err);
+					else
+						msg.send('response', response);
+				};
+
+				var callbackid = (socket.callbackindexer++) + '';
+
+				if (socket.callbackindexer > 999999999)
+					socket.callbackindexer = 0;
+
+				socket.callbacks[callbackid] = { callback: callback, id: setTimeout(socket.callbacktimeout, config.timeout, callbackid) };
+				socket.send({ type: 'call', id: '{1}', data: msg.data, callbackid: callbackid });
+			} else
+				msg.destroy();
+		};
+	};
+
+</script>
+
+<style>
+	.f-{5} .url { font-size: 11px; }
+</style>
+
+<readme>
+	{2}
+</readme>
+
+<body>
+	<header>
+		<div><i class="{3} mr5"></i><span>{0}</span></div>
+		<div class="url">{4}</div>
+	</header>
+	<div class="schema">{6}</div>
+</body>`;
+
 
 function makeschema(item) {
 
@@ -1747,6 +1840,7 @@ TMS.refresh = function(fs, callback) {
 					readme.push('- URL address: <' + url + '>');
 					readme.push('- Channel: __publish__');
 					readme.push('- JSON schema `' + m.id + '.json`');
+					readme.push('- Version: ' + VERSION);
 
 					readme.push('```json');
 					readme.push(JSON.stringify(m.schema, null, '  '));
@@ -1771,6 +1865,7 @@ TMS.refresh = function(fs, callback) {
 					readme.push('- URL address: <' + url + '>');
 					readme.push('- Channel: __subscribe__');
 					readme.push('- JSON schema `' + m.id + '.json`');
+					readme.push('- Version: ' + VERSION);
 
 					readme.push('```json');
 					readme.push(JSON.stringify(m, null, '  '));
@@ -1781,6 +1876,31 @@ TMS.refresh = function(fs, callback) {
 					var com = fs.add(id, template);
 					m.url = url;
 					com.type = 'sub';
+					com.itemid = item.id;
+					com.schema = m;
+				}
+			}
+
+			if (item.meta.call instanceof Array) {
+				for (var i = 0; i < item.meta.call.length; i++) {
+					var m = item.meta.call[i];
+					var readme = [];
+
+					readme.push('# ' + item.meta.name);
+					readme.push('- URL address: <' + url + '>');
+					readme.push('- Channel: __call__');
+					readme.push('- JSON schema `' + m.id + '.json`');
+					readme.push('- Version: ' + VERSION);
+
+					readme.push('```json');
+					readme.push(JSON.stringify(m.schema, null, '  '));
+					readme.push('```');
+
+					var id = 'cal' + item.id + 'X' + m.id;
+					var template = TEMPLATE_CALL.format(item.meta.name, m.id, readme.join('\n'), m.icon || 'far fa-plug', m.url, id, makeschema(m.schema), item.id);
+					var com = fs.add(id, template);
+					m.url = url;
+					com.type = 'call';
 					com.itemid = item.id;
 					com.schema = m;
 				}
@@ -1800,7 +1920,7 @@ TMS.refresh = function(fs, callback) {
 		for (var key in components) {
 			var com = components[key];
 			var type = com.type;
-			if (type === 'pub' || type === 'sub') {
+			if (type === 'pub' || type === 'sub' || type === 'call') {
 				var index = key.indexOf('X');
 				if (index !== -1) {
 
@@ -1809,7 +1929,12 @@ TMS.refresh = function(fs, callback) {
 					var source = fs.sources[sourceid];
 
 					if (source) {
-						if (type === 'pub') {
+						if (type === 'call') {
+							if (source.meta.call instanceof Array) {
+								if (source.meta.call.findItem('id', subid))
+									continue;
+							}
+						} else if (type === 'pub') {
 							if (source.meta.publish instanceof Array) {
 								if (source.meta.publish.findItem('id', subid))
 									continue;
