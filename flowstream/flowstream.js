@@ -6,9 +6,10 @@ if (!global.F)
 	require('total4');
 
 const W = require('worker_threads');
-const Parent = W.parentPort;
+const Fork = require('child_process').fork;
 const VERSION = 1;
 
+var Parent = W.parentPort;
 var CALLBACKS = {};
 var FLOWS = {};
 var TMS = {};
@@ -110,10 +111,14 @@ Instance.prototype.destroy = function() {
 	var self = this;
 
 	setTimeout(() => exports.refresh(self.id, 'destroy'), 500);
+	self.flow.$destroyed = true;
 
 	if (self.flow.isworkerthread) {
 		self.flow.$socket && self.flow.$socket.destroy();
-		self.flow.terminate();
+		if (self.flow.terminate)
+			self.flow.terminate();
+		else
+			self.flow.exit(9);
 	} else {
 		if (self.flow.sockets) {
 			for (var key in self.flow.sockets)
@@ -340,8 +345,8 @@ Instance.prototype.export = function(callback) {
 };
 
 // Initializes FlowStream
-exports.init = function(meta, isworker) {
-	return isworker ? init_worker(meta) : init_current(meta);
+exports.init = function(meta, isworker, callback) {
+	return isworker ? init_worker(meta, isworker, callback) : init_current(meta, callback);
 };
 
 exports.exec = function(id, opt) {
@@ -432,7 +437,7 @@ function exec(self, opt) {
 	}
 }
 
-function init_current(meta) {
+function init_current(meta, callback) {
 
 	var flow = MAKEFLOWSTREAM(meta);
 	FLOWS[meta.id] = flow;
@@ -666,12 +671,20 @@ function init_current(meta) {
 		};
 	}
 
+	callback && callback(null, flow.$instance);
 	return flow.$instance;
 }
 
-function init_worker(meta) {
+function init_worker(meta, type, callback) {
 
-	var worker = new W.Worker(__filename, { workerData: meta });
+	var worker = type === true || type === 'worker' ? new W.Worker(__filename, { workerData: meta }) : Fork(__filename, [F.directory, '--fork'], { serialization: 'json' }); // detached: true,
+	var ischild = false;
+
+	if (!worker.postMessage) {
+		worker.postMessage = worker.send;
+		ischild = true;
+	}
+
 	worker.$instance = new Instance(worker, meta.id);
 	worker.isworkerthread = true;
 	worker.$schema = meta;
@@ -680,6 +693,20 @@ function init_worker(meta) {
 	};
 
 	FLOWS[meta.id] = worker;
+
+	var restart = function(code) {
+		setTimeout(function(worker, code) {
+			if (!worker.$destroyed) {
+				console.log('FlowStream auto-restart: ' + worker.$schema.name + ' (exit code: ' + ((code || '0') + '') + ')');
+				init_worker(worker.$schema, type, callback);
+				worker.$instance = null;
+				worker.$schema = null;
+				worker.$destroyed = true;
+			}
+		}, 1000, worker, code);
+	};
+
+	worker.on('exit', restart);
 
 	worker.on('message', function(msg) {
 		switch (msg.TYPE) {
@@ -772,6 +799,8 @@ function init_worker(meta) {
 
 	});
 
+	ischild && worker.send({ TYPE: 'init', data: meta });
+	callback && callback(null, worker.$instance);
 	return worker.$instance;
 }
 
@@ -1994,6 +2023,18 @@ TMS.refresh2 = function(fs) {
 if (W.workerData) {
 	F.dir(PATH.join(__dirname, '../'));
 	exports.init(W.workerData);
+}
+
+if (process.argv.indexOf('--fork') !== -1) {
+	process.once('message', function(msg) {
+		if (msg.TYPE === 'init') {
+			Parent = process;
+			if (!Parent.postMessage)
+				Parent.postMessage = process.send;
+			F.dir(PATH.join(__dirname, '../'));
+			exports.init(msg.data);
+		}
+	});
 }
 
 ON('service', function() {

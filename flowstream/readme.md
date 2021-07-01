@@ -10,7 +10,7 @@ var worker_thread = true;
 var instance = MODULE('flowstream');
 
 // Methods:
-// instance.init(meta [isworker]);
+// instance.init(meta isworker, callback(err, instance));
 // instance.socket(meta, socket, check(client) => true);
 // instance.input([flowstreamid], [id], data);
 // instance.trigger(flowstreamid, id, data);
