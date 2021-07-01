@@ -57,6 +57,7 @@ var CALLBACKID = 0;
 */
 
 function Instance(instance, id) {
+	this.version = VERSION;
 	this.id = id;
 	this.flow = instance;
 }
@@ -118,7 +119,7 @@ Instance.prototype.destroy = function() {
 		if (self.flow.terminate)
 			self.flow.terminate();
 		else
-			self.flow.exit(9);
+			self.flow.kill(9);
 	} else {
 		if (self.flow.sockets) {
 			for (var key in self.flow.sockets)
@@ -1361,8 +1362,8 @@ function MAKEFLOWSTREAM(meta) {
 			save();
 		};
 
-		instance.newflowstream = function(meta, isworker) {
-			return exports.init(meta, isworker);
+		instance.newflowstream = function(meta, isworker, callback) {
+			return exports.init(meta, isworker, callback);
 		};
 
 		instance.io = function(flowstreamid, id, callback) {
@@ -2031,7 +2032,7 @@ if (process.argv.indexOf('--fork') !== -1) {
 			Parent = process;
 			if (!Parent.postMessage)
 				Parent.postMessage = process.send;
-			F.dir(PATH.join(__dirname, '../'));
+			F.dir(process.argv[2]);
 			exports.init(msg.data);
 		}
 	});
