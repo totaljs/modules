@@ -139,6 +139,7 @@ OP.services.check = function(controller, callback) {
 		platform.directoryid = meta.directoryid;
 		platform.verifytoken = meta.verifytoken;
 		platform.servicetoken = meta.servicetoken;
+		platform.userid = meta.userid;
 		meta = platform;
 		platform = null;
 	}
@@ -156,7 +157,7 @@ OP.services.check = function(controller, callback) {
 			if (is) {
 				meta.dtexpire = NOW.add(SYNCMETA);
 				OP.platforms[key] = meta;
-				callback.call(controller, err, meta, controller);
+				callback.call(controller, err, CLONE(meta), controller);
 			} else
 				controller.invalid('error-openplatform-token', ERR_SERVICES_TOKEN);
 		});
