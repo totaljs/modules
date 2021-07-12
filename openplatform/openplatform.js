@@ -599,10 +599,13 @@ ON('service', function(counter) {
 	}
 
 	if (counter % AUTOSYNCINTERVAL === 0) {
-		for (let key in OP.platforms)
-			autosyncforce(OP.platforms[key]);
+		for (let key in OP.platforms) {
+			if (key.substring(0, 8) !== 'services') {
+				var platform = OP.platforms[key];
+				platform && autosyncforce(platform);
+			}
+		}
 	}
-
 });
 
 var firstdate = { sk: 1, cs: 1, hr: 1, bg: 1, bs: 1, az: 1, sq: 1, de: 1, hu: 1, pl: 1, uk: 1, tr: 1, tk: 1, tt: 1, sv: 1, es: 1, sl: 1, sr: 1, ru: 1, ro: 1, pt: 1, no: 1, nb: 1, nn: 1, mk: 1, lb: 1, lv: 1, la: 1, it: 1, el: 1, ka: 1, fr: 1, da: 1 };
