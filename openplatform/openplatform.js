@@ -43,7 +43,7 @@ ON('ready', function() {
 // Applies localization
 LOCALIZE(req => req.query.language);
 
-OP.version = 1.026;
+OP.version = 1.027;
 OP.meta = null;
 
 OP.init = function(meta, next) {
