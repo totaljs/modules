@@ -215,6 +215,11 @@ OP.users.auth = function(options, callback) {
 
 	var builder = RESTBuilder.GET(options.url).header('Referer', OP.meta.url).callback(function(err, response, output) {
 
+		if (err) {
+			callback(err + '');
+			return;
+		}
+
 		if (CONF.openplatform_origin && (!output.headers || output.headers['x-origin'] !== CONF.openplatform_origin)) {
 			callback('Invalid origin');
 			return;
