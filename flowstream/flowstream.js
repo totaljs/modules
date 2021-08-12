@@ -1049,6 +1049,19 @@ function MAKEFLOWSTREAM(meta) {
 	flow.sources = meta.sources;
 	flow.proxy = {};
 
+	flow.proxy.variables = function(data) {
+		flow.variables = data;
+		for (var key in flow.meta.flow) {
+			var instance = flow.meta.flow[key];
+			instance.variables && instance.variables(flow.variables);
+		}
+		var msg = {};
+		msg.TYPE = 'flow/variables';
+		msg.data = data;
+		flow.proxy.online && flow.proxy.send(msg);
+		save();
+	};
+
 	flow.proxy.message = function(msg, clientid) {
 		switch (msg.TYPE) {
 
@@ -1360,6 +1373,10 @@ function MAKEFLOWSTREAM(meta) {
 			item.config = instance.config;
 			flow.proxy.online && flow.proxy.send({ TYPE: 'flow/redraw', id: instance.id, data: item });
 			save();
+		};
+
+		instance.newvariables = function(data) {
+			flow.proxy.variables(data || {});
 		};
 
 		instance.newflowstream = function(meta, isworker, callback) {
