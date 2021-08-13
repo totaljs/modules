@@ -36,6 +36,11 @@ ON('ready', function() {
 
 	FILE(OP.metafile.url, function(req, res) {
 
+		if (!OP.meta) {
+			res.throw404();
+			return;
+		}
+
 		if (!OP.metafile.processed) {
 			OP.metafile.makeurl(req);
 			OP.metafile.processed = true;
@@ -846,7 +851,7 @@ var DDOS = {};
 OP.auth = function(callback) {
 	AUTH(function($) {
 
-		if (DDOS[$.req.ip] > 15) {
+		if (DDOS[$.req.ip] > 15 || !OP.meta) {
 			$.invalid();
 			return;
 		}
@@ -859,7 +864,7 @@ OP.auth = function(callback) {
 		}
 
 		if (!OP.metafile.processed) {
-			OP.metafile.makeurl(req);
+			OP.metafile.makeurl($.req);
 			OP.metafile.processed = true;
 		}
 
