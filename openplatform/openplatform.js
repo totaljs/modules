@@ -20,12 +20,27 @@ OP.metafile = {};
 OP.metafile.url = '/openplatform.json';
 OP.metafile.filename = PATH.root('openplatform.json');
 
+OP.metafile.makeurl = function(req) {
+	if (OP.meta.url) {
+		var protocol = OP.meta.url.substring(0, 6);
+		if (protocol !== 'http:/' && protocol !== 'https:')
+			OP.meta.url = req.hostname() + OP.meta.url;
+	} else
+		OP.meta.url = req.hostname();
+};
+
 // Registers a file route
 ON('ready', function() {
 
+	OP.metafile.processed = false;
+
 	FILE(OP.metafile.url, function(req, res) {
-		if (!OP.meta.url)
-			OP.meta.url = req.hostname();
+
+		if (!OP.metafile.processed) {
+			OP.metafile.makeurl(req);
+			OP.metafile.processed = true;
+		}
+
 		res.json(OP.meta);
 	});
 
@@ -43,7 +58,7 @@ ON('ready', function() {
 // Applies localization
 LOCALIZE(req => req.query.language);
 
-OP.version = 1.027;
+OP.version = 1.028;
 OP.meta = null;
 
 OP.init = function(meta, next) {
@@ -843,8 +858,10 @@ OP.auth = function(callback) {
 			return;
 		}
 
-		if (!OP.meta.url)
-			OP.meta.url = $.req.hostname();
+		if (!OP.metafile.processed) {
+			OP.metafile.makeurl(req);
+			OP.metafile.processed = true;
+		}
 
 		if (op.substring(0, 7) === 'base64 ') {
 			// decode
@@ -1016,4 +1033,11 @@ OP.users.sync_rem = function(interval, modified, processor, callback) {
 ON('service', function(counter) {
 	if (counter % 30 === 0)
 		DDOS = {};
+});
+
+// Default user authorization
+OP.auth(function($, user) {
+	// @$ {AuthOptions}
+	// @user {Object} A user profile
+	$.success(user);
 });
