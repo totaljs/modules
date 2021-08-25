@@ -38,6 +38,7 @@ var CALLBACKID = 0;
 	instance.reconfigure(id, config);
 	instance.variables(variables);
 	instance.variables2(variables);
+	instance.pause(is);
 	instance.socket(socket);
 	instance.sendfs(flowstreamid, id, data);
 
@@ -89,15 +90,32 @@ Instance.prototype.exec = function(opt) {
 // Performs trigger
 Instance.prototype.trigger = function(id, data) {
 	var self = this;
-	if (self.isworkerthread)
-		self.postMessage({ TYPE: 'stream/trigger', id: id, data: data });
+	var flow = self.flow;
+	if (flow.isworkerthread)
+		flow.postMessage({ TYPE: 'stream/trigger', id: id, data: data });
 	else {
-		var com = self.flow.meta.flow[id];
-		if (com && com.trigger)
-			com.trigger(data);
+		if (!flow.paused) {
+			var com = flow.meta.flow[id];
+			if (com && com.trigger)
+				com.trigger(data);
+		}
 	}
 	return self;
 };
+
+// Performs pause
+Instance.prototype.pause = function(is) {
+	var self = this;
+	var flow = self.flow;
+
+	if (flow.isworkerthread)
+		flow.postMessage({ TYPE: 'stream/pause', is: is });
+	else
+		flow.pause(is == null ? !flow.paused : is);
+
+	return self;
+};
+
 
 // Asssigns UI websocket the the FlowStream
 Instance.prototype.socket = function(socket) {
@@ -470,9 +488,16 @@ function init_current(meta, callback) {
 					break;
 
 				case 'stream/trigger':
-					var tmp = flow.meta.flow[meta.id];
-					if (tmp && tmp.trigger)
-						tmp.trigger(msg.data);
+					if (!flow.paused) {
+						var tmp = flow.meta.flow[meta.id];
+						if (tmp && tmp.trigger)
+							tmp.trigger(msg.data);
+					}
+					break;
+
+				case 'stream/pause':
+					flow.pause(msg.is == null ? !flow.paused : msg.is);
+					flow.save();
 					break;
 
 				case 'stream/refresh':
@@ -687,6 +712,7 @@ function init_worker(meta, type, callback) {
 	}
 
 	worker.$instance = new Instance(worker, meta.id);
+	worker.$instance.isworkerthread = true;
 	worker.isworkerthread = true;
 	worker.$schema = meta;
 	worker.$instance.output = function(id, data, flowstreamid, instanceid) {
@@ -1186,7 +1212,6 @@ function MAKEFLOWSTREAM(meta) {
 					}
 				}
 				msg.TYPE = 'flow/pause';
-				console.log(msg, clientid);
 				flow.proxy.online && flow.proxy.send(msg, 2, clientid);
 				break;
 
@@ -1339,6 +1364,7 @@ function MAKEFLOWSTREAM(meta) {
 
 	var minutes = -1;
 	var memory = 0;
+	var notifier = 0;
 
 	// Captures stats from the Flow
 	flow.onstats = function(stats) {
@@ -1346,14 +1372,18 @@ function MAKEFLOWSTREAM(meta) {
 		if (stats.minutes !== minutes) {
 			minutes = stats.minutes;
 			memory = process.memoryUsage().heapUsed;
-			flow.stats.memory = memory;
-			flow.stats.errors = flow.errors.length;
-			Parent && Parent.postMessage({ TYPE: 'stream/stats', data: { paused: flow.paused, messages: flow.stats.messages, pending: flow.stats.pending, memory: flow.stats.memory, minutes: flow.stats.minutes, errors: flow.stats.errors, mm: flow.stats.mm } });
-		} else {
-			flow.stats.memory = memory;
-			flow.stats.errors = flow.errors.length;
 		}
 
+		flow.stats.memory = memory;
+		flow.stats.errors = flow.errors.length;
+
+		// Each 9 seconds
+		if (notifier % 3 === 0) {
+			notifier = 0;
+			Parent && Parent.postMessage({ TYPE: 'stream/stats', data: { paused: flow.paused, messages: flow.stats.messages, pending: flow.stats.pending, memory: flow.stats.memory, minutes: flow.stats.minutes, errors: flow.stats.errors, mm: flow.stats.mm } });
+		}
+
+		notifier++;
 		stats.paused = flow.paused;
 
 		flow.stats.TYPE = 'flow/stats';
@@ -1503,7 +1533,7 @@ function MAKEFLOWSTREAM(meta) {
 
 	flow.proxy.newclient = function(clientid) {
 		if (flow.proxy.online) {
-			flow.proxy.send({ TYPE: 'flow/flowstream', version: VERSION, paused: flow.paused }, 1, clientid);
+			flow.proxy.send({ TYPE: 'flow/flowstream', version: VERSION, paused: flow.paused, total: F.version }, 1, clientid);
 			flow.proxy.send({ TYPE: 'flow/variables', data: flow.variables }, 1, clientid);
 			flow.proxy.send({ TYPE: 'flow/variables2', data: flow.variables2 }, 1, clientid);
 			flow.proxy.send({ TYPE: 'flow/components', data: flow.components(true) }, 1, clientid);
