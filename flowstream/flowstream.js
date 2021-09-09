@@ -95,9 +95,18 @@ Instance.prototype.trigger = function(id, data) {
 		flow.postMessage({ TYPE: 'stream/trigger', id: id, data: data });
 	else {
 		if (!flow.paused) {
-			var com = flow.meta.flow[id];
-			if (com && com.trigger)
-				com.trigger(data);
+			if (id[0] === '@') {
+				var tmpid = id.substring(1);
+				for (var key in flow.meta.flow) {
+					var com = flow.meta.flow[key];
+					if (com.component === tmpid && com.trigger)
+						com.trigger(data);
+				}
+			} else {
+				var com = flow.meta.flow[id];
+				if (com && com.trigger)
+					com.trigger(data);
+			}
 		}
 	}
 	return self;
@@ -107,12 +116,10 @@ Instance.prototype.trigger = function(id, data) {
 Instance.prototype.pause = function(is) {
 	var self = this;
 	var flow = self.flow;
-
 	if (flow.isworkerthread)
 		flow.postMessage({ TYPE: 'stream/pause', is: is });
 	else
 		flow.pause(is == null ? !flow.paused : is);
-
 	return self;
 };
 
