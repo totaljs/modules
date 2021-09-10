@@ -23,5 +23,5 @@ var instance = MODULE('flowstream');
 	// opt.vars {Object} optional, a custom message variables
 	// opt.data {Object/String/Number} optional, data for the message
 	// opt.timeout {Number} optional, a timeout in milliseconds
-	// otp.callback(err, msg) return processed message
+	// otp.callback(err, output) return processed message
 ```

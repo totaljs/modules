@@ -7,7 +7,7 @@ if (!global.F)
 
 const W = require('worker_threads');
 const Fork = require('child_process').fork;
-const VERSION = 2;
+const VERSION = 3;
 
 var Parent = W.parentPort;
 var CALLBACKS = {};
@@ -96,10 +96,17 @@ Instance.prototype.trigger = function(id, data) {
 	else {
 		if (!flow.paused) {
 			if (id[0] === '@') {
-				var tmpid = id.substring(1);
+				id = id.substring(1);
 				for (var key in flow.meta.flow) {
 					var com = flow.meta.flow[key];
-					if (com.component === tmpid && com.trigger)
+					if (com.component === id && com.trigger)
+						com.trigger(data);
+				}
+			} else if (id[0] === '#') {
+				id = id.substring(1);
+				for (var key in flow.meta.flow) {
+					var com = flow.meta.flow[key];
+					if (com.module.name === id && com.trigger)
 						com.trigger(data);
 				}
 			} else {
@@ -409,57 +416,78 @@ exports.refresh = function(id, type) {
 
 function exec(self, opt) {
 
-	var target = self.meta.flow[opt.id];
-	var msg = target && target.message ? target.newmessage() : null;
+	var target = [];
+	var instances = self.meta.flow;
+	var id;
 
-	if (msg) {
-
-		if (opt.vars)
-			msg.vars = opt.vars;
-
-		if (opt.repo)
-			msg.repo = opt.repo;
-
-		msg.data = opt.data == null ? {} : opt.data;
-
-		if (opt.callbackid !== -1) {
-			msg.on('end', function(msg) {
-
-				var output = {};
-
-				output.uid = msg.uid;
-				output.ref = msg.ref;
-				output.error = msg.error;
-				output.repo = msg.repo;
-				output.data = msg.data;
-				output.count = msg.count;
-				output.cloned = msg.cloned;
-				output.duration = msg.duration;
-
-				if (Parent) {
-					if (opt.callbackid !== -1) {
-						opt.repo = undefined;
-						opt.vars = undefined;
-						opt.data = output;
-						Parent.postMessage(opt);
-					}
-				} else if (opt.callback)
-					opt.callback(output.error, output);
-			});
+	if (opt.id[0] === '@') {
+		id = opt.id.substring(1);
+		for (var key in instances) {
+			if (instances[key].component === id)
+				target.push(instances[key]);
 		}
+	} else if (opt.id[0] === '#') {
+		id = opt.id.substring(1);
+		for (var key in instances) {
+			if (instances[key].module.name === id)
+				target.push(instances[key]);
+		}
+	} else {
+		if (instances[opt.id])
+			target.push(instances[opt.id]);
+	}
 
-		if (opt.timeout)
-			msg.totaltimeout(opt.timeout);
+	for (var instance of target) {
+		var msg = instance && instance.message ? instance.newmessage() : null;
+		if (msg) {
 
-		target.message(msg);
+			if (opt.vars)
+				msg.vars = opt.vars;
 
-	} else if (opt.callback) {
-		opt.callback(404);
-	} else if (Parent && opt.callbackid !== -1) {
-		opt.repo = undefined;
-		opt.vars = undefined;
-		opt.data = { error: 404 };
-		Parent.postMessage(opt);
+			if (opt.repo)
+				msg.repo = opt.repo;
+
+			msg.data = opt.data == null ? {} : opt.data;
+
+			if (opt.callbackid !== -1) {
+				msg.on('end', function(msg) {
+
+					var output = {};
+					output.uid = opt.uid;
+					output.ref = opt.ref;
+					output.error = msg.error;
+					output.repo = msg.repo;
+					output.data = msg.data;
+					output.count = msg.count;
+					output.cloned = msg.cloned;
+					output.duration = Date.now() - msg.duration;
+					output.meta = { id: instance.id, component: instance.component };
+
+					if (Parent) {
+						if (opt.callbackid !== -1) {
+							opt.repo = undefined;
+							opt.vars = undefined;
+							opt.data = output;
+							Parent.postMessage(opt);
+						}
+					} else if (opt.callback)
+						opt.callback(output.error, output);
+				});
+			}
+
+			if (opt.timeout)
+				msg.totaltimeout(opt.timeout);
+
+			instance.message(msg);
+
+		} else if (opt.callback) {
+			opt.callback(404);
+		} else if (Parent && opt.callbackid !== -1) {
+			opt.repo = undefined;
+			opt.vars = undefined;
+			opt.data = { error: 404 };
+			Parent.postMessage(opt);
+		}
 	}
 }
 
@@ -753,7 +781,7 @@ function init_worker(meta, type, callback) {
 				var cb = CALLBACKS[msg.callbackid];
 				if (cb) {
 					delete CALLBACKS[msg.callbackid];
-					cb.callback(msg.data.error, msg.data);
+					cb.callback(msg.data.error, msg.data, msg.meta);
 				}
 				break;
 
