@@ -7,7 +7,7 @@ if (!global.F)
 
 const W = require('worker_threads');
 const Fork = require('child_process').fork;
-const VERSION = 3;
+const VERSION = 4;
 
 var Parent = W.parentPort;
 var CALLBACKS = {};
@@ -41,12 +41,16 @@ var CALLBACKID = 0;
 	instance.pause(is);
 	instance.socket(socket);
 	instance.sendfs(flowstreamid, id, data);
+	instance.exec(opt, callback);
+	instance.httprequest(opt, callback);
 
 	Delegates:
 	instance.onsave(data);
 	instance.ondone();
 	instance.onerror(err, type);
 	instance.output(fid, data, tfsid, tid);
+	instance.onhttproute(url, remove);
+	instance.ondestroy();
 
 	Extended Flow instances by:
 	instance.save();
@@ -58,12 +62,180 @@ var CALLBACKID = 0;
 */
 
 function Instance(instance, id) {
+	this.httproutes = {};
 	this.version = VERSION;
 	this.id = id;
 	this.flow = instance;
 }
 
-Instance.prototype.exec = function(opt) {
+Instance.prototype.httprequest = function(opt, callback) {
+
+	// opt.route {String} a URL address
+	// opt.params {Object}
+	// opt.query {Object}
+	// opt.body {Object}
+	// opt.headers {Object}
+	// opt.files {Array Object}
+	// opt.url {String}
+	// opt.callback {Function(err, meta)}
+
+	if (opt.callback) {
+		callback = opt.callback;
+		opt.callback = undefined;
+	}
+
+	var self = this;
+	if (self.flow.isworkerthread) {
+		var callbackid = callback ? (CALLBACKID++) : -1;
+		if (callbackid !== -1)
+			CALLBACKS[callbackid] = { id: self.flow.id, callback: callback };
+		self.flow.postMessage({ TYPE: 'stream/httprequest', data: opt, callbackid: callbackid });
+	} else
+		httprequest(self.flow, opt, callback);
+
+	return self;
+};
+
+// Can't be used in the FlowStream component
+Instance.prototype.httprouting = function() {
+
+	var instance = this;
+
+	instance.onhttproute = function(url, remove) {
+
+		// GET / #upload #5000 #10000
+		// - #flag means a flag name
+		// - first #number is timeout
+		// - second #number is max. limit for the payload
+
+		var flags = [];
+		var limit = 0;
+		var timeout = 0;
+		var id = url;
+
+		url = url.replace(/#[a-z0-9]+/g, function(text) {
+			text = text.substring(1);
+			if ((/^\d+$/).test(text)) {
+				if (timeout)
+					limit = +text;
+				else
+					timeout = +text;
+			} else
+				flags.push(text);
+			return '';
+		}).trim();
+
+		var route;
+
+		if (remove) {
+			route = instance.httproutes[id];
+			if (route) {
+				route.remove();
+				delete instance.httproutes[id];
+			}
+			return;
+		}
+
+		if (instance.httproutes[id])
+			instance.httproutes[id].remove();
+
+		if (timeout)
+			flags.push(timeout);
+
+		route = ROUTE(url, function() {
+
+			var self = this;
+			var opt = {};
+
+			opt.route = id;
+			opt.params = self.params;
+			opt.query = self.query;
+			opt.body = self.body;
+			opt.files = self.files;
+			opt.headers = self.headers;
+			opt.url = self.url;
+			opt.ip = self.ip;
+			opt.cookies = {};
+
+			var cookie = self.headers.cookie;
+			if (cookie) {
+				var arr = cookie.split(';');
+				for (var i = 0; i < arr.length; i++) {
+					var line = arr[i].trim();
+					var index = line.indexOf('=');
+					if (index !== -1) {
+						try {
+							opt.cookies[line.substring(0, index)] = decodeURIComponent(line.substring(index + 1));
+						} catch (e) {}
+					}
+				}
+			}
+
+			instance.httprequest(opt, function(meta) {
+
+				if (meta.status)
+					self.status = meta.status;
+
+				if (meta.headers) {
+					for (var key in meta.headers)
+						self.header(key, meta.headers[key]);
+				}
+
+				if (meta.cookies && meta.cookies instanceof Array) {
+					for (var item of meta.cookies) {
+						var name = item.name || item.id;
+						var value = item.value;
+						var expiration = item.expiration || item.expires || item.expire;
+						if (name && value && expiration)
+							self.res.cookie(name, value, expiration, item.options || item.config);
+					}
+				}
+
+				var data = meta.body || meta.data || meta.payload;
+				switch (meta.type) {
+					case 'error':
+						self.invalid(meta.body);
+						break;
+					case 'text':
+					case 'plain':
+						self.plain(data);
+						break;
+					case 'html':
+						self.content(data, 'text/html');
+						break;
+					case 'xml':
+						self.content(data, 'text/xml');
+						break;
+					case 'json':
+						self.json(data);
+						break;
+					case 'empty':
+						self.empty();
+						break;
+					default:
+						if (meta.filename) {
+							var stream = F.Fs.createReadStream(meta.filename);
+							self.stream(stream, meta.type, meta.download);
+							meta.remove && CLEANUP(stream, () => F.Fs.unlink(meta.filename, NOOP));
+						} else {
+							if (typeof(data) === 'string')
+								self.binary(Buffer.from(data, 'base64'), meta.type);
+							else
+								self.json(data);
+						}
+						break;
+				}
+
+			}, flags, limit);
+		});
+
+		instance.httproutes[id] = route;
+	};
+
+	return instance;
+};
+
+Instance.prototype.exec = function(opt, callback) {
 
 	// opt.id = instance_ID
 	// opt.callback = function(err, msg)
@@ -74,8 +246,10 @@ Instance.prototype.exec = function(opt) {
 	// opt.vars = {};
 	// opt.timeout = Number;
 
-	var self = this;
+	if (callback && !opt.callback)
+		opt.callback = callback;
 
+	var self = this;
 	if (self.flow.isworkerthread) {
 		var callbackid = opt.callback ? (CALLBACKID++) : -1;
 		if (callbackid !== -1)
@@ -130,7 +304,6 @@ Instance.prototype.pause = function(is) {
 	return self;
 };
 
-
 // Asssigns UI websocket the the FlowStream
 Instance.prototype.socket = function(socket) {
 	var self = this;
@@ -166,6 +339,12 @@ Instance.prototype.destroy = function() {
 			delete CALLBACKS[key];
 	}
 
+	if (self.httproutes) {
+		for (var key in self.httproutes)
+			self.httproutes[key].remove();
+	}
+
+	self.ondestroy && self.ondestroy();
 	delete FLOWS[self.id];
 };
 
@@ -491,6 +670,25 @@ function exec(self, opt) {
 	}
 }
 
+function httprequest(self, opt, callback) {
+	if (self.httproutes[opt.route]) {
+		self.httproutes[opt.route].callback(opt, function(data) {
+			// data.status {Number}
+			// data.headers {Object}
+			// data.body {Buffer}
+			if (Parent)
+				Parent.postMessage({ TYPE: 'stream/httpresponse', data: data, callbackid: callback });
+			else
+				callback(data);
+		});
+	} else {
+		if (Parent)
+			Parent.postMessage({ TYPE: 'stream/httpresponse', data: { type: 'error', body: 404 }, callbackid: callback });
+		else
+			callback({ type: 'error', body: 404 });
+	}
+}
+
 function init_current(meta, callback) {
 
 	var flow = MAKEFLOWSTREAM(meta);
@@ -516,6 +714,10 @@ function init_current(meta, callback) {
 
 				case 'stream/reconfigure':
 					flow.reconfigure(msg.id, msg.data);
+					break;
+
+				case 'stream/httprequest':
+					httprequest(flow, msg.data, msg.callbackid);
 					break;
 
 				case 'stream/exec':
@@ -657,6 +859,16 @@ function init_current(meta, callback) {
 				Parent.postMessage({ TYPE: 'stream/save', data: data });
 		};
 
+		flow.proxy.httproute = function(url, callback, instance) {
+			if (!flow.$schema || !flow.$schema.readonly) {
+				if (callback)
+					flow.httproutes[url] = { id: instance.id, component: instance.component, callback: callback };
+				else
+					delete flow.httproutes[url];
+				Parent.postMessage({ TYPE: 'stream/httproute', data: { url: url, remove: callback == null }});
+			}
+		};
+
 		flow.proxy.done = function(err) {
 			Parent.postMessage({ TYPE: 'stream/done', error: err });
 		};
@@ -705,6 +917,16 @@ function init_current(meta, callback) {
 		flow.proxy.save = function(data) {
 			if (!flow.$schema || !flow.$schema.readonly)
 				flow.$instance.onsave && flow.$instance.onsave(data);
+		};
+
+		flow.proxy.httproute = function(url, callback, instanceid) {
+			if (!flow.$schema || !flow.$schema.readonly) {
+				if (callback)
+					flow.httproutes[url] = { id: instanceid, callback: callback };
+				else
+					delete flow.httproutes[url];
+				flow.$instance.onhttproute && flow.$instance.onhttproute(url, callback == null);
+			}
 		};
 
 		flow.proxy.refresh = function(type) {
@@ -785,6 +1007,14 @@ function init_worker(meta, type, callback) {
 				}
 				break;
 
+			case 'stream/httpresponse':
+				var cb = CALLBACKS[msg.callbackid];
+				if (cb) {
+					delete CALLBACKS[msg.callbackid];
+					cb.callback(msg.data, msg.meta);
+				}
+				break;
+
 			case 'stream/export':
 			case 'stream/components':
 				var cb = CALLBACKS[msg.callbackid];
@@ -809,6 +1039,10 @@ function init_worker(meta, type, callback) {
 
 			case 'stream/save':
 				worker.$instance.onsave && worker.$instance.onsave(msg.data);
+				break;
+
+			case 'stream/httproute':
+				worker.$instance.onhttproute && worker.$instance.onhttproute(msg.data.url, msg.data.remove);
 				break;
 
 			case 'stream/done':
@@ -914,7 +1148,6 @@ exports.io = function(flowstreamid, id, callback) {
 	var arr = [];
 
 	Object.keys(FLOWS).wait(function(key, next) {
-
 		var flow = FLOWS[key];
 		if (flow) {
 			flow.$instance.io(null, function(err, data) {
@@ -926,7 +1159,6 @@ exports.io = function(flowstreamid, id, callback) {
 			});
 		} else
 			next();
-
 	}, function() {
 		callback(null, arr);
 	});
@@ -1041,7 +1273,13 @@ function MAKEFLOWSTREAM(meta) {
 		}
 
 		for (var key in flow.meta.flow) {
+
 			var com = flow.meta.flow[key];
+			if (key === 'paused') {
+				design[key] = com;
+				continue;
+			}
+
 			var tmp = {};
 			tmp.id = key;
 			tmp.config = CLONE(com.config);
@@ -1356,6 +1594,7 @@ function MAKEFLOWSTREAM(meta) {
 	flow.variables2 = meta.variables2;
 	flow.sockets = {};
 	flow.$schema = meta;
+	flow.httproutes = {};
 
 	if (meta.paused)
 		flow.pause(true);
@@ -1396,6 +1635,7 @@ function MAKEFLOWSTREAM(meta) {
 				obj.group = com.group;
 				obj.version = com.version;
 				obj.author = com.author;
+				obj.permissions = com.permissions;
 				arr.push(obj);
 			} else
 				arr.push(com);
@@ -1454,6 +1694,14 @@ function MAKEFLOWSTREAM(meta) {
 		cleanerid = setTimeout(cleaner, 500);
 	};
 
+	flow.onunregister = function(component) {
+		for (var key in flow.httproutes) {
+			var route = flow.httproutes[key];
+			if (route && route.component === component.id)
+				flow.proxy.httproute(key, null);
+		}
+	};
+
 	flow.onregister = function(component) {
 		if (!component.schema && component.schemaid && (component.type === 'pub' || component.type === 'sub')) {
 			var tmp = flow.sources[component.schemaid[0]];
@@ -1468,7 +1716,23 @@ function MAKEFLOWSTREAM(meta) {
 		}
 	};
 
+	flow.httproute = function(url, callback) {
+		flow.proxy.httproute(url, callback);
+	};
+
+	flow.ondisconnect = function(instance) {
+		for (var key in flow.httproutes) {
+			var route = flow.httproutes[key];
+			if (route && route.id === instance.id)
+				flow.proxy.httproute(key, null);
+		}
+	};
+
 	flow.onconnect = function(instance) {
+
+		instance.httproute = function(url, callback) {
+			flow.proxy.httproute(url, callback, instance);
+		};
 
 		instance.save = function() {
 			var item = {};
@@ -1505,13 +1769,13 @@ function MAKEFLOWSTREAM(meta) {
 
 		instance.reconfigure = function(config) {
 			instance.main.reconfigure(instance.id, config);
-			save();
 		};
 	};
 
 	flow.onreconfigure = function(instance) {
 		flow.proxy.online && flow.proxy.send({ TYPE: 'flow/config', id: instance.id, data: instance.config });
 		flow.proxy.refresh('configure');
+		save();
 	};
 
 	flow.onerror = function(err) {
@@ -1577,6 +1841,7 @@ function MAKEFLOWSTREAM(meta) {
 	});
 
 	flow.proxy.newclient = function(clientid) {
+
 		if (flow.proxy.online) {
 			flow.proxy.send({ TYPE: 'flow/flowstream', version: VERSION, paused: flow.paused, total: F.version }, 1, clientid);
 			flow.proxy.send({ TYPE: 'flow/variables', data: flow.variables }, 1, clientid);
