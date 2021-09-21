@@ -1843,7 +1843,7 @@ function MAKEFLOWSTREAM(meta) {
 	flow.proxy.newclient = function(clientid) {
 
 		if (flow.proxy.online) {
-			flow.proxy.send({ TYPE: 'flow/flowstream', version: VERSION, paused: flow.paused, total: F.version }, 1, clientid);
+			flow.proxy.send({ TYPE: 'flow/flowstream', version: VERSION, paused: flow.paused, total: F.version, name: meta.name, version2: meta.version, icon: meta.icon, reference: meta.reference, author: meta.author, color: meta.color }, 1, clientid);
 			flow.proxy.send({ TYPE: 'flow/variables', data: flow.variables }, 1, clientid);
 			flow.proxy.send({ TYPE: 'flow/variables2', data: flow.variables2 }, 1, clientid);
 			flow.proxy.send({ TYPE: 'flow/components', data: flow.components(true) }, 1, clientid);
