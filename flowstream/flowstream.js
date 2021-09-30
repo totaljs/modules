@@ -7,7 +7,7 @@ if (!global.F)
 
 const W = require('worker_threads');
 const Fork = require('child_process').fork;
-const VERSION = 5;
+const VERSION = 6;
 
 var Parent = W.parentPort;
 var CALLBACKS = {};
@@ -1805,9 +1805,14 @@ function MAKEFLOWSTREAM(meta) {
 			item.config = instance.config;
 			item.outputs = instance.outputs;
 			item.inputs = instance.inputs;
-			flow.cleanforce();
+
+			if (!flow.loading) {
+				flow.cleanforce();
+				save();
+			}
+
 			flow.proxy.online && flow.proxy.send({ TYPE: 'flow/redraw', id: instance.id, data: item });
-			save();
+
 		};
 
 		instance.newvariables = function(data) {
