@@ -874,6 +874,7 @@ function init_current(meta, callback) {
 						var instance = flow.meta.flow[key];
 						instance.variables && instance.variables(flow.variables);
 					}
+					flow.proxy.online && flow.proxy.send({ TYPE: 'flow/variables', data: msg.data });
 					flow.save();
 					break;
 
