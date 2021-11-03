@@ -1900,10 +1900,12 @@ function MAKEFLOWSTREAM(meta) {
 		};
 	};
 
-	flow.onreconfigure = function(instance) {
-		flow.proxy.online && flow.proxy.send({ TYPE: 'flow/config', id: instance.id, data: instance.config });
-		flow.proxy.refresh('configure');
-		save();
+	flow.onreconfigure = function(instance, init) {
+		if (!init) {
+			flow.proxy.online && flow.proxy.send({ TYPE: 'flow/config', id: instance.id, data: instance.config });
+			flow.proxy.refresh('configure');
+			save();
+		}
 	};
 
 	flow.onerror = function(err, source, instanceid) {
