@@ -7,7 +7,7 @@ if (!global.F)
 
 const W = require('worker_threads');
 const Fork = require('child_process').fork;
-const VERSION = 8;
+const VERSION = 9;
 
 var Parent = W.parentPort;
 var CALLBACKS = {};
@@ -402,16 +402,13 @@ Instance.prototype.input = function(flowstreamid, fromid, toid, data) {
 
 // Adds a new component
 Instance.prototype.add = function(id, body, callback) {
-
 	if (self.flow.isworkerthread) {
 		var callbackid = callback ? (CALLBACKID++) : -1;
 		if (callback)
 			CALLBACKS[callbackid] = { id: self.flow.id, callback: callback };
 		self.flow.postMessage({ TYPE: 'stream/add', id: id, data: body, callbackid: callbackid });
-		return self;
-	}
-
-	self.flow.add(id, body, callback);
+	} else
+		self.flow.add(id, body, callback);
 	return self;
 };
 
@@ -422,9 +419,8 @@ Instance.prototype.rem = function(id, callback) {
 		if (callback)
 			CALLBACKS[callbackid] = { id: self.flow.id, callback: callback };
 		self.flow.postMessage({ TYPE: 'stream/rem', id: id, callbackid: callbackid });
-		return self;
-	}
-	self.flow.unregister(id, callback);
+	} else
+		self.flow.unregister(id, callback);
 	return self;
 };
 
@@ -437,10 +433,10 @@ Instance.prototype.components = function(callback) {
 		var callbackid = CALLBACKID++;
 		CALLBACKS[callbackid] = { id: self.flow.id, callback: callback };
 		self.flow.postMessage({ TYPE: 'stream/components', callbackid: callbackid });
-		return self;
-	}
+	} else
+		callback(null, self.flow.components(true));
 
-	callback(null, self.flow.components(true));
+	return self;
 };
 
 function readmeta(meta) {
@@ -935,16 +931,23 @@ function init_current(meta, callback) {
 		flow.proxy.error = function(err, source, instance) {
 
 			var instanceid = '';
+			var componentid = '';
 
 			if (instance) {
-				if (source === 'instance_message')
+				if (source === 'instance_message') {
 					instanceid = instance.instance.id;
-				else if (source === 'instance_close')
+					componentid = instance.instance.component;
+				} else if (source === 'instance_close') {
 					instanceid = instance.id;
+					componentid = instance.component;
+				} else if (source === 'register') {
+					instanceid = '';
+					componentid = instance;
+				}
 			}
 
-			instanceid && flow.onerror(err, source, instanceid);
-			Parent.postMessage({ TYPE: 'stream/error', error: err, source: source, id: instanceid });
+			instanceid && flow.onerror(err, source, instanceid, componentid);
+			Parent.postMessage({ TYPE: 'stream/error', error: err, source: source, id: instanceid, component: componentid });
 		};
 
 		flow.proxy.refresh = function(type) {
@@ -1003,10 +1006,6 @@ function init_current(meta, callback) {
 			exports.refresh(flow.id, type);
 		};
 
-		flow.proxy.error = function(err, type) {
-			flow.socket && flow.$socket.send({ TYPE: 'flow/error', error: err, type: type });
-		};
-
 		flow.proxy.done = function(err) {
 			flow.$instance.ondone && setImmediate(flow.$instance.ondone, err);
 		};
@@ -1018,16 +1017,23 @@ function init_current(meta, callback) {
 		flow.proxy.error = function(err, source, instance) {
 
 			var instanceid = '';
+			var componentid = '';
 
 			if (instance) {
-				if (source === 'instance_message')
+				if (source === 'instance_message') {
 					instanceid = instance.instance.id;
-				else if (source === 'instance_close')
+					componentid = instance.instance.component;
+				} else if (source === 'instance_close') {
 					instanceid = instance.id;
+					componentid = instance.component;
+				} else if (source === 'register') {
+					instanceid = '';
+					componentid = instance;
+				}
 			}
 
-			instanceid && flow.onerror(err, source, instanceid);
-			flow.$instance.onerror && flow.$instance.onerror(err, source, instanceid);
+			instanceid && flow.onerror(err, source, instanceid, componentid);
+			flow.$instance.onerror && flow.$instance.onerror(err, source, instanceid, componentid);
 		};
 
 		flow.proxy.output = function(id, data, flowstreamid, instanceid) {
@@ -1061,6 +1067,7 @@ function init_worker(meta, type, callback) {
 
 	var restart = function(code) {
 		setTimeout(function(worker, code) {
+			worker.$socket && setTimeout(socket => socket && socket.destroy(), 2000, worker.$socket);
 			if (!worker.$destroyed) {
 				console.log('FlowStream auto-restart: ' + worker.$schema.name + ' (exit code: ' + ((code || '0') + '') + ')');
 				init_worker(worker.$schema, type, callback);
@@ -1114,8 +1121,8 @@ function init_worker(meta, type, callback) {
 				break;
 
 			case 'stream/error':
-				worker.socket && worker.$socket.send({ TYPE: 'flow/error', error: msg.error, type: msg.type, id: msg.id });
-				worker.$instance.onerror && worker.$instance.onerror(msg.error, msg.type, msg.id);
+				worker.socket && worker.$socket.send({ TYPE: 'flow/error', error: msg.error, source: msg.source, id: msg.id, component: msg.component });
+				worker.$instance.onerror && worker.$instance.onerror(msg.error, msg.source, msg.id, msg.component);
 				break;
 
 			case 'stream/save':
