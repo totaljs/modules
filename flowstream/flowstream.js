@@ -1368,7 +1368,7 @@ function MAKEFLOWSTREAM(meta) {
 
 			var com = flow.meta.flow[key];
 
-			if (key === 'paused' || key === 'groups') {
+			if (key === 'paused' || key === 'groups' || key === 'tabs') {
 				design[key] = com;
 				continue;
 			}
@@ -1872,6 +1872,7 @@ function MAKEFLOWSTREAM(meta) {
 			item.config = instance.config;
 			item.outputs = instance.outputs;
 			item.inputs = instance.inputs;
+			item.tab = instance.tab;
 
 			if (!flow.loading) {
 				flow.cleanforce();
