@@ -645,7 +645,7 @@ function exec(self, opt) {
 			target.push(instances[opt.id]);
 	}
 
-	for (var instance of target) {
+	target.wait(function(instance, next) {
 		var msg = instance && instance.message ? instance.newmessage() : null;
 		if (msg) {
 
@@ -696,7 +696,9 @@ function exec(self, opt) {
 			opt.data = { error: 404 };
 			Parent.postMessage(opt);
 		}
-	}
+
+		setImmediate(next);
+	});
 }
 
 function httprequest(self, opt, callback) {
