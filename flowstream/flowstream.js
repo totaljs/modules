@@ -7,7 +7,7 @@ if (!global.F)
 
 const W = require('worker_threads');
 const Fork = require('child_process').fork;
-const VERSION = 9;
+const VERSION = 11;
 
 var Parent = W.parentPort;
 var CALLBACKS = {};
@@ -48,7 +48,7 @@ var CALLBACKID = 1;
 	Delegates:
 	instance.onsave(data);
 	instance.ondone();
-	instance.onerror(err, type);
+	instance.onerror(err, type, instanceid);
 	instance.output(fid, data, tfsid, tid);
 	instance.onhttproute(url, remove);
 	instance.ondestroy();
@@ -506,26 +506,6 @@ Instance.prototype.reconfigure = function(id, config) {
 	return self;
 };
 
-// Updates variables
-Instance.prototype.variables = function(variables) {
-
-	var self = this;
-	var flow = self.flow;
-
-	if (flow.isworkerthread) {
-		flow.postMessage({ TYPE: 'stream/variables', data: variables });
-	} else {
-		flow.variables = variables;
-		for (var key in flow.meta.flow) {
-			var instance = flow.meta.flow[key];
-			instance.variables && instance.variables(flow.variables);
-		}
-		flow.proxy.online && flow.proxy.send({ TYPE: 'flow/variables', data: variables });
-		flow.save();
-	}
-	return self;
-};
-
 Instance.prototype.refresh = function(id, type, data) {
 	var self = this;
 	var flow = self.flow;
@@ -546,6 +526,27 @@ Instance.prototype.refresh = function(id, type, data) {
 	}
 };
 
+// Updates variables
+Instance.prototype.variables = function(variables) {
+
+	var self = this;
+	var flow = self.flow;
+
+	if (flow.isworkerthread) {
+		flow.$schema.variables = variables;
+		flow.postMessage({ TYPE: 'stream/variables', data: variables });
+	} else {
+		flow.variables = variables;
+		for (var key in flow.meta.flow) {
+			var instance = flow.meta.flow[key];
+			instance.variables && instance.variables(flow.variables);
+		}
+		flow.proxy.online && flow.proxy.send({ TYPE: 'flow/variables', data: variables });
+		flow.save();
+	}
+	return self;
+};
+
 // Updates global variables
 Instance.prototype.variables2 = function(variables) {
 
@@ -553,6 +554,7 @@ Instance.prototype.variables2 = function(variables) {
 	var flow = self.flow;
 
 	if (flow.isworkerthread) {
+		flow.$schema.variables2 = variables;
 		flow.postMessage({ TYPE: 'stream/variables2', data: variables });
 	} else {
 		flow.variables2 = variables;
@@ -1061,6 +1063,7 @@ function init_worker(meta, type, callback) {
 	worker.$instance.isworkerthread = true;
 	worker.isworkerthread = true;
 	worker.$schema = meta;
+
 	worker.$instance.output = function(id, data, flowstreamid, instanceid) {
 		exports.input(meta.id, id, flowstreamid, instanceid, data);
 	};
@@ -1128,6 +1131,11 @@ function init_worker(meta, type, callback) {
 				break;
 
 			case 'stream/save':
+				worker.$schema.components = msg.data.components;
+				worker.$schema.design = msg.data.design;
+				worker.$schema.variables = msg.data.variables;
+				worker.$schema.origin = msg.data.origin;
+				worker.$schema.sources = msg.data.sources;
 				worker.$instance.onsave && worker.$instance.onsave(msg.data);
 				break;
 
@@ -1349,6 +1357,43 @@ function MAKEFLOWSTREAM(meta) {
 
 	flow.metadata = meta;
 
+	flow.export_instance2 = function(id) {
+
+		var com = flow.meta.flow[id];
+		if (com) {
+
+			if (id === 'paused' || id === 'groups' || id === 'tabs')
+				return CLONE(com);
+
+			var tmp = {};
+			tmp.id = id;
+			tmp.config = CLONE(com.config);
+			tmp.x = com.x;
+			tmp.y = com.y;
+			tmp.offset = com.offset;
+			tmp.size = com.size;
+			tmp.meta = com.meta;
+			tmp.schemaid = com.schemaid;
+			tmp.note = com.note;
+			tmp.schema = com.schema;
+			tmp.component = com.component;
+			tmp.connections = CLONE(com.connections);
+			tmp.tab = com.tab;
+
+			if (com.outputs)
+				tmp.outputs = com.outputs;
+
+			if (com.inputs)
+				tmp.inputs = com.inputs;
+
+			var c = flow.meta.components[com.component];
+			if (c) {
+				tmp.template = { type: c.type, icon: c.icon, group: c.group, name: c.name, inputs: c.inputs, outputs: c.outputs };
+				return tmp;
+			}
+		}
+	};
+
 	flow.export2 = function() {
 
 		var variables = flow.variables;
@@ -1366,39 +1411,8 @@ function MAKEFLOWSTREAM(meta) {
 			components[key] = com.ui.raw;
 		}
 
-		for (var key in flow.meta.flow) {
-
-			var com = flow.meta.flow[key];
-
-			if (key === 'paused' || key === 'groups' || key === 'tabs') {
-				design[key] = com;
-				continue;
-			}
-
-			var tmp = {};
-			tmp.id = key;
-			tmp.config = CLONE(com.config);
-			tmp.x = com.x;
-			tmp.y = com.y;
-			tmp.schemaid = com.schemaid;
-			tmp.note = com.note;
-			tmp.schema = com.schema;
-			tmp.component = com.component;
-			tmp.connections = CLONE(com.connections);
-			tmp.tab = com.tab;
-
-			if (com.outputs)
-				tmp.outputs = com.outputs;
-
-			if (com.inputs)
-				tmp.inputs = com.inputs;
-
-			var c = flow.meta.components[com.component];
-			if (c) {
-				tmp.meta = { type: c.type, icon: c.icon, group: c.group, name: c.name, inputs: c.inputs, outputs: c.outputs };
-				design[key] = tmp;
-			}
-		}
+		for (var key in flow.meta.flow)
+			design[key] = flow.export_instance2(key);
 
 		var data = {};
 		data.paused = flow.paused;
@@ -1418,7 +1432,6 @@ function MAKEFLOWSTREAM(meta) {
 		data.sources = sources;
 		data.origin = flow.$schema.origin;
 		data.dtcreated = flow.$schema.dtcreated;
-		data.dtupdated = new Date();
 		return data;
 	};
 
@@ -1485,10 +1498,11 @@ function MAKEFLOWSTREAM(meta) {
 				break;
 
 			case 'note':
+			case 'meta':
 				var instance = flow.meta.flow[msg.id];
 				if (instance) {
-					instance.note = msg.data;
-					msg.TYPE = 'flow/note';
+					instance[msg.TYPE] = msg.data;
+					msg.TYPE = 'flow/' + msg.TYPE;
 					flow.proxy.online && flow.proxy.send(msg, 0, clientid);
 					callback && callback(msg);
 					save();
@@ -1571,11 +1585,33 @@ function MAKEFLOWSTREAM(meta) {
 			case 'save':
 				flow.use(CLONE(msg.data), function(err) {
 					msg.error = err ? err.toString() : null;
+					msg.TYPE = 'flow/design';
 					flow.proxy.online && flow.proxy.send(msg);
 					callback && callback(msg);
 					save();
 				});
-				msg.TYPE = 'flow/design';
+				break;
+
+			case 'insert':
+				flow.insert(CLONE(msg.data), function(err) {
+					for (var key in msg.data)
+						msg.data[key] = flow.export_instance2(key);
+					msg.TYPE = 'flow/design_insert';
+					msg.error = err ? err.toString() : null;
+					flow.proxy.online && flow.proxy.send(msg);
+					callback && callback(msg);
+					save();
+				});
+				break;
+
+			case 'remove':
+				flow.remove(msg.data, function(err) {
+					msg.TYPE = 'flow/design_remove';
+					msg.error = err ? err.toString() : null;
+					flow.proxy.online && flow.proxy.send(msg);
+					callback && callback(msg);
+					save();
+				});
 				break;
 
 			case 'variables':
@@ -1733,9 +1769,11 @@ function MAKEFLOWSTREAM(meta) {
 
 	flow.load(meta.components, meta.design, function() {
 
-		Object.keys(flow.sources).wait(function(key, next) {
-			TMS.connect(flow, key, next);
-		});
+		if (flow.sources) {
+			Object.keys(flow.sources).wait(function(key, next) {
+				TMS.connect(flow, key, next);
+			});
+		}
 
 		flow.ready = true;
 		setImmediate(() => flow.proxy.done());
@@ -1751,6 +1789,7 @@ function MAKEFLOWSTREAM(meta) {
 			if (prepare_export) {
 				var obj = {};
 				obj.id = com.id;
+				obj.meta = com.meta;
 				obj.name = com.name;
 				obj.type = com.type;
 				obj.css = com.ui.css;
@@ -1870,6 +1909,9 @@ function MAKEFLOWSTREAM(meta) {
 			var item = {};
 			item.x = instance.x;
 			item.y = instance.y;
+			item.size = instance.size;
+			item.offset = instance.offset;
+			item.meta = instance.meta;
 			item.note = instance.note;
 			item.config = instance.config;
 			item.outputs = instance.outputs;
