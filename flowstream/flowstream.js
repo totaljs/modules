@@ -7,7 +7,7 @@ if (!global.F)
 
 const W = require('worker_threads');
 const Fork = require('child_process').fork;
-const VERSION = 11;
+const VERSION = 12;
 
 var Parent = W.parentPort;
 var CALLBACKS = {};
@@ -2004,7 +2004,7 @@ function MAKEFLOWSTREAM(meta) {
 			instance.$dashboard = status;
 
 		if (status != null && flow.proxy.online)
-			flow.proxy.online && flow.proxy.send({ TYPE: 'dashboard', id: instance.id, component: instance.component, data: status });
+			flow.proxy.online && flow.proxy.send({ TYPE: 'flow/dashboard', id: instance.id, data: status });
 
 	};
 
@@ -2024,7 +2024,7 @@ function MAKEFLOWSTREAM(meta) {
 	});
 
 	var makemeta = function() {
-		return { TYPE: 'flow/flowstream', version: VERSION, paused: flow.paused, total: F.version, name: flow.$schema.name, version2: flow.$schema.version, icon: flow.$schema.icon, reference: flow.$schema.reference, author: flow.$schema.author, color: flow.$schema.color, origin: flow.$schema.origin };
+		return { TYPE: 'flow/flowstream', version: VERSION, paused: flow.paused, total: F.version, name: flow.$schema.name, version2: flow.$schema.version, icon: flow.$schema.icon, reference: flow.$schema.reference, author: flow.$schema.author, color: flow.$schema.color, origin: flow.$schema.origin, readme: flow.$schema.readme, url: flow.$schema.url };
 	};
 
 	flow.proxy.refreshmeta = function() {
