@@ -7,7 +7,7 @@ if (!global.F)
 
 const W = require('worker_threads');
 const Fork = require('child_process').fork;
-const VERSION = 15;
+const VERSION = 19;
 
 var isFLOWSTREAMWORKER = false;
 var Parent = W.parentPort;
@@ -326,7 +326,7 @@ Instance.prototype.eval = function(msg, callback) {
 };
 
 // Destroys the Flow
-Instance.prototype.destroy = function() {
+Instance.prototype.kill = Instance.prototype.destroy = function() {
 
 	var self = this;
 
@@ -724,15 +724,21 @@ function httprequest(self, opt, callback) {
 }
 
 function init_current(meta, callback) {
+
 	if (!meta.directory)
 		meta.directory = PATH.root('flowstream');
 
 	// Due to C/C++ modules
-	if (isFLOWSTREAMWORKER)
+	if (W.workerData || meta.sandbox)
 		CONF.node_modules = '~' + PATH.join(meta.directory, meta.id, 'node_modules');
 
 	var flow = MAKEFLOWSTREAM(meta);
 	FLOWS[meta.id] = flow;
+
+	if (isFLOWSTREAMWORKER && meta.unixsocket && meta.proxypath && F.frameworkless) {
+		F.Fs.unlink(meta.unixsocket, NOOP);
+		F.frameworkless(false, { unixsocket: meta.unixsocket, config: { allow_stats_snapshot: false }});
+	}
 
 	flow.origin = meta.origin;
 	flow.proxy.online = false;
@@ -745,6 +751,7 @@ function init_current(meta, callback) {
 	if (Parent) {
 
 		Parent.on('message', function(msg) {
+
 			switch (msg.TYPE) {
 
 				case 'stream/export':
@@ -915,6 +922,10 @@ function init_current(meta, callback) {
 			}
 		});
 
+		flow.proxy.kill = function() {
+			Parent.postMessage({ TYPE: 'stream/kill' });
+		};
+
 		flow.proxy.send = function(msg, type, clientid) {
 			Parent.postMessage({ TYPE: 'ui/send', data: msg, type: type, clientid: clientid });
 		};
@@ -945,8 +956,11 @@ function init_current(meta, callback) {
 
 			if (instance) {
 				if (source === 'instance_message') {
-					instanceid = instance.instance.id;
-					componentid = instance.instance.component;
+					if (instance.instance) {
+						instanceid = instance.instance.id;
+						componentid = instance.instance.component;
+					} else
+						console.log('ERROR', instance);
 				} else if (source === 'instance_close') {
 					instanceid = instance.id;
 					componentid = instance.component;
@@ -975,6 +989,10 @@ function init_current(meta, callback) {
 			Parent.postMessage({ TYPE: 'stream/toinput', fromflowstreamid: flow.id, fromid: fromid, toflowstreamid: tfsid, toid: toid, data: data });
 		};
 
+		flow.proxy.restart = function() {
+			Parent.postMessage({ TYPE: 'stream/restart' });
+		};
+
 		flow.proxy.io = function(flowstreamid, id, callback) {
 
 			if (typeof(flowstreamid) === 'function') {
@@ -997,6 +1015,14 @@ function init_current(meta, callback) {
 
 		flow.proxy.io = function(flowstreamid, id, callback) {
 			exports.io(flowstreamid, id, callback);
+		};
+
+		flow.proxy.restart = function() {
+			// nothing
+		};
+
+		flow.proxy.kill = function() {
+			flow.$instance.kill();
 		};
 
 		flow.proxy.send = NOOP;
@@ -1066,6 +1092,8 @@ function init_worker(meta, type, callback) {
 	var worker = type === true || type === 'worker' ? new W.Worker(__filename, { workerData: meta }) : Fork(__filename, [F.directory, '--fork'], { serialization: 'json' }); // detached: true,
 	var ischild = false;
 
+	meta.unixsocket = F.Path.join(F.OS.tmpdir(), 'flowstream_' + F.directory.makeid() + '_' + meta.id + '.socket');
+
 	if (!worker.postMessage) {
 		worker.postMessage = worker.send;
 		ischild = true;
@@ -1088,6 +1116,7 @@ function init_worker(meta, type, callback) {
 	FLOWS[meta.id] = worker;
 
 	var restart = function(code) {
+		worker.$terminated = true;
 		setTimeout(function(worker, code) {
 			worker.$socket && setTimeout(socket => socket && socket.destroy(), 2000, worker.$socket);
 			if (!worker.$destroyed) {
@@ -1107,6 +1136,18 @@ function init_worker(meta, type, callback) {
 
 			case 'stream/stats':
 				worker.stats = msg.data;
+				break;
+
+			case 'stream/restart':
+				if (worker.terminate)
+					worker.terminate();
+				else
+					worker.kill(9);
+				break;
+
+			case 'stream/kill':
+				if (!worker.$terminated)
+					worker.$instance.destroy(msg.code || 9);
 				break;
 
 			case 'stream/exec':
@@ -1446,6 +1487,7 @@ function MAKEFLOWSTREAM(meta) {
 		data.design = design;
 		data.variables = variables;
 		data.sources = sources;
+		data.proxypath = flow.$schema.proxypath;
 		data.origin = flow.$schema.origin;
 		data.dtcreated = flow.$schema.dtcreated;
 		return data;
@@ -1474,11 +1516,27 @@ function MAKEFLOWSTREAM(meta) {
 		save();
 	};
 
-	var refresh_components = function() {
+	flow.kill = function(code) {
+		flow.proxy.kill(code);
+	};
+
+	flow.restart = function() {
+		flow.proxy.restart();
+	};
+
+	var timeoutrefresh = null;
+
+	var refresh_components_force = function() {
+		timeoutrefresh = null;
 		if (flow.proxy.online) {
 			flow.proxy.send({ TYPE: 'flow/components', data: flow.components(true) });
 			flow.proxy.send({ TYPE: 'flow/design', data: flow.export() });
 		}
+	};
+
+	var refresh_components = function() {
+		timeoutrefresh && clearTimeout(timeoutrefresh);
+		timeoutrefresh = setTimeout(refresh_components_force, 700);
 	};
 
 	flow.sources = meta.sources;
@@ -1611,6 +1669,10 @@ function MAKEFLOWSTREAM(meta) {
 					flow.origin = flow.$schema.origin = origin;
 					save();
 				}
+				break;
+
+			case 'restart':
+				flow.proxy.restart();
 				break;
 
 			case 'reset_stats':
@@ -1910,10 +1972,10 @@ function MAKEFLOWSTREAM(meta) {
 	};
 
 	flow.onregister = function(component) {
-		if (!component.schema && component.schemaid && (component.type === 'pub' || component.type === 'sub')) {
+		if (!component.schema && component.schemaid && (component.type === 'pub' || component.type === 'sub' || component.type === 'call')) {
 			var tmp = flow.sources[component.schemaid[0]];
 			if (tmp && tmp.meta) {
-				var arr = component.type === 'pub' ? tmp.meta.publish : tmp.meta.subscribe;
+				var arr = component.type === 'pub' ? tmp.meta.publish : component.type === 'call' ? tmp.meta.call : tmp.meta.subscribe;
 				component.schema = arr.findItem('id', component.schemaid[1]);
 				component.itemid = component.schemaid[0];
 			} else {
@@ -2064,7 +2126,7 @@ function MAKEFLOWSTREAM(meta) {
 	});
 
 	var makemeta = function() {
-		return { TYPE: 'flow/flowstream', version: VERSION, paused: flow.paused, total: F.version, name: flow.$schema.name, version2: flow.$schema.version, icon: flow.$schema.icon, reference: flow.$schema.reference, author: flow.$schema.author, color: flow.$schema.color, origin: flow.$schema.origin, readme: flow.$schema.readme, url: flow.$schema.url };
+		return { TYPE: 'flow/flowstream', version: VERSION, paused: flow.paused, node: F.version_node, total: F.version, name: flow.$schema.name, version2: flow.$schema.version, icon: flow.$schema.icon, reference: flow.$schema.reference, author: flow.$schema.author, color: flow.$schema.color, origin: flow.$schema.origin, readme: flow.$schema.readme, url: flow.$schema.url, proxypath: flow.$schema.proxypath, worker: isFLOWSTREAMWORKER ? (W.workerData ? 'Worker Thread' : 'Child Process') : false };
 	};
 
 	flow.proxy.refreshmeta = function() {
@@ -2240,7 +2302,7 @@ TMS.connect = function(fs, sourceid, callback) {
 
 					item.meta = msg;
 
-					var checksum = HASH(JSON.stringify(msg)) + '';
+					var checksum = HASH(JSON.stringify(msg)) + '1';
 					client.subscribers = {};
 					client.publishers = {};
 					client.calls = {};
@@ -2263,8 +2325,8 @@ TMS.connect = function(fs, sourceid, callback) {
 					}
 
 					if (item.checksum !== checksum) {
-						item.init = false;
 						item.checksum = checksum;
+						item.init = false;
 						TMS.refresh2(fs);
 					}
 
@@ -2327,7 +2389,7 @@ const TEMPLATE_PUBLISH = `<script total>
 	exports.name = '{0}';
 	exports.icon = '{3}';
 	exports.config = {};
-	exports.outputs = [{ id: 'publish', name: '{1}' }];
+	exports.outputs = [{ id: 'publish', name: 'Output' }];
 	exports.group = 'Publishers';
 	exports.type = 'pub';
 	exports.schemaid = ['{7}', '{1}'];
@@ -2345,15 +2407,14 @@ const TEMPLATE_PUBLISH = `<script total>
 </style>
 
 <readme>
-	{2}
+{2}
 </readme>
 
 <body>
 	<header>
-		<div><i class="{3} mr5"></i><span>{0}</span></div>
+		<div><i class="{3} mr5"></i><span>{6} / <b>{1}</b></span></div>
 		<div class="url">{4}</div>
 	</header>
-	<div class="schema">{6}</div>
 </body>`;
 
 const TEMPLATE_SUBSCRIBE = `<script total>
@@ -2362,23 +2423,31 @@ const TEMPLATE_SUBSCRIBE = `<script total>
 	exports.icon = '{3}';
 	exports.group = 'Subscribers';
 	exports.config = {};
-	exports.inputs = [{ id: 'subscribe', name: '{1}' }];
+	exports.inputs = [{ id: 'subscribe', name: 'Input' }];
 	exports.type = 'sub';
 	exports.schemaid = ['{7}', '{1}'];
 
 	exports.make = function(instance) {
-		instance.message = function(msg, client) {
+		instance.message = function($) {
 			var socket = instance.main.sockets['{7}'];
 			if (socket && socket.subscribers && socket.subscribers['{1}']) {
+
+				var data = $.data;
+
 				/*
 					var err = new ErrorBuilder();
-					var data = framework_jsonschema.transform(schema, err, msg.data, true);
-					if (data)
-						socket.send({ type: 'subscribe', id: '{1}', data: data });
+					data = framework_jsonschema.transform(schema, err, data, true);
+
+					if (err.is) {
+						$.destroy();
+						return;
+					}
+
 				*/
-				socket.send({ type: 'subscribe', id: '{1}', data: msg.data });
+
+				socket.send({ type: 'subscribe', id: '{1}', data: data });
 			}
-			msg.destroy();
+			$.destroy();
 		};
 	};
 
@@ -2389,15 +2458,14 @@ const TEMPLATE_SUBSCRIBE = `<script total>
 </style>
 
 <readme>
-	{2}
+{2}
 </readme>
 
 <body>
 	<header>
-		<div><i class="{3} mr5"></i><span>{0}</span></div>
+		<div><i class="{3} mr5"></i><span>{6} / <b>{1}</b></span></div>
 		<div class="url">{4}</div>
 	</header>
-	<div class="schema">{6}</div>
 </body>`;
 
 const TEMPLATE_CALL = `<script total>
@@ -2405,28 +2473,36 @@ const TEMPLATE_CALL = `<script total>
 	exports.name = '{0}';
 	exports.icon = '{3}';
 	exports.config = { timeout: 60000 };
-	exports.inputs = [{ id: 'input', name: '{1}' }];
-	exports.outputs = [{ id: 'response', name: 'Response' }, { id: 'error', name: 'Error' }];
+	exports.inputs = [{ id: 'input', name: 'Input' }];
+	exports.outputs = [{ id: 'output', name: 'Output' }, { id: 'error', name: 'Error' }];
 	exports.group = 'Calls';
 	exports.type = 'call';
 	exports.schemaid = ['{7}', '{1}'];
 
-	exports.make = function(instance) {
+	exports.make = function(instance, config) {
 
-		instance.message = function(msg, client) {
+		instance.message = function($, client) {
 			var socket = instance.main.sockets['{7}'];
 			if (socket && socket.calls && socket.calls['{1}']) {
 
+				var data = $.data;
+
 				/*
 					var err = new ErrorBuilder();
-					var data = framework_jsonschema.transform(schema, err, msg.data, true);
+					data = framework_jsonschema.transform(schema, err, data, true);
+
+					if (err.is) {
+						$.send('error', err.toString());
+						return;
+					}
+
 				*/
 
 				var callback = function(err, response) {
 					if (err)
-						msg.send('error', err);
+						$.send('error', err);
 					else
-						msg.send('response', response);
+						$.send('output', response);
 				};
 
 				var callbackid = (socket.callbackindexer++) + '';
@@ -2435,9 +2511,10 @@ const TEMPLATE_CALL = `<script total>
 					socket.callbackindexer = 0;
 
 				socket.callbacks[callbackid] = { callback: callback, id: setTimeout(socket.callbacktimeout, config.timeout, callbackid) };
-				socket.send({ type: 'call', id: '{1}', data: msg.data, callbackid: callbackid });
+				socket.send({ type: 'call', id: '{1}', data: data, callbackid: callbackid });
+
 			} else
-				msg.destroy();
+				$.destroy();
 		};
 	};
 
@@ -2448,18 +2525,17 @@ const TEMPLATE_CALL = `<script total>
 </style>
 
 <readme>
-	{2}
+{2}
 </readme>
 
 <body>
 	<header>
-		<div><i class="{3} mr5"></i><span>{0}</span></div>
+		<div><i class="{3} mr5"></i><span>{6} / <b>{1}</b></span></div>
 		<div class="url">{4}</div>
 	</header>
-	<div class="schema">{6}</div>
 </body>`;
 
-
+// Deprecated
 function makeschema(item) {
 
 	var str = '';
@@ -2494,7 +2570,7 @@ TMS.refresh = function(fs, callback) {
 					var m = item.meta.publish[i];
 					var readme = [];
 
-					readme.push('# ' + item.meta.name);
+					readme.push('# ' + m.id);
 					readme.push('- URL address: <' + url + '>');
 					readme.push('- Channel: __publish__');
 					readme.push('- JSON schema `' + m.id + '.json`');
@@ -2505,7 +2581,7 @@ TMS.refresh = function(fs, callback) {
 					readme.push('\`\`\`');
 
 					var id = 'pub' + item.id + 'X' + m.id;
-					var template = TEMPLATE_PUBLISH.format(item.meta.name, m.id, readme.join('\n'), m.icon || 'fas fa-broadcast-tower', m.url, id, makeschema(m.schema), item.id);
+					var template = TEMPLATE_PUBLISH.format(item.meta.name, m.id, readme.join('\n'), m.icon || 'fas fa-broadcast-tower', m.url, id, item.meta.name.max(15), item.id); // makeschema(m.schema)
 					var com = fs.add(id, template);
 					m.url = url;
 					com.type = 'pub';
@@ -2519,7 +2595,7 @@ TMS.refresh = function(fs, callback) {
 					var m = item.meta.subscribe[i];
 					var readme = [];
 
-					readme.push('# ' + item.meta.name);
+					readme.push('# ' + m.id);
 					readme.push('- URL address: <' + url + '>');
 					readme.push('- Channel: __subscribe__');
 					readme.push('- JSON schema `' + m.id + '.json`');
@@ -2530,7 +2606,7 @@ TMS.refresh = function(fs, callback) {
 					readme.push('\`\`\`');
 
 					var id = 'sub' + item.id + 'X' + m.id;
-					var template = TEMPLATE_SUBSCRIBE.format(item.meta.name, m.id, readme.join('\n'), m.icon || 'fas fa-satellite-dish', m.url, id, makeschema(m.schema), item.id);
+					var template = TEMPLATE_SUBSCRIBE.format(item.meta.name, m.id, readme.join('\n'), m.icon || 'fas fa-satellite-dish', m.url, id, item.meta.name.max(15), item.id); // makeschema(m.schema)
 					var com = fs.add(id, template);
 					m.url = url;
 					com.type = 'sub';
@@ -2544,7 +2620,7 @@ TMS.refresh = function(fs, callback) {
 					var m = item.meta.call[i];
 					var readme = [];
 
-					readme.push('# ' + item.meta.name);
+					readme.push('# ' + m.id);
 					readme.push('- URL address: <' + url + '>');
 					readme.push('- Channel: __call__');
 					readme.push('- JSON schema `' + m.id + '.json`');
@@ -2555,7 +2631,7 @@ TMS.refresh = function(fs, callback) {
 					readme.push('\`\`\`');
 
 					var id = 'cal' + item.id + 'X' + m.id;
-					var template = TEMPLATE_CALL.format(item.meta.name, m.id, readme.join('\n'), m.icon || 'far fa-plug', m.url, id, makeschema(m.schema), item.id);
+					var template = TEMPLATE_CALL.format(item.meta.name, m.id, readme.join('\n'), m.icon || 'fa fa-plug', m.url, id, item.meta.name.max(15), item.id); // makeschema(m.schema)
 					var com = fs.add(id, template);
 					m.url = url;
 					com.type = 'call';
