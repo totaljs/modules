@@ -1,10 +1,6 @@
 // CDN downloader
 // The MIT License
-// Copyright 2021-2022 (c) Peter Širka <petersirka@gmail.com>
-
-// This module downloads UI components from the Componentator CDN,
-// and it stores them in the /public/cdn/ directory
-// Client-Side usage: DEF.fallback = '/cdn/j-{0}.html';
+// Copyright 2022 (c) Peter Širka <petersirka@gmail.com>
 
 var Cache = {};
 var Directory;
