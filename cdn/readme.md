@@ -9,3 +9,7 @@ __Client-Side usage:__
 ```js
 DEF.fallback = '/cdn/j-{0}.html';
 ```
+
+__Good to know__:
+
+- How to release cache? `MODULE('cdn').clear((err, removed) => console.log(err, removed))`
