@@ -8,6 +8,7 @@ if (!global.F)
 const W = require('worker_threads');
 const Fork = require('child_process').fork;
 const VERSION = 19;
+// const REG_CONFIG_JS = /\.configure|config\./;
 
 var isFLOWSTREAMWORKER = false;
 var Parent = W.parentPort;
@@ -740,6 +741,7 @@ function init_current(meta, callback) {
 		F.frameworkless(false, { unixsocket: meta.unixsocket, config: { allow_stats_snapshot: false }});
 	}
 
+	flow.env = meta.env;
 	flow.origin = meta.origin;
 	flow.proxy.online = false;
 	flow.$instance = new Instance(flow, meta.id);
@@ -1530,7 +1532,21 @@ function MAKEFLOWSTREAM(meta) {
 		timeoutrefresh = null;
 		if (flow.proxy.online) {
 			flow.proxy.send({ TYPE: 'flow/components', data: flow.components(true) });
-			flow.proxy.send({ TYPE: 'flow/design', data: flow.export() });
+
+			var instances = flow.export();
+
+			// Removing unused configuration
+			// Saving data
+			// Possible problems: cloning instances on clien-side + applying schema
+			/*
+			for (var key in instances) {
+				var m = instances[key];
+				var com = flow.meta.components[m.component];
+				if (com && ((com.ui.js && !REG_CONFIG_JS.test(com.ui.js)) && (com.ui.html && com.ui.html.indexOf('CONFIG') === -1)))
+					m.config = undefined;
+			}*/
+
+			flow.proxy.send({ TYPE: 'flow/design', data: instances });
 		}
 	};
 
@@ -1626,6 +1642,15 @@ function MAKEFLOWSTREAM(meta) {
 			case 'trigger':
 				var instance = flow.meta.flow[msg.id];
 				instance && instance.trigger && instance.trigger(msg);
+				break;
+
+			case 'config':
+				var instance = flow.meta.flow[msg.id];
+				if (instance) {
+					msg.TYPE = 'flow/configuration';
+					msg.data = instance.config;
+					flow.proxy.send(msg, 1, clientid);
+				}
 				break;
 
 			case 'reconfigure':
@@ -1990,6 +2015,12 @@ function MAKEFLOWSTREAM(meta) {
 	};
 
 	flow.ondisconnect = function(instance) {
+
+		if (instance.$statusdelay) {
+			clearTimeout(instance.$statusdelay);
+			instance.$statusdelay = null;
+		}
+
 		for (var key in flow.httproutes) {
 			var route = flow.httproutes[key];
 			if (route && route.id === instance.id)
@@ -1998,6 +2029,8 @@ function MAKEFLOWSTREAM(meta) {
 	};
 
 	flow.onconnect = function(instance) {
+
+		instance.env = instance.main.env;
 
 		instance.httproute = function(url, callback) {
 			flow.proxy.httproute(url, callback, instance);
@@ -2080,19 +2113,25 @@ function MAKEFLOWSTREAM(meta) {
 		flow.proxy.online && flow.proxy.send({ TYPE: 'flow/error', error: err, id: obj.id, ts: obj.ts, source: source });
 	};
 
+	var sendstatusforce = function(instance) {
+		instance.$statusdelay = null;
+		if (instance.$status != null && flow.proxy.online)
+			flow.proxy.online && flow.proxy.send({ TYPE: 'flow/status', id: instance.id, data: instance.$status });
+	};
+
 	// component.status() will execute this method
-	flow.onstatus = function(status) {
+	flow.onstatus = function(status, delay) {
 
 		var instance = this;
 
-		if (status == null)
-			status = instance.$status;
-		else
+		if (status != undefined)
 			instance.$status = status;
 
-		if (status != null && flow.proxy.online)
-			flow.proxy.online && flow.proxy.send({ TYPE: 'flow/status', id: instance.id, data: status });
-
+		if (delay) {
+			if (!instance.$statusdelay)
+				instance.$statusdelay = setTimeout(sendstatusforce, delay || 1000, instance);
+		} else if (instance.$status != null && flow.proxy.online)
+			flow.proxy.online && flow.proxy.send({ TYPE: 'flow/status', id: instance.id, data: instance.$status });
 	};
 
 	// component.dashboard() will execute this method
@@ -2126,7 +2165,7 @@ function MAKEFLOWSTREAM(meta) {
 	});
 
 	var makemeta = function() {
-		return { TYPE: 'flow/flowstream', version: VERSION, paused: flow.paused, node: F.version_node, total: F.version, name: flow.$schema.name, version2: flow.$schema.version, icon: flow.$schema.icon, reference: flow.$schema.reference, author: flow.$schema.author, color: flow.$schema.color, origin: flow.$schema.origin, readme: flow.$schema.readme, url: flow.$schema.url, proxypath: flow.$schema.proxypath, worker: isFLOWSTREAMWORKER ? (W.workerData ? 'Worker Thread' : 'Child Process') : false };
+		return { TYPE: 'flow/flowstream', version: VERSION, paused: flow.paused, node: F.version_node, total: F.version, name: flow.$schema.name, version2: flow.$schema.version, icon: flow.$schema.icon, reference: flow.$schema.reference, author: flow.$schema.author, color: flow.$schema.color, origin: flow.$schema.origin, readme: flow.$schema.readme, url: flow.$schema.url, proxypath: flow.$schema.proxypath, env: flow.$schema.env, worker: isFLOWSTREAMWORKER ? (W.workerData ? 'Worker Thread' : 'Child Process') : false };
 	};
 
 	flow.proxy.refreshmeta = function() {
@@ -2140,7 +2179,21 @@ function MAKEFLOWSTREAM(meta) {
 				flow.proxy.send({ TYPE: 'flow/variables', data: flow.variables }, 1, clientid);
 				flow.proxy.send({ TYPE: 'flow/variables2', data: flow.variables2 }, 1, clientid);
 				flow.proxy.send({ TYPE: 'flow/components', data: flow.components(true) }, 1, clientid);
-				flow.proxy.send({ TYPE: 'flow/design', data: flow.export() }, 1, clientid);
+
+				var instances = flow.export();
+
+				// Removing unused configuration
+				// Saving data
+				// Possible problems: cloning instances on clien-side + applying schema
+				/*
+				for (var key in instances) {
+					var m = instances[key];
+					var com = flow.meta.components[m.component];
+					if (com && ((com.ui.js && !REG_CONFIG_JS.test(com.ui.js)) && (com.ui.html && com.ui.html.indexOf('CONFIG') === -1)))
+						m.config = undefined;
+				}*/
+
+				flow.proxy.send({ TYPE: 'flow/design', data: instances }, 1, clientid);
 				flow.proxy.send({ TYPE: 'flow/errors', data: flow.errors }, 1, clientid);
 				setTimeout(function() {
 					flow.instances().wait(function(com, next) {
@@ -2536,6 +2589,7 @@ const TEMPLATE_CALL = `<script total>
 </body>`;
 
 // Deprecated
+/*
 function makeschema(item) {
 
 	var str = '';
@@ -2546,7 +2600,7 @@ function makeschema(item) {
 	}
 
 	return str;
-}
+}*/
 
 TMS.refresh = function(fs, callback) {
 
