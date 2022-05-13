@@ -7,8 +7,7 @@ if (!global.F)
 
 const W = require('worker_threads');
 const Fork = require('child_process').fork;
-const VERSION = 19;
-// const REG_CONFIG_JS = /\.configure|config\./;
+const VERSION = 24;
 
 var isFLOWSTREAMWORKER = false;
 var Parent = W.parentPort;
@@ -626,6 +625,8 @@ exports.refresh = function(id, type) {
 	}
 };
 
+exports.version = VERSION;
+
 function exec(self, opt) {
 
 	var target = [];
@@ -737,13 +738,16 @@ function init_current(meta, callback) {
 	FLOWS[meta.id] = flow;
 
 	if (isFLOWSTREAMWORKER && meta.unixsocket && meta.proxypath && F.frameworkless) {
-		F.Fs.unlink(meta.unixsocket, NOOP);
+		if (!F.isWindows)
+			F.Fs.unlink(meta.unixsocket, NOOP);
 		F.frameworkless(false, { unixsocket: meta.unixsocket, config: { allow_stats_snapshot: false }});
 	}
 
 	flow.env = meta.env;
 	flow.origin = meta.origin;
+	flow.proxypath = meta.proxypath || '';
 	flow.proxy.online = false;
+
 	flow.$instance = new Instance(flow, meta.id);
 
 	flow.$instance.output = function(fid, data, tfsid, tid) {
@@ -1091,10 +1095,15 @@ function init_current(meta, callback) {
 
 function init_worker(meta, type, callback) {
 
-	var worker = type === true || type === 'worker' ? new W.Worker(__filename, { workerData: meta }) : Fork(__filename, [F.directory, '--fork'], { serialization: 'json' }); // detached: true,
+	var forkargs = [F.directory, '--fork'];
+
+	if (meta.memory)
+		forkargs.push('--max-old-space-size=' + meta.memory);
+
+	var worker = type === true || type === 'worker' ? (new W.Worker(__filename, { workerData: meta })) : Fork(__filename, forkargs, { serialization: 'json' });
 	var ischild = false;
 
-	meta.unixsocket = F.Path.join(F.OS.tmpdir(), 'flowstream_' + F.directory.makeid() + '_' + meta.id + '.socket');
+	meta.unixsocket = F.isWindows ? ('\\\\?\\pipe\\flowstream' + F.directory.makeid() + meta.id + Date.now().toString(36)) : (F.Path.join(F.OS.tmpdir(), 'flowstream_' + F.directory.makeid() + '_' + meta.id + '_' + Date.now().toString(36) + '.socket'));
 
 	if (!worker.postMessage) {
 		worker.postMessage = worker.send;
@@ -1532,20 +1541,7 @@ function MAKEFLOWSTREAM(meta) {
 		timeoutrefresh = null;
 		if (flow.proxy.online) {
 			flow.proxy.send({ TYPE: 'flow/components', data: flow.components(true) });
-
 			var instances = flow.export();
-
-			// Removing unused configuration
-			// Saving data
-			// Possible problems: cloning instances on clien-side + applying schema
-			/*
-			for (var key in instances) {
-				var m = instances[key];
-				var com = flow.meta.components[m.component];
-				if (com && ((com.ui.js && !REG_CONFIG_JS.test(com.ui.js)) && (com.ui.html && com.ui.html.indexOf('CONFIG') === -1)))
-					m.config = undefined;
-			}*/
-
 			flow.proxy.send({ TYPE: 'flow/design', data: instances });
 		}
 	};
@@ -1886,6 +1882,7 @@ function MAKEFLOWSTREAM(meta) {
 	flow.sockets = {};
 	flow.$schema = meta;
 	flow.httproutes = {};
+	flow.secrets = {};
 
 	if (meta.paused)
 		flow.pause(true);
@@ -1956,7 +1953,7 @@ function MAKEFLOWSTREAM(meta) {
 		// Each 9 seconds
 		if (notifier % 3 === 0) {
 			notifier = 0;
-			Parent && Parent.postMessage({ TYPE: 'stream/stats', data: { paused: flow.paused, messages: flow.stats.messages, pending: flow.stats.pending, memory: flow.stats.memory, minutes: flow.stats.minutes, errors: flow.stats.errors, mm: flow.stats.mm } });
+			Parent && Parent.postMessage({ TYPE: 'stream/stats', data: { paused: flow.paused, messages: flow.stats.messages, pending: flow.stats.pending, memory: flow.stats.memory, minutes: flow.stats.minutes, errors: flow.stats.errors, mm: flow.stats.mm }});
 		}
 
 		notifier++;
@@ -2036,6 +2033,11 @@ function MAKEFLOWSTREAM(meta) {
 			flow.proxy.httproute(url, callback, instance);
 		};
 
+		instance.href = function(url) {
+			var hostname = (flow.$schema.origin || '') + (flow.$schema.proxypath || '');
+			return url ? U.join(hostname, url) : hostname;
+		};
+
 		instance.save = function() {
 			var item = {};
 			item.x = instance.x;
@@ -2055,11 +2057,23 @@ function MAKEFLOWSTREAM(meta) {
 			}
 
 			flow.proxy.online && flow.proxy.send({ TYPE: 'flow/redraw', id: instance.id, data: item });
-
 		};
 
 		instance.newvariables = function(data) {
 			flow.proxy.variables(data || {});
+		};
+
+		instance.newsecrets = function(data) {
+
+			for (var key in data)
+				flow.secrets[key] = data[key];
+
+			for (var key in flow.meta.flow) {
+				var m = flow.meta.flow[key];
+				if (m.secrets)
+					m.secrets(flow.secrets);
+			}
+
 		};
 
 		instance.newflowstream = function(meta, isworker, callback) {
@@ -2169,6 +2183,8 @@ function MAKEFLOWSTREAM(meta) {
 	};
 
 	flow.proxy.refreshmeta = function() {
+		flow.origin = flow.$schema.origin;
+		flow.proxypath = flow.$schema.proxypath || '';
 		flow.proxy.send(makemeta(), 0);
 	};
 
@@ -2179,20 +2195,7 @@ function MAKEFLOWSTREAM(meta) {
 				flow.proxy.send({ TYPE: 'flow/variables', data: flow.variables }, 1, clientid);
 				flow.proxy.send({ TYPE: 'flow/variables2', data: flow.variables2 }, 1, clientid);
 				flow.proxy.send({ TYPE: 'flow/components', data: flow.components(true) }, 1, clientid);
-
 				var instances = flow.export();
-
-				// Removing unused configuration
-				// Saving data
-				// Possible problems: cloning instances on clien-side + applying schema
-				/*
-				for (var key in instances) {
-					var m = instances[key];
-					var com = flow.meta.components[m.component];
-					if (com && ((com.ui.js && !REG_CONFIG_JS.test(com.ui.js)) && (com.ui.html && com.ui.html.indexOf('CONFIG') === -1)))
-						m.config = undefined;
-				}*/
-
 				flow.proxy.send({ TYPE: 'flow/design', data: instances }, 1, clientid);
 				flow.proxy.send({ TYPE: 'flow/errors', data: flow.errors }, 1, clientid);
 				setTimeout(function() {
