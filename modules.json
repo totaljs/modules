@@ -1,5 +1,60 @@
 [
 	{
+		"category": "Miscellaneous",
+		"name": "Builder",
+		"version": "1.0.0",
+		"total": "4.0.0",
+		"description": "",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/builder",
+		"datecreated": "2021-01-01T00:00:00.000Z",
+		"dateupdated": null
+	},
+	{
+		"category": "Miscellaneous",
+		"name": "CDN",
+		"version": "1.0.0",
+		"total": "4.0.0",
+		"description": "",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/cdn",
+		"datecreated": "2022-01-01T00:00:00.000Z",
+		"dateupdated": null
+	},
+	{
+		"category": "Development",
+		"name": "Code",
+		"version": "1.0.0",
+		"total": "4.0.0",
+		"description": "",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/cdn",
+		"datecreated": "2022-01-01T00:00:00.000Z",
+		"dateupdated": null
+	},
+	{
+		"category": "Development",
+		"name": "ElasticSearch Managment",
+		"version": "1.0.0",
+		"total": "4.0.0",
+		"description": "",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/edbms",
+		"datecreated": "2021-01-01T00:00:00.000Z",
+		"dateupdated": null
+	},
+	{
+		"category": "Miscellaneous",
+		"name": "FileCache module",
+		"version": "1.0.0",
+		"total": "4.0.0",
+		"description": "",
+		"author": "Peter Širka",
+		"url": "https://github.com/totaljs/modules/tree/master/filecache",
+		"datecreated": "2020-01-01T00:00:00.000Z",
+		"dateupdated": null
+	},
+	{
 		"category": "Security",
 		"name": "OAuth 2.0",
 		"version": "1.4.0",
@@ -12,18 +67,6 @@
 	},
 	{
 		"category": "Security",
-		"name": "DDOS Protection",
-		"version": "1.1.0",
-		"total": "2.0.0",
-		"description": "Simple DDOS protection, the module counts requests according to IP address.",
-		"author": "Peter Širka",
-		"url": "https://github.com/totaljs/modules/tree/master/Security/ddos",
-		"datecreated": "2016-01-01T00:00:00.000Z",
-		"dateupdated": null,
-		"deprecated": true
-	},
-	{
-		"category": "Security",
 		"name": "JsonWebToken (JWT)",
 		"version": "1.0.0",
 		"total": "2.0.0",
@@ -32,30 +75,6 @@
 		"url": "https://github.com/totaljs/modules/tree/master/jsonwebtoken",
 		"datecreated": "2016-01-01T00:00:00.000Z",
 		"dateupdated": null
-	},
-	{
-		"category": "Security",
-		"name": "Protection",
-		"version": "1.0.0",
-		"total": "2.0.0",
-		"description": "The module increments internal counter identified by a key and resets the the counter at a given timeout.",
-		"author": "Peter Širka",
-		"url": "https://github.com/totaljs/modules/tree/master/Security/protection",
-		"datecreated": "2016-01-01T00:00:00.000Z",
-		"dateupdated": null,
-		"deprecated": true
-	},
-	{
-		"category": "Security",
-		"name": "Auth",
-		"version": "3.0.0",
-		"total": "2.0.0",
-		"description": "Adds a support for authorize and unauthorize route flag. Each logged user has an own session.",
-		"author": "Peter Širka",
-		"url": "https://github.com/totaljs/modules/tree/master/Security/auth",
-		"datecreated": "2016-01-01T00:00:00.000Z",
-		"dateupdated": null,
-		"deprecated": true
 	},
 	{
 		"category": "Miscellaneous",
@@ -103,18 +122,6 @@
 	},
 	{
 		"category": "Miscellaneous",
-		"name": "Request stats",
-		"version": "1.1.0",
-		"total": "2.0.0",
-		"description": "This module counts all requests (dynamic content + files) by months. Data are stored in JSON file.",
-		"author": "Peter Širka",
-		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/reqstats",
-		"datecreated": "2016-01-01T00:00:00.000Z",
-		"dateupdated": null,
-		"deprecated": true
-	},
-	{
-		"category": "Miscellaneous",
 		"name": "Session",
 		"version": "2.0.0",
 		"total": "2.0.0",
@@ -123,18 +130,6 @@
 		"url": "https://github.com/totaljs/modules/tree/master/session",
 		"datecreated": "2016-01-01T00:00:00.000Z",
 		"dateupdated": null,
-	},
-	{
-		"category": "Miscellaneous",
-		"name": "WebCounter",
-		"version": "3.1.0",
-		"total": "2.0.0",
-		"description": "Monitor your visitor. The module supports: online visitors, daily, monthly and yearly stats.",
-		"author": "Peter Širka",
-		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/webcounter",
-		"datecreated": "2016-01-01T00:00:00.000Z",
-		"dateupdated": null,
-		"deprecated": true
 	},
 	{
 		"category": "Miscellaneous",
