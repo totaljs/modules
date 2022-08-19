@@ -6,7 +6,7 @@
 		"total": "2.0.0",
 		"description": "Very simple OAuth 2.0 implemenation of GitHub, Facebook, Google, DropBox, LinkedIn, Windows Live, Yahoo, Yandex and Instagram.",
 		"author": "Peter Širka",
-		"url": "https://github.com/totaljs/modules/tree/master/Security/oauth2",
+		"url": "https://github.com/totaljs/modules/tree/master/oauth2",
 		"datecreated": "2016-01-01T00:00:00.000Z",
 		"dateupdated": null
 	},
@@ -19,7 +19,8 @@
 		"author": "Peter Širka",
 		"url": "https://github.com/totaljs/modules/tree/master/Security/ddos",
 		"datecreated": "2016-01-01T00:00:00.000Z",
-		"dateupdated": null
+		"dateupdated": null,
+		"deprecated": true
 	},
 	{
 		"category": "Security",
@@ -28,7 +29,7 @@
 		"total": "2.0.0",
 		"description": "This JWT module rewrites internal encryption/decryption mechanism.",
 		"author": "Peter Širka",
-		"url": "https://github.com/totaljs/modules/tree/master/Security/jsonwebtoken",
+		"url": "https://github.com/totaljs/modules/tree/master/jsonwebtoken",
 		"datecreated": "2016-01-01T00:00:00.000Z",
 		"dateupdated": null
 	},
@@ -41,7 +42,8 @@
 		"author": "Peter Širka",
 		"url": "https://github.com/totaljs/modules/tree/master/Security/protection",
 		"datecreated": "2016-01-01T00:00:00.000Z",
-		"dateupdated": null
+		"dateupdated": null,
+		"deprecated": true
 	},
 	{
 		"category": "Security",
@@ -52,7 +54,8 @@
 		"author": "Peter Širka",
 		"url": "https://github.com/totaljs/modules/tree/master/Security/auth",
 		"datecreated": "2016-01-01T00:00:00.000Z",
-		"dateupdated": null
+		"dateupdated": null,
+		"deprecated": true
 	},
 	{
 		"category": "Miscellaneous",
@@ -61,7 +64,7 @@
 		"total": "2.0.0",
 		"description": "Catch all client-side errors. All errors are shown on server-side console.",
 		"author": "Peter Širka",
-		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/clienterror",
+		"url": "https://github.com/totaljs/modules/tree/master/clienterror",
 		"datecreated": "2016-01-01T00:00:00.000Z",
 		"dateupdated": null
 	},
@@ -72,7 +75,7 @@
 		"total": "2.0.0",
 		"description": "With this package you can control a whole Total.js application from a web browser.",
 		"author": "Peter Širka",
-		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/console",
+		"url": "https://github.com/totaljs/modules/tree/master/console",
 		"datecreated": "2016-01-01T00:00:00.000Z",
 		"dateupdated": null
 	},
@@ -83,7 +86,7 @@
 		"total": "2.0.0",
 		"description": "This module enables directory listing for public directory and it shows file sizes.",
 		"author": "Peter Širka",
-		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/directorylisting",
+		"url": "https://github.com/totaljs/modules/tree/master/directorylisting",
 		"datecreated": "2016-01-01T00:00:00.000Z",
 		"dateupdated": null
 	},
@@ -94,7 +97,7 @@
 		"total": "2.0.0",
 		"description": "This module can monitor your Total.js web application and you can use AppMonitor with it.",
 		"author": "Peter Širka",
-		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/monitor",
+		"url": "https://github.com/totaljs/modules/tree/master/monitor",
 		"datecreated": "2016-01-01T00:00:00.000Z",
 		"dateupdated": null
 	},
@@ -107,7 +110,8 @@
 		"author": "Peter Širka",
 		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/reqstats",
 		"datecreated": "2016-01-01T00:00:00.000Z",
-		"dateupdated": null
+		"dateupdated": null,
+		"deprecated": true
 	},
 	{
 		"category": "Miscellaneous",
@@ -116,9 +120,9 @@
 		"total": "2.0.0",
 		"description": "This module enables session for each visitor. Session identificator is stored in cookie.",
 		"author": "Peter Širka",
-		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/session",
+		"url": "https://github.com/totaljs/modules/tree/master/session",
 		"datecreated": "2016-01-01T00:00:00.000Z",
-		"dateupdated": null
+		"dateupdated": null,
 	},
 	{
 		"category": "Miscellaneous",
@@ -129,7 +133,8 @@
 		"author": "Peter Širka",
 		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/webcounter",
 		"datecreated": "2016-01-01T00:00:00.000Z",
-		"dateupdated": null
+		"dateupdated": null,
+		"deprecated": true
 	},
 	{
 		"category": "Miscellaneous",
@@ -138,7 +143,7 @@
 		"total": "2.0.0",
 		"description": "Easy content sharing of NoSQL embedded database. Bind your database with NoSQL embedded database explorer.",
 		"author": "Peter Širka",
-		"url": "https://github.com/totaljs/modules/tree/master/Miscellaneous/nosqlexplorer",
+		"url": "https://github.com/totaljs/modules/tree/master/nosqlexplorer",
 		"datecreated": "2016-10-09T00:00:00.000Z",
 		"dateupdated": null
 	}
