@@ -204,10 +204,10 @@ exports.insert = exports.update = function(type, id, data) {
 	var model = {};
 
 	if (data == null) {
-		model.body = id;
+		model.data = id;
 	} else {
 		model.id = id;
-		model.body = data;
+		model.data = data;
 	}
 
 	t.options.data = model;
