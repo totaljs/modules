@@ -42,7 +42,6 @@ TDB.where = function(value) {
 		t.options.where = encodeURIComponent(output.join('&'));
 	}
 
-	console.log(t.options.where);
 	return t;
 };
 
