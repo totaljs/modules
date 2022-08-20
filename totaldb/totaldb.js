@@ -198,6 +198,12 @@ exports.read = function(type, id) {
 	return t;
 };
 
+exports.check = function(type) {
+	var t = new TotalDB();
+	t.options.command = 'check/' + type;
+	return t;
+};
+
 exports.insert = exports.update = function(type, id, data) {
 	var t = new TotalDB();
 	t.options.command = 'save/' + type;
