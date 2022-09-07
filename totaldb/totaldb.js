@@ -129,8 +129,8 @@ TDB.exec = TDB.callback = function(url, callback) {
 		filter.push('limit=' + t.options.limit);
 
 	var api = t.options.command + (filter.length ? ('?' + filter.join('&')) : '');
-
 	var opt = {};
+
 	opt.keepalive = true;
 	opt.url = dburl;
 	opt.xhr = true;
@@ -225,3 +225,5 @@ exports.remove = function(type, id) {
 	t.options.command = 'remove/' + type + '/' + id;
 	return t;
 };
+
+global.TDB = exports;

@@ -5,22 +5,23 @@ This module allows you communicate easily with the __Total DB__.
 ## Usage example
 
 ```js
+// TDB is a global variable
 
 var endpoint = 'https://yourtotaldb.com?token=123456'
 
-response = await MODULE('totaldb').read('type686', 's69a001ey41d').expand().fields('id,name,attr14_name').promise(endpoint);
+response = await TDB.read('type686', 's69a001ey41d').expand().fields('id,name,attr14_name').promise(endpoint);
 console.log(response);
 
-response = await MODULE('totaldb').insert('type526', { name: 'Kokotaris XXL' }).promise(endpoint);
+response = await TDB.insert('type526', { name: 'Kokotaris XXL' }).promise(endpoint);
 console.log(response);
 
-response = await MODULE('totaldb').remove('type526', 'sp54001dk41d').promise(endpoint);
+response = await TDB.remove('type526', 'sp54001dk41d').promise(endpoint);
 console.log(response);
 
-response = await MODULE('totaldb').insert('type591', { name: 'A record name', attr1: '123456' }).promise(endpoint);
+response = await TDB.insert('type591', { name: 'A record name', attr1: '123456' }).promise(endpoint);
 console.log(response);
 
-response = await MODULE('totaldb').read('type686', 's69a001ey41d').fields('id,name,attr14_name').promise(endpoint);
+response = await TDB.read('type686', 's69a001ey41d').fields('id,name,attr14_name').promise(endpoint);
 console.log(response);
 ```
 
