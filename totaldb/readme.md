@@ -31,7 +31,7 @@ console.log(response);
 - `first(type)` reads a specific record according to the filter
 - `find(type)` finds records
 - `list(type)` makes a list of recrods with the pagination
-- `insert(type, data)` removes a specific record
+- `insert(type, data)` inserts a specific record
 - `update(type, id, data)` updates a specific record
 - `remove(type, id)` removes a specific record
 
