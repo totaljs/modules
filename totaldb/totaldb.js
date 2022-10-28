@@ -1,9 +1,9 @@
 // query.fields  = 'id,COUNT(dtcreated)';
-// query.filter  = '[name=Test] AND [attr14_name~%Total%] OR ([attr12=123456] OR [attr7_name=Reject])';
-// query.where   = 'name=%25Test%25&attr14_name=%25Total%25';
-// query.filter  = '[name=Test] AND [attr14_name~%Total%]';
+// query.filter  = '[name=Test] AND [x14_name~%Total%] OR ([x12=123456] OR [x7_name=Reject])';
+// query.where   = 'name=%25Test%25&x14_name=%25Total%25';
+// query.filter  = '[name=Test] AND [x14_name~%Total%]';
 // query.group   = 'id';
-// query.sort    = 'attr14_name ASC';
+// query.sort    = 'x14_name ASC';
 // query.command = 'find';
 // query.typeid  = 'type3434';
 // query.expand  = '1';

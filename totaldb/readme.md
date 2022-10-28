@@ -9,19 +9,19 @@ This module allows you communicate easily with the __Total DB__.
 
 var endpoint = 'https://yourtotaldb.com?token=123456'
 
-response = await TDB.read('type686', 's69a001ey41d').expand().fields('id,name,attr14_name').promise(endpoint);
+response = await TDB.read('type686', 's69a001ey41d').expand().fields('id,name,x14_name').promise(endpoint);
 console.log(response);
 
-response = await TDB.insert('type526', { name: 'Kokotaris XXL' }).promise(endpoint);
+response = await TDB.insert('type526', { name: 'Test XXL' }).promise(endpoint);
 console.log(response);
 
 response = await TDB.remove('type526', 'sp54001dk41d').promise(endpoint);
 console.log(response);
 
-response = await TDB.insert('type591', { name: 'A record name', attr1: '123456' }).promise(endpoint);
+response = await TDB.insert('type591', { name: 'A record name', x01: '123456' }).promise(endpoint);
 console.log(response);
 
-response = await TDB.read('type686', 's69a001ey41d').fields('id,name,attr14_name').promise(endpoint);
+response = await TDB.read('type686', 's69a001ey41d').fields('id,name,x14_name').promise(endpoint);
 console.log(response);
 ```
 
