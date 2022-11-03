@@ -99,7 +99,8 @@ TDB.exec = TDB.callback = function(url, callback) {
 		if (url.indexOf('/api/') === -1) {
 			var index = url.indexOf('/', 10);
 			TEMP[url] = dburl = url.substring(0, index) + '/api/' + url.substring(index + 1);
-		}
+		} else
+			TEMP[url] = dburl = url;
 	}
 
 	var t = this;
@@ -207,16 +208,26 @@ exports.check = function(type) {
 exports.insert = exports.update = function(type, id, data) {
 	var t = new TotalDB();
 	t.options.command = 'save/' + type;
-	var model = {};
 
-	if (data == null) {
-		model.data = id;
-	} else {
-		model.id = id;
-		model.data = data;
-	}
+	if (data)
+		data.id = id;
+	else
+		data = id;
 
-	t.options.data = model;
+	t.options.data = data;
+	return t;
+};
+
+exports.custom = function(action, data) {
+	var t = new TotalDB();
+	t.options.command = action;
+	t.options.data = data;
+	return t;
+};
+
+exports.attrs = function(type) {
+	var t = new TotalDB();
+	t.options.command = 'attrs/' + type;
 	return t;
 };
 
