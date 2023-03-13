@@ -33,7 +33,7 @@ function api() {
 				if (action.action.indexOf(' ' + m.action) !== -1 && action.action.indexOf(m.schema + ' ') !== -1) {
 					items.splice(i, 1);
 					m.id = action.name;
-					m.url = action.url;
+					m.url = $.hostname(action.url);
 					m.action = undefined;
 					m.schema = undefined;
 					output.push(m);
