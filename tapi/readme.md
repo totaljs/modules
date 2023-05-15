@@ -4,5 +4,5 @@ This module will list availiable Total.js API endpoints. The endpoint can be use
 
 ## Configuration
 
-- `CONF.tapimeta {String}` optional, meta data endpoint (default: `/tapi/`)
-- `CONF.tapiurl {String}` optional, a default endpoint for the app API (default: all API endpoints)
+- `CONF.tapi {String}` optional, meta data endpoint (default: `/tapi/`)
+- `CONF.tapiendpoint {String}` optional, a default endpoint for the app API (default: all API endpoints)

@@ -1,5 +1,5 @@
 exports.install = function() {
-	ROUTE('GET ' + (CONF.tapimeta || '/tapi/'), api);
+	ROUTE('GET ' + (CONF.tapi || '/tapi/'), api);
 };
 
 function api() {
@@ -31,7 +31,7 @@ function api() {
 			for (var i = 0; i < items.length; i++) {
 				var m = items[i];
 
-				if (CONF.tapiurl && action.url !== CONF.tapiurl)
+				if (CONF.tapiendpoint && action.url !== CONF.tapiendpoint)
 					continue;
 
 				if (action.action.indexOf(' ' + m.action) !== -1 && action.action.indexOf(m.schema + ' ') !== -1) {
