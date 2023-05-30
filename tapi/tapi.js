@@ -19,10 +19,16 @@ function api() {
 		for (var key in schema.actions) {
 			var action = schema.actions[key];
 			if (action.public)
-				items.push({ action: key, schema: name, icon: action.icon, name: action.name, params: action.params, input: action.input, ouptut: action.ouptut, query: action.query, summary: action.summary });
+				items.push({ action: key, schema: name, icon: action.icon, name: action.name, params: action.params || undefined, input: action.input || undefined, ouptut: action.ouptut || undefined, query: action.query || undefined, summary: action.summary });
 		}
 
 	});
+
+	for (var key in F.actions) {
+		var action = F.actions[key];
+		if (action.public)
+			items.push({ action: key, icon: action.icon, name: action.name, params: action.params || undefined, input: action.input || undefined, ouptut: action.ouptut || undefined, query: action.query || undefined, summary: action.summary });
+	}
 
 	for (var a in F.routes.api) {
 		var actions = F.routes.api[a];
@@ -34,7 +40,7 @@ function api() {
 				if (CONF.tapiendpoint && action.url !== CONF.tapiendpoint)
 					continue;
 
-				if (action.action.indexOf(' ' + m.action) !== -1 && action.action.indexOf(m.schema + ' ') !== -1) {
+				if (action.action.indexOf(' ' + m.action) !== -1 && (!m.schema || action.action.indexOf(m.schema + ' ') !== -1)) {
 					items.splice(i, 1);
 					m.id = action.name;
 					m.url = $.hostname(action.url);
