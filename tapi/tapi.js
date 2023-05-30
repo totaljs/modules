@@ -1,3 +1,8 @@
+// Total.js Module: TAPI
+// Author: Peter Širka / Total.js
+// Readme: https://github.com/totaljs/modules/tree/master/tapi
+// License: MIT
+
 exports.install = function() {
 	ROUTE('GET ' + (CONF.tapi || '/tapi/'), api);
 };
