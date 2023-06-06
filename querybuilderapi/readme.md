@@ -29,4 +29,7 @@ NEWDB('default', function(filter, callback) {
 	};
 	REQUEST(opt);
 });
+
+// Then you can call data:
+DATA.find('tbl_something').callback(console.log);
 ```
