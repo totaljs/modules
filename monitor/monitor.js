@@ -1,18 +1,18 @@
-const Fs = require('fs');
-const Opt = { encoding: 'utf8' };
-
-exports.install = function(options) {
-	var url = CONF.monitor_url;
-	if (options && options.url)
-		url = options.url;
-	if (!url)
-		url = '/$monitor/';
+exports.install = function() {
+	var url = CONF.monitor_url || '/$monitor/';
 	ROUTE('GET ' + url, send);
 };
 
-function send() {
-	var self = this;
-	Fs.readFile(process.mainModule.filename + '.json', Opt, function(err, response) {
-		self.content(response ? response : 'null', 'text/json');
+function send($) {
+
+	if (!F.is5)
+		$ = this;
+
+	F.Fs.readFile(process.mainModule.filename + '.json', 'utf8', function(err, response) {
+		var json = response ? response : 'null';
+		if (F.is5)
+			$.jsonstring(json);
+		else
+			$.content(json, 'text/json');
 	});
 }
