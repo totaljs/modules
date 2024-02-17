@@ -11,10 +11,11 @@ function api($) {
 
 	var routes = F.sourcemap().routes;
 	var response = [];
+	var url = $.hostname(CONF.$api);
 
 	for (var item of routes) {
 		if (item.public && item.url === CONF.$api)
-			response.push({ id: item.id, name: item.name, summary: item.summary, params: item.params, query: item.query, input: item.input, output: item.output });
+			response.push({ id: item.id, url: url, name: item.name, summary: item.summary, params: item.params, query: item.query, input: item.input, output: item.output });
 	}
 
 	TEMP.TAPI = response;
