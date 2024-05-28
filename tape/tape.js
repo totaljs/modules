@@ -1,8 +1,8 @@
-// [4 bytes]  | [4 bytes]    | [2 bytes]  | [info data]    | [file data]
-// size_info  | size_file    | state      | {...json...}   | ... binary data ...
-// size_info  | size_file    | state      | {...json...}   | ... binary data ...
-// size_info  | size_file    | state      | {...json...}   | ... binary data ...
-// size_info  | size_file    | state      | {...json...}   | ... binary data ...
+// [4 bytes]  | [4 bytes]    | [2 bytes]  | [info data]    | [file data]         | [4 bytes] (due to reverse read)
+// size_info  | size_file    | state      | {...json...}   | ... binary data ... | total_size
+// size_info  | size_file    | state      | {...json...}   | ... binary data ... | total_size
+// size_info  | size_file    | state      | {...json...}   | ... binary data ... | total_size
+// size_info  | size_file    | state      | {...json...}   | ... binary data ... | total_size
 
 const Fs = Total.Fs;
 
@@ -33,7 +33,7 @@ Tape.prototype.check = function(id, callback) {
 	Fs.open(t.filename, 'r', function(err, fd) {
 
 		let meta = typeof(id) === 'string' ? parseid(id) : id;
-		let buffer = Buffer.alloc(10 + meta.info);
+		let buffer = Buffer.alloc(14 + meta.info);
 
 		Fs.read(fd, buffer, 0, buffer.length, meta.offset, function(err, bytes) {
 
@@ -44,7 +44,15 @@ Tape.prototype.check = function(id, callback) {
 				var size_info = buffer.readInt32BE(0);
 				var size_file = buffer.readInt32BE(4);
 				var state = buffer.readInt8(8);
-				var info = buffer.toString('utf8', 10, size_info + 10);
+				var checksum = buffer.readInt32BE(10);
+				var sum = size_file + size_info + state;
+
+				if (checksum !== sum) {
+					callback('Invalid identifier');
+					return;
+				}
+
+				var info = buffer.toString('utf8', 14, size_info + 14);
 				if (info[0] === '{' && info[info.length - 1] === '}') {
 					// correct
 					meta.meta = info;
@@ -89,20 +97,26 @@ Tape.prototype.read = function(id, callback) {
 
 function append(t, meta, buffer_file, callback) {
 
-	let buffer_meta = Buffer.alloc(10);
+	let buffer_meta = Buffer.alloc(14);
 	let buffer_info = Buffer.from(JSON.stringify(meta), 'utf8');
+	let buffer_total = Buffer.alloc(4);
 
 	buffer_meta.writeInt32BE(buffer_info.length, 0);
 	buffer_meta.writeInt32BE(buffer_file.length, 4);
 	buffer_meta.writeInt8(1, 8); // 0: removed; 1: active; 2: active compressed;
+	buffer_meta.writeInt32BE(buffer_info.length + buffer_file.length + 1, 10); // a mini checksum
 
-	let buffer = Buffer.concat([buffer_meta, buffer_info, buffer_file]);
+	// Due to reverse reading
+	buffer_total.writeInt32BE(buffer_meta.length + buffer_info.length + buffer_file.length);
+
+	// 4 bytes info size, 4 bytes file size, 2 bytes state, 4 bytes checksum, info_buffer, file_buffer, 4 bytes info about total size
+	let buffer = Buffer.concat([buffer_meta, buffer_info, buffer_file, buffer_total]);
 
 	Fs.appendFile(t.filename, buffer, function() {
 		Fs.lstat(t.filename, function(err, stat) {
-			meta.id = (stat.size - buffer_info.length - buffer_file.length - 10) + 'X' + buffer_info.length + 'X' + buffer_file.length;
+			meta.id = (stat.size - buffer_info.length - buffer_file.length - 14) + 'X' + buffer_info.length + 'X' + buffer_file.length;
 			meta.size = buffer_file.length;
-			callback && callback(meta);
+			callback && callback(null, meta);
 			t.operation = 0;
 		});
 	});
@@ -113,8 +127,16 @@ Tape.prototype.add = Tape.prototype.append = function(filename, meta, callback) 
 
 	let t = this;
 
-	if (!callback)
-		return new Promise((resolve, reject) => t.append(filename, meta, (err, response) => err ? reject(err) : resolve(response)));
+	if (!callback) {
+		return new Promise(function(resolve, reject) {
+			t.append(filename, meta, function(err, response) {
+				if (err)
+					reject(err);
+				else
+					resolve(response);
+			});
+		});
+	}
 
 	if (t.operation) {
 		callback('The file is locked for with another operation');
@@ -148,6 +170,11 @@ Tape.prototype.add = Tape.prototype.append = function(filename, meta, callback) 
 
 };
 
+Tape.prototype.cursor = function(onitem, ondone) {
+	// @TODO: missing reverse mode
+	readtape(this.filename, onitem, ondone);
+};
+
 Tape.prototype.stream = function(id, callback) {
 
 	let t = this;
@@ -174,7 +201,7 @@ Tape.prototype.stream = function(id, callback) {
 	});
 };
 
-Tape.prototype.remove = function(id, callback) {
+Tape.prototype.rm = Tape.prototype.remove = function(id, callback) {
 
 	let t = this;
 
@@ -186,7 +213,9 @@ Tape.prototype.remove = function(id, callback) {
 		return;
 	}
 
-	t.check(id, function(err, meta) {
+	var info = parseid(id);
+
+	t.check(info, function(err, meta) {
 
 		if (err) {
 			callback(err);
@@ -209,16 +238,14 @@ Tape.prototype.remove = function(id, callback) {
 				return;
 			}
 
-			let arr = id.split('X');
-			arr[0] = +arr[0];
-			arr[1] = +arr[1];
-			arr[2] = +arr[2];
-
-			var buffer = Buffer.alloc(2);
+			var buffer = Buffer.alloc(6);
 			buffer.writeInt8(0);
+			buffer.writeInt32BE(meta.info + meta.file + 0, 2); // checksum
 
-			Fs.write(fd, buffer, 0, buffer.length, arr[0] + 8, function() {
+			// (4 bytes info size, 4 bytes file size) = 8, 2 bytes state, 4 bytes checksum
+			Fs.write(fd, buffer, 0, buffer.length, info.offset + 8, function() {
 				Fs.close(fd, NOOP);
+				callback(null, meta);
 			});
 		});
 	});
@@ -231,7 +258,7 @@ function readtape(filename, onitem, onclose) {
 
 		var read = function(offset) {
 
-			let buffer = Buffer.alloc(10);
+			let buffer = Buffer.alloc(14);
 
 			Fs.read(fd, buffer, 0, buffer.length, offset, function(err, bytes) {
 
@@ -245,16 +272,18 @@ function readtape(filename, onitem, onclose) {
 				let size_info = buffer.readInt32BE(0);
 				let size_file = buffer.readInt32BE(4);
 				let state = buffer.readInt8(8);
+				let checksum = buffer.readInt32BE(10);
+				let sum = size_file + size_info + state;
 
 				// Removed, skip
-				if (!state) {
-					read(offset + size_info + size_file + 10);
+				if (checksum !== sum || !state) {
+					read(offset + size_info + size_file + 14 + 4);
 					return;
 				}
 
 				let buffer_info = Buffer.alloc(size_info);
 
-				Fs.read(fd, buffer_info, 0, buffer_info.length, offset + 10, function(err) {
+				Fs.read(fd, buffer_info, 0, buffer_info.length, offset + 14, function(err, b) {
 
 					let item = buffer_info.toString('utf8').parseJSON(true);
 					item.size = size_file;
@@ -268,7 +297,7 @@ function readtape(filename, onitem, onclose) {
 							return;
 						}
 
-						read(offset + size_info + size_file + 10);
+						read(offset + size_info + size_file + 14 + 4);
 					});
 
 				});
@@ -308,6 +337,25 @@ Tape.prototype.clear = function(callback) {
 		return;
 	}
 
+	t.operation = 4;
+	Fs.unlink(t.filename, function(err) {
+		t.operation = 0;
+		callback();
+	});
+};
+
+Tape.prototype.clean = function(callback) {
+
+	let t = this;
+
+	if (!callback)
+		return new Promise((resolve, reject) => t.clean((err, response) => err ? reject(err) : resolve(response)));
+
+	if (t.operation) {
+		callback('The file is locked for with another operation');
+		return;
+	}
+
 	t.operation = 3;
 
 	let writer = Fs.createWriteStream(t.filename + '.tmp');
@@ -324,7 +372,7 @@ Tape.prototype.clear = function(callback) {
 
 		var read = function(offset) {
 
-			let buffer = Buffer.alloc(10);
+			let buffer = Buffer.alloc(14);
 
 			Fs.read(fd, buffer, 0, buffer.length, offset, function(err, bytes) {
 
@@ -337,16 +385,18 @@ Tape.prototype.clear = function(callback) {
 				let size_info = buffer.readInt32BE(0);
 				let size_file = buffer.readInt32BE(4);
 				let state = buffer.readInt8(8);
+				let checksum = buffer.readInt32BE(10);
+				let sum = size_file + size_info + state;
 
-				if (!state) {
+				if (checksum !== sum || !state) {
 					// skip item
 					removed++;
-					read(offset + 10 + size_info + size_file);
+					read(offset + 14 + size_info + size_file + 4);
 					return;
 				}
 
 				// In memory copy
-				let data = Buffer.alloc(10 + size_info + size_file);
+				let data = Buffer.alloc(14 + size_info + size_file + 4);
 
 				Fs.read(fd, data, 0, data.length, offset, function(err, bytes) {
 					if (bytes) {
