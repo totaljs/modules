@@ -12,15 +12,6 @@ function Tape(filename) {
 	t.operation = 0; // 1: appending, 2: removing, 3: clearing
 }
 
-function base64size(bytes) {
-	let tmp = 4 * (bytes / 3);
-	tmp = Math.ceil(tmp);
-	let mod = tmp % 4;
-	if (mod)
-		tmp += mod;
-	return tmp;
-}
-
 function parseid(id) {
 	let arr = id.split('X');
 	return { offset: +arr[0], info: +arr[1], file: +arr[2] };
@@ -123,7 +114,11 @@ function append(t, meta, buffer_file, callback) {
 
 }
 
-Tape.prototype.add = Tape.prototype.append = function(filename, meta, callback) {
+function delay_append(t, filename, meta, callback, attemp) {
+	t.append(filename, meta, callback, attemp);
+}
+
+Tape.prototype.add = Tape.prototype.append = function(filename, meta, callback, attemp) {
 
 	let t = this;
 
@@ -139,6 +134,12 @@ Tape.prototype.add = Tape.prototype.append = function(filename, meta, callback) 
 	}
 
 	if (t.operation) {
+
+		if (!attemp || attemp < 10) {
+			setTimeout(delay_append, 200, t, filename, meta, callback, (attemp || 0) + 1);
+			return;
+		}
+
 		callback('The file is locked for with another operation');
 		return;
 	}
@@ -201,7 +202,40 @@ Tape.prototype.stream = function(id, callback) {
 	});
 };
 
-Tape.prototype.rm = Tape.prototype.remove = function(id, callback) {
+Tape.prototype.buffer = function(id, callback) {
+
+	let t = this;
+
+	if (!callback)
+		return new Promise((resolve, reject) => t.buffer(id, (err, response) => err ? reject(err) : resolve(response)));
+
+	let meta = parseid(id);
+
+	t.check(meta, function(err, info) {
+
+		if (err) {
+			callback(err);
+			return;
+		}
+
+		if (!info.state) {
+			callback('Invalid identifier');
+			return;
+		}
+
+		let buffer = [];
+		let stream = Fs.createReadStream(t.filename, { start: meta.offset + meta.info + 10, end: meta.offset + meta.info + meta.file + 9 });
+		stream.on('data', chunk => buffer.push(chunk));
+		stream.on('error', callback);
+		stream.on('end', () => callback(null, Buffer.concat(buffer)));
+	});
+};
+
+function delay_remove(t, id, callback, attemp) {
+	t.remove(id, callback, attemp);
+}
+
+Tape.prototype.rm = Tape.prototype.remove = function(id, callback, attemp) {
 
 	let t = this;
 
@@ -209,6 +243,12 @@ Tape.prototype.rm = Tape.prototype.remove = function(id, callback) {
 		return new Promise((resolve, reject) => t.remove(id, (err, response) => err ? reject(err) : resolve(response)));
 
 	if (t.operation) {
+
+		if (!attemp || attemp < 10) {
+			setTimeout(delay_remove, 200, t, id, callback, (attemp || 0) + 1);
+			return;
+		}
+
 		callback('The file is locked for with another operation');
 		return;
 	}
@@ -283,7 +323,9 @@ function readtape(filename, onitem, onclose) {
 
 				let buffer_info = Buffer.alloc(size_info);
 
-				Fs.read(fd, buffer_info, 0, buffer_info.length, offset + 14, function(err, b) {
+				Fs.read(fd, buffer_info, 0, buffer_info.length, offset + 14, function() {
+
+					// @TODO: missing error handling
 
 					let item = buffer_info.toString('utf8').parseJSON(true);
 					item.size = size_file;
