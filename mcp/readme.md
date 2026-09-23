@@ -5,7 +5,7 @@
 - requirements: Total.js `v5`
 
 ```javascript
-INSTALL('mcp', 'https://modules.totaljs.com/latest/mcp.js');
+INSTALL('mcp', 'https://cdn.totaljs.com/modules/mcp.js');
 ```
 
 __Usage__:
