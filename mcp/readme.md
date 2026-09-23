@@ -1,7 +1,7 @@
 # Actions to MCP
 
 - download and copy `mcp.js` into the `/modules/` directory __or create a definition with:__
-- MCP endpoint `/mcp/`
+- MCP endpoint `POST /mcp/`
 - requirements: Total.js `v5`
 
 ```javascript
