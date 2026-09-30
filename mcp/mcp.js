@@ -82,19 +82,22 @@ function toolerror(response, message) {
 
 ROUTE('POST /mcp/ <5MB', async function($) {
 
+	let data = $.body;
+	let response = {};
 	let token = CONF.mcp_auth || CONF.mcp_token || MAIN.mcp.token || MAIN.mcp.auth;
 
 	if (token) {
 		let auth = ($.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
 		if (auth !== token) {
 			$.response.status = 401;
-			$.json({ error: { code: 401, message: 'Unauthorized' }});
+			$.json({
+				jsonrpc: '2.0',
+				id: data && data.id !== undefined ? data.id : null,
+				error: { code: -32001, message: 'Unauthorized' }
+			});
 			return;
 		}
 	}
-
-	let data = $.body;
-	let response = {};
 
 	if (!data || data instanceof Array || typeof(data) !== 'object') {
 		$.json({ jsonrpc: '2.0', id: null, error: { code: -32600, message: 'Invalid Request' }});
