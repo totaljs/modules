@@ -88,12 +88,16 @@ ROUTE('POST /mcp/ <5MB', async function($) {
 		let params = data.params;
 		let action = Total.actions[params.name];
 		if (action && action.mcp) {
+
 			let builder = ACTION(params.name, params.arguments.input);
+
 			builder.query(params.arguments.query);
 			builder.params(params.arguments.params);
 			builder.user({ sa: true, name: 'AI' });
+			builder.controller($);
+
 			try {
-				response.result = await builder.promise($);
+				response.result = await builder.promise();
 			} catch (e) {
 				response.error = { message: e.toString() };
 			}
