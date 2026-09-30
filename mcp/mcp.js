@@ -1,30 +1,94 @@
 // MCP router
 // The MIT License
 // Copyright 2026 (c) Peter Širka <petersirka@gmail.com> | Total.js
-// Version: 1
+// Version: 2
 
 /*
-	// Supports: query, params, input, output
+	// Supports: input, query, params, output
+	// Field comments (// ...) are used as tool argument descriptions and as validation messages
 	NEWACTION('Name', {
-		mcp: true
+		mcp: true,
+		input: '*name:String // User name',
 		action: function($, model) {
 
 		}
 	});
+
+	// tools/call arguments: { input: {}, query: {}, params: {} }
+	// Authorization: CONF.mcp_token (or CONF.mcp_auth, MAIN.mcp.token) + "Authorization: Bearer <token>"
 */
 
 MAIN.mcp = {};
 MAIN.mcp.tools = [];
 
+// Converts a parsed Total.js schema (jsinput, jsquery, jsparams, jsoutput) into JSON Schema
+function convert(schema, forceString) {
+
+	let properties = {};
+
+	for (let key in schema.properties || {}) {
+
+		let prop = schema.properties[key];
+		let tmp = {};
+
+		tmp.type = forceString ? 'string' : prop.type;
+
+		if (prop.type === 'array' && prop.items && !forceString)
+			tmp.items = { type: prop.items.type };
+
+		if (prop.enum)
+			tmp.enum = prop.enum;
+
+		if (prop.nullable && !forceString)
+			tmp.type = [tmp.type, 'null'];
+
+		let description = (schema.errors && schema.errors[key]) || prop.summary || prop.description;
+		if (description)
+			tmp.description = description;
+
+		properties[key] = tmp;
+	}
+
+	return properties;
+}
+
+function section(properties, required, name, schema, description, forceString) {
+	properties[name] = {
+		type: 'object',
+		description: description,
+		properties: convert(schema, forceString)
+	};
+	if (schema.required && schema.required.length) {
+		properties[name].required = schema.required;
+		required.push(name);
+	}
+}
+
+function rpcerror($, response, code, message) {
+	response.error = { code: code, message: message };
+	$.json(response);
+}
+
+function toolerror(response, message) {
+
+	if (typeof(message) !== 'string')
+		message = message == null ? 'Tool execution failed' : String(message);
+
+	response.result = {
+		content: [{ type: 'text', text: message }],
+		isError: true
+	};
+}
+
 ROUTE('POST /mcp/ <5MB', async function($) {
 
-	let auth = $.headers.authorization || '';
 	let token = CONF.mcp_auth || CONF.mcp_token || MAIN.mcp.token || MAIN.mcp.auth;
 
-	if (auth || token) {
-		if (!auth.includes(token)) {
+	if (token) {
+		let auth = ($.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
+		if (auth !== token) {
 			$.response.status = 401;
-			$.json({ error: { message: 'Unauthorized' }});
+			$.json({ error: { code: 401, message: 'Unauthorized' }});
 			return;
 		}
 	}
@@ -32,13 +96,24 @@ ROUTE('POST /mcp/ <5MB', async function($) {
 	let data = $.body;
 	let response = {};
 
-	if (data.id == null || data.method === 'notifications/initialized') {
+	if (!data || data instanceof Array || typeof(data) !== 'object') {
+		$.json({ jsonrpc: '2.0', id: null, error: { code: -32600, message: 'Invalid Request' }});
+		return;
+	}
+
+	// Notifications do not have an id and MUST NOT receive a response.
+	if (data.id === undefined) {
 		$.empty();
 		return;
 	}
 
-	response.jsonrpc = data.jsonrpc;
+	response.jsonrpc = '2.0';
 	response.id = data.id;
+
+	if (data.jsonrpc !== '2.0' || typeof(data.method) !== 'string') {
+		rpcerror($, response, -32600, 'Invalid Request');
+		return;
+	}
 
 	if (data.method === 'initialize') {
 		response.result = {
@@ -72,12 +147,15 @@ ROUTE('POST /mcp/ <5MB', async function($) {
 		return;
 	}
 
+	if (data.method === 'ping') {
+		response.result = {};
+		$.json(response);
+		return;
+	}
+
 	if (data.method === 'tools/list') {
 		response.result = {
-			resultType: 'complete',
-			tools: MAIN.mcp.tools,
-			ttlMs: 0,
-			cacheScope: 'private'
+			tools: MAIN.mcp.tools
 		};
 		$.json(response);
 		return;
@@ -85,34 +163,69 @@ ROUTE('POST /mcp/ <5MB', async function($) {
 
 	if (data.method === 'tools/call') {
 
-		let params = data.params;
-		let action = Total.actions[params.name];
-		if (action && action.mcp) {
+		let params = data.params || {};
 
-			let builder = ACTION(params.name, params.arguments.input);
-
-			builder.query(params.arguments.query);
-			builder.params(params.arguments.params);
-			builder.user({ sa: true, name: 'AI' });
-			builder.controller($);
-
-			try {
-				response.result = await builder.promise();
-			} catch (e) {
-				response.error = { message: e.toString() };
-			}
-
-		} else {
-			response.error = { message: 'Unknown tool: ' + params.name };
+		if (!params || typeof(params) !== 'object' || typeof(params.name) !== 'string') {
+			rpcerror($, response, -32602, 'Invalid tools/call parameters');
+			return;
 		}
 
+		let args = params.arguments || {};
+		let action = Total.actions[params.name];
+
+		if (!action || !action.mcp) {
+			rpcerror($, response, -32602, 'Unknown tool: ' + params.name);
+			return;
+		}
+
+		if (args == null || typeof(args) !== 'object' || Array.isArray(args)) {
+			rpcerror($, response, -32602, 'Tool arguments must be an object');
+			return;
+		}
+
+		let input = Object.prototype.hasOwnProperty.call(args, 'input') ? args.input : args.data;
+		let builder = ACTION(params.name, input);
+
+		if (args.query)
+			builder.query(args.query);
+
+		if (args.params)
+			builder.params(args.params);
+
+		builder.user({ sa: true, name: 'AI' });
+
+		let errors = null;
+
+		try {
+			builder.options.error = err => errors = err.output();
+			let output = await builder.promise();
+
+			if (errors) {
+				toolerror(response, typeof(errors) === 'string' ? errors : JSON.stringify(errors));
+			} else {
+				let text = typeof(output) === 'string' ? output : JSON.stringify(output);
+				if (text == null)
+					text = String(output);
+
+				response.result = {
+					content: [{ type: 'text', text: text }]
+				};
+
+				// In protocol version 2025-11-25 structuredContent must be a JSON object.
+				// Keep the text representation for scalars, arrays and null values.
+				if (output && typeof(output) === 'object' && !Array.isArray(output))
+					response.result.structuredContent = output;
+			}
+		} catch (e) {
+			// Tool errors (validation, $.invalid) are reported inside the result so the model can react to them
+			toolerror(response, e.toString());
+		}
+
+		$.json(response);
+		return;
 	}
 
-	if (response.error)
-		$.response.status = 400;
-
-	$.json(response);
-
+	rpcerror($, response, -32601, 'Method not found: ' + data.method);
 });
 
 NEWACTION('MCP|exec', {
@@ -137,115 +250,42 @@ MAIN.mcp.refresh = function() {
 	MAIN.mcp.tools.length = 0;
 
 	for (let key in Total.actions) {
+
 		let action = Total.actions[key];
-		if (action.mcp) {
+		if (!action.mcp)
+			continue;
 
-			let obj = {};
-			obj.name = key;
-			obj.description = action.summary || action.name;
+		let obj = {};
+		obj.name = key;
+		obj.description = action.summary || action.name;
 
-			let properties = {};
+		let properties = {};
+		let required = [];
 
-			properties.schema = {
-				type: 'string',
-				const: key,
-				description: "Total.js schema (action) name. Always use '{0}'.".format(key)
-			};
+		if (action.jsinput)
+			section(properties, required, 'input', action.jsinput, 'Payload (request body) passed to this action.');
 
-			if (action.jsinput) {
+		if (action.jsquery)
+			section(properties, required, 'query', action.jsquery, 'URL query parameters passed to this action.');
 
-				let input = {};
+		if (action.jsparams)
+			section(properties, required, 'params', action.jsparams, 'URL params passed to this action.', true);
 
-				for (let k in action.jsinput.properties) {
-					let prop = action.jsinput.properties[k];
-					let tmp = {};
+		obj.inputSchema = {
+			type: 'object',
+			properties: properties,
+			required: required
+		};
 
-					tmp.type = prop.type;
-
-					if (prop.nullable)
-						tmp.type = [tmp.type, 'null'];
-
-					tmp.description = prop.summary || prop.description;
-					input[k] = tmp;
-				}
-
-				properties.data = {
-					type: 'object',
-					description: 'Payload passed to this action.',
-					properties: input,
-					required: action.jsinput.required
-				};
-			}
-
-			if (action.jsquery) {
-
-				let input = {};
-
-				for (let k in action.jsquery.properties) {
-					let prop = action.jsquery.properties[k];
-					let tmp = {};
-					tmp.type = prop.type;
-					if (prop.nullable)
-						tmp.type = [tmp.type, 'null'];
-					tmp.description = prop.summary || prop.description;
-					input[k] = tmp;
-				}
-
-				properties.query = {
-					type: 'object',
-					description: 'URL query parameters passed to this action.',
-					properties: input,
-					required: action.jsquery.required
-				};
-			}
-
-			if (action.jsparams) {
-
-				let input = {};
-
-				for (let k in action.jsparams.properties) {
-					let prop = action.jsparams.properties[k];
-					let tmp = {};
-					tmp.type = 'string';
-					tmp.description = prop.summary || prop.description;
-					input[k] = tmp;
-				}
-
-				properties.query = {
-					type: 'object',
-					description: 'Params passed to this action.',
-					properties: input,
-					required: action.jsparams.required
-				};
-			}
-
-			obj.inputSchema = {
+		if (action.jsoutput) {
+			obj.outputSchema = {
 				type: 'object',
-				properties: properties,
-				required: Object.keys(properties)
+				properties: convert(action.jsoutput),
+				required: action.jsoutput.required || EMPTYARRAY
 			};
-
-			if (action.jsoutput) {
-				properties = {};
-				for (let k in action.jsoutput.properties) {
-					let prop = action.jsoutput.properties[k];
-					let tmp = {};
-					tmp.type = prop.type;
-					if (prop.nullable)
-						tmp.type = [tmp.type, 'null'];
-					tmp.description = prop.summary || prop.description;
-					properties[k] = tmp;
-				}
-
-				obj.outputSchema = {
-					type: 'object',
-					properties: properties,
-					required: EMPTYARRAY
-				};
-			}
-
-			MAIN.mcp.tools.push(obj);
 		}
+
+		MAIN.mcp.tools.push(obj);
 	}
 };
 
