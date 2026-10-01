@@ -20,6 +20,19 @@
 
 MAIN.mcp = {};
 MAIN.mcp.tools = [];
+MAIN.mcp.map = {};
+MAIN.mcp.versions = ['2025-11-25', '2025-06-18', '2025-03-26'];
+
+// Total.js schema types that are not valid JSON Schema types
+function jstype(type) {
+	return type === 'date' ? 'string' : (type || 'string');
+}
+
+// MCP tool names are limited to [A-Za-z0-9_.-] (clients such as Claude accept up to 64 chars: [A-Za-z0-9_-]),
+// so "Notes|create" is exposed as "Notes_create"
+function toolname(key) {
+	return key.replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 64);
+}
 
 // Converts a parsed Total.js schema (jsinput, jsquery, jsparams, jsoutput) into JSON Schema
 function convert(schema, forceString) {
@@ -31,10 +44,17 @@ function convert(schema, forceString) {
 		let prop = schema.properties[key];
 		let tmp = {};
 
-		tmp.type = forceString ? 'string' : prop.type;
+		tmp.type = forceString ? 'string' : jstype(prop.type);
+
+		if (!forceString) {
+			if (prop.type === 'date')
+				tmp.format = 'date-time';
+			else if (prop.subtype === 'email')
+				tmp.format = 'email';
+		}
 
 		if (prop.type === 'array' && prop.items && !forceString)
-			tmp.items = { type: prop.items.type };
+			tmp.items = { type: jstype(prop.items.type) };
 
 		if (prop.enum)
 			tmp.enum = prop.enum;
@@ -106,7 +126,8 @@ ROUTE('POST /mcp/ <5MB', async function($) {
 
 	// Notifications do not have an id and MUST NOT receive a response.
 	if (data.id === undefined) {
-		$.empty();
+		$.response.status = 202;
+		$.plain('');
 		return;
 	}
 
@@ -119,8 +140,9 @@ ROUTE('POST /mcp/ <5MB', async function($) {
 	}
 
 	if (data.method === 'initialize') {
+		let requested = data.params && data.params.protocolVersion;
 		response.result = {
-			protocolVersion: '2025-11-25',
+			protocolVersion: MAIN.mcp.versions.includes(requested) ? requested : MAIN.mcp.versions[0],
 			capabilities: {
 				tools: {}
 			},
@@ -141,7 +163,7 @@ ROUTE('POST /mcp/ <5MB', async function($) {
 			},
 			_meta: {
 				"io.modelcontextprotocol/serverInfo": {
-					name: CONF.author,
+					name: CONF.name,
 					version: CONF.version
 				}
 			}
@@ -174,7 +196,8 @@ ROUTE('POST /mcp/ <5MB', async function($) {
 		}
 
 		let args = params.arguments || {};
-		let action = Total.actions[params.name];
+		let key = MAIN.mcp.map[params.name];
+		let action = key && Total.actions[key];
 
 		if (!action || !action.mcp) {
 			rpcerror($, response, -32602, 'Unknown tool: ' + params.name);
@@ -187,7 +210,7 @@ ROUTE('POST /mcp/ <5MB', async function($) {
 		}
 
 		let input = Object.prototype.hasOwnProperty.call(args, 'input') ? args.input : args.data;
-		let builder = ACTION(params.name, input);
+		let builder = ACTION(key, input);
 
 		if (args.query)
 			builder.query(args.query);
@@ -203,25 +226,22 @@ ROUTE('POST /mcp/ <5MB', async function($) {
 			builder.options.error = err => errors = err.output();
 			let output = await builder.promise();
 
-			if (errors) {
-				toolerror(response, typeof(errors) === 'string' ? errors : JSON.stringify(errors));
-			} else {
-				let text = typeof(output) === 'string' ? output : JSON.stringify(output);
-				if (text == null)
-					text = String(output);
+			let text = typeof(output) === 'string' ? output : JSON.stringify(output);
+			if (text == null)
+				text = String(output);
 
-				response.result = {
-					content: [{ type: 'text', text: text }]
-				};
+			response.result = {
+				content: [{ type: 'text', text: text }]
+			};
 
-				// In protocol version 2025-11-25 structuredContent must be a JSON object.
-				// Keep the text representation for scalars, arrays and null values.
-				if (output && typeof(output) === 'object' && !Array.isArray(output))
-					response.result.structuredContent = output;
-			}
+			// In protocol version 2025-11-25 structuredContent must be a JSON object.
+			// Keep the text representation for scalars, arrays and null values.
+			if (output && typeof(output) === 'object' && !Array.isArray(output))
+				response.result.structuredContent = output;
+
 		} catch (e) {
 			// Tool errors (validation, $.invalid) are reported inside the result so the model can react to them
-			toolerror(response, e.toString());
+			toolerror(response, errors ? JSON.stringify(errors) : e.toString());
 		}
 
 		$.json(response);
@@ -251,6 +271,7 @@ NEWACTION('MCP|exec', {
 MAIN.mcp.refresh = function() {
 
 	MAIN.mcp.tools.length = 0;
+	MAIN.mcp.map = {};
 
 	for (let key in Total.actions) {
 
@@ -259,7 +280,8 @@ MAIN.mcp.refresh = function() {
 			continue;
 
 		let obj = {};
-		obj.name = key;
+		obj.name = toolname(key);
+		MAIN.mcp.map[obj.name] = key;
 		obj.description = action.summary || action.name;
 
 		let properties = {};
@@ -290,6 +312,9 @@ MAIN.mcp.refresh = function() {
 
 		MAIN.mcp.tools.push(obj);
 	}
+
+	if (MAIN.mcp.tools.length && !(CONF.mcp_auth || CONF.mcp_token || MAIN.mcp.token || MAIN.mcp.auth))
+		console.warn('MCP: "CONF.mcp_token" is not defined, the endpoint POST /mcp/ is PUBLIC and runs actions as a super admin');
 };
 
 ON('ready', MAIN.mcp.refresh);
